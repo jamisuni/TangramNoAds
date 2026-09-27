@@ -22,6 +22,8 @@ python tools/validate_puzzles.py Tangrams                  # V1–V11, prints ea
 python tools/render_puzzle.py Tangrams Tangrams/previews   # silhouette | pieces | picture sheets
 python tools/build_prototype.py                            # the prototype picks up every *.json here
 ```
+`tools/puzzle_search/` holds the searches that found the warm-ups (`easy_search.py`) and the rectangle (`rect_solver.py`); their output is raw material, not puzzle files.
+
 V11 (buildable edge-first) is the rule most often failed: every piece must be able to lock on a silhouette corner or on a corner of a piece placed before it.
 
 `provenance.reviewedByHuman` stays `false` until a person has solved the puzzle and looked at its picture.

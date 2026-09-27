@@ -27,6 +27,7 @@ INK, MUTED, ACCENT = "#2B2D42", "#7E8299", "#3D8BFD"
 FONT = "font-family: system-ui, 'Segoe UI', Arial, sans-serif;"
 
 HELPERS = """(() => {
+document.body.classList.add('noDev');  // the developer button is not part of the design
 window.__reset = (id) => { for (const k in progress) delete progress[k]; stats.today = 0; stats.total = 0; saveAll(); P = null;
   loadPuzzle(PUZZLES.findIndex(p => p.id === id)); };
 window.__place = (ids) => { for (const id of ids) { const s = P.slots.find(q => q.piece === id), pc = pieces.find(p => p.id === id), c = avg(s.poly);
@@ -212,7 +213,7 @@ def main():
         # 2 tablet landscape, hard, flip badge + timer
         def s2(pg):
             pg.evaluate("settings.diff='hard'; __reset('things-arrow'); __place(['LT1','LT2','MT']); prog().time = 83; updateChrome()")
-            return {"flip": pg.evaluate("(()=>{const c=document.querySelector('#layerTop circle').getBoundingClientRect(); return [c.x+c.width/2, c.y+c.height/2]})()"),
+            return {"flip": pg.evaluate("(()=>{const c=document.querySelector('#layerTop [aria-label^=Flip] circle').getBoundingClientRect(); return [c.x+c.width/2, c.y+c.height/2]})()"),
                     "timer": pg.evaluate("__rect('#timer')")[:2], "tray": pg.evaluate("__cell('SQ')")}
         img, pts, vp = shot(b, TB, s2)
         fr = [{"img": img, "vp": vp, "x": 60, "y": 150, "scale": 0.82}]

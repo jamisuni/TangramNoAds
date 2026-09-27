@@ -67,6 +67,10 @@ flowchart LR
     PuzzleOrder["#PuzzleOrder"]:::featAi
     PuzzleVolume["#PuzzleVolume"]:::feat
   end
+  subgraph sg_DevTools ["#DevTools — Developer aids"]
+    DevTools["#DevTools"]:::featAi
+    SolutionReveal["#SolutionReveal"]:::featAi
+  end
   PieceSets["#PieceSets"]:::featIdea
   Accessibility["#Accessibility"]:::featIdea
   Promise --> NoMoney
@@ -106,6 +110,7 @@ flowchart LR
   Content --> PuzzleArt
   Content --> PuzzleOrder
   Content --> PuzzleVolume
+  DevTools --> SolutionReveal
   classDef feat fill:#1f6feb,color:#fff,stroke:#1f6feb
   classDef featIdea fill:#dbe4f3,color:#24292f,stroke:#1f6feb,stroke-dasharray: 4 3
   classDef featSpec fill:#0d5c2f,color:#fff,stroke:#0d5c2f

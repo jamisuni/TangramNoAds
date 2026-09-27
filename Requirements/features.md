@@ -136,6 +136,12 @@ Puzzles are rated 1–5 and listed from easiest to hardest.
 How many puzzles the first release ships with.
 OQ: how many puzzles, and which themes, does the first release need?
 
+## #DevTools — Developer aids · ai-approved
+Aids for testing prototypes; never part of the released game.
+
+### #SolutionReveal — Show the solution with a passcode · ai-approved
+A DEV button asks for a passcode, then shows where every piece goes or solves the puzzle.
+
 ## #PieceSets — Other piece sets · idea
 Later modes with non-traditional sets that are not the classic seven pieces.
 

@@ -51,6 +51,8 @@
 | &nbsp;&nbsp;&nbsp;└ **#PuzzleArt** — Picture for every puzzle | ai-approved | REQ-039 |
 | &nbsp;&nbsp;&nbsp;└ **#PuzzleOrder** — Puzzle difficulty and order | ai-approved | REQ-040 |
 | &nbsp;&nbsp;&nbsp;└ **#PuzzleVolume** — First-version puzzle count | captured | REQ-042 |
+| **#DevTools** — Developer aids | ai-approved | — |
+| &nbsp;&nbsp;&nbsp;└ **#SolutionReveal** — Show the solution with a passcode | ai-approved | REQ-046 |
 | **#PieceSets** — Other piece sets | idea | — |
 | **#Accessibility** — Colour-blind support | idea | — |
 
@@ -103,6 +105,7 @@
 | REQ-043 | #SizeMarks | UI | Each triangle in the tray shows S, M or L, the size it has on the board. | Inf | AI-approved | none | — |
 | REQ-044 | #TurnButtons | UI | Each tray cell has ↺ and ↻ buttons that turn its piece 45° before it is dragged. | Inf | AI-approved | none | — |
 | REQ-045 | #PuzzleMini | FUN | A few tiny puzzles use only some pieces, for a fast first success and for testing the solved state. | Stated | AI-approved | none | — |
+| REQ-046 | #SolutionReveal | FUN | In prototype and test builds, a DEV button behind the passcode 0417 shows the solution or solves the puzzle; release builds leave it out. | Stated | AI-approved | none | — |
 
 ## Shared types — used by
 
@@ -129,3 +132,4 @@
 | SRC-007 | web page | secondary | usable | REQ-010 |
 | SRC-008 | conversation | authoritative | usable | REQ-007, REQ-038, REQ-040, REQ-041 |
 | SRC-009 | conversation | authoritative | usable | REQ-013, REQ-014, REQ-043, REQ-044, REQ-045 |
+| SRC-010 | conversation | authoritative | usable | REQ-018, REQ-044, REQ-046 |

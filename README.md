@@ -2,12 +2,13 @@
 
 A classic 7-piece **Tangram for players aged 8 and up** on Android phones and tablets. The controls are easy and the puzzles are honestly challenging. **Enjoy, it's absolutely free:** no ads, no purchases, no donations, no network.
 
-> Status: study and prototype phase (prototype 0.4, 2026-09-27, round 4). The spec will later move into SwReqCollector. Technology choices are parked.
+> Status: study and prototype phase (prototype 0.5, 2026-09-27, round 5). Where things stand and what comes next: **`STATUS.md`**. The spec will later move into SwReqCollector. Technology choices are parked.
 
 ## Try it
 Open **`Spec/prototype/tangram-prototype.html`** in a browser, ideally on a phone and a tablet.
 - Drag pieces onto the silhouette. A piece locks to the shape's corners or to pieces already placed, or goes back to the tray.
 - **Tap** to turn 45°, or use the **↺ ↻** buttons in a tray cell. S / M / L on the triangles tells their size. **Hold a piece and twist a second finger** to turn in 45° steps. On a computer, use the mouse wheel or **R** while dragging.
+- Stuck, or checking that a puzzle works? The dashed **DEV** button on the board (passcode 0417) shows the solution. Testing aid only.
 - **‹ ›** to browse and skip. ⚙ for Easy / Medium / Hard, timer, sound and play-time stats.
 
 ## Folder map
@@ -25,7 +26,10 @@ Open **`Spec/prototype/tangram-prototype.html`** in a browser, ideally on a phon
 | `Requirements/` | The requirement collection in SwReqCollector format (ai-led capture) |
 | `Spec/prototype/` | The playable prototype (generated) |
 | `tools/` | Geometry reference, validator, preview renderer, prototype builder, UI sheet generator |
-| `AGENTS.md` | Rules for AI agents working in this repo |
+| `tools/tests/` | Automated browser tests for the prototype |
+| `tools/puzzle_search/` | The searches that found the warm-ups and the rectangle |
+| `STATUS.md` | Where the project stands, round history, next steps, handoff readiness |
+| `AGENTS.md`, `CLAUDE.md` | Rules for AI agents working in this repo (CLAUDE.md points to AGENTS.md) |
 
 ## Tools
 ```bash
@@ -33,6 +37,8 @@ python tools/validate_puzzles.py Tangrams                      # rules V1–V11 
 python tools/render_puzzle.py Tangrams Tangrams/previews   # silhouette | pieces | picture sheets (SVG)
 python tools/build_prototype.py                                    # rebuild the HTML prototype
 python tools/make_ui_sheets.py                                     # Spec/ui/*.png from the prototype (needs Playwright + Chromium)
+python tools/svg2png.py Tangrams/previews/*.svg                    # preview sheets as PNG (Playwright)
+python tools/tests/test_prototype.py [--fast]                      # browser tests: every puzzle solves, tray, turning, DEV aid
 ```
 
 ## Licence

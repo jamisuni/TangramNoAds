@@ -67,6 +67,14 @@
   table.stats td { padding: 4px 0; border-bottom: 1px solid var(--cell-edge); }
   table.stats td:last-child { text-align: right; }
   .free { margin: 0; padding: 12px 14px; border-radius: 16px; background: #EAF7F0; color: #1F6B47; font-size: 15px; line-height: 1.45; }
+  /* developer aid (prototype only, REQ-046): passcode-protected solution reveal */
+  .devbtn { position: absolute; z-index: 2; border: 1.5px dashed var(--cell-edge); background: transparent; color: var(--muted); border-radius: 999px;
+            font: 700 11px/1 var(--ui); letter-spacing: .8px; padding: 7px 10px; cursor: pointer; opacity: .75; }
+  .devbtn.on { border-style: solid; border-color: var(--accent); color: var(--accent); opacity: 1; }
+  .noDev #devBtn { display: none !important; }
+  .pin { font: 700 28px/1 var(--ui); letter-spacing: 12px; text-align: center; width: 150px; padding: 10px; border-radius: 14px;
+         border: 2px solid var(--cell-edge); background: #fff; color: var(--ink); }
+  .pin.bad { border-color: var(--warn); animation: shake 360ms ease-in-out 1; }
   #confetti { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
   @media (prefers-reduced-motion: reduce) { .piece { transition: none; } .piece.shake, .pop { animation: none; } #artLayer { transition: none; } }
 </style>
@@ -79,6 +87,7 @@
     </defs>
     <g id="layerBoard"></g>
     <g id="layerSil"></g>
+    <g id="layerHint" pointer-events="none"></g>
     <g id="artLayer" clip-path="url(#silClip)" opacity="0"></g>
     <g id="layerTray"></g>
     <g id="layerPreview"></g>
@@ -100,7 +109,27 @@
     <div class="best" id="bestTime"></div>
     <button class="big next" id="nextBig">Next<svg width="18" height="18" viewBox="0 0 22 22"><path d="M8 3 L16 11 L8 19" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
+  <button class="devbtn" id="devBtn" type="button" title="Developer: show the solution (passcode)" hidden>DEV</button>
   <canvas id="confetti"></canvas>
+
+  <div class="overlay" id="devDlg" hidden>
+    <div class="sheet" role="dialog" aria-label="Developer tools" style="width:min(360px,100%)">
+      <h2>Developer</h2>
+      <div id="devLock" class="row" style="flex-direction:column;align-items:flex-start">
+        <p class="hint">Testing aid, not part of the game. Enter the passcode to see how the pieces go.</p>
+        <input id="devPin" class="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="4" aria-label="Passcode">
+        <p class="hint" id="devMsg"></p>
+        <div class="row" style="justify-content:flex-end;width:100%"><button class="toggle" id="devCancel" type="button">Cancel</button><button class="big next" id="devOk" type="button">OK</button></div>
+      </div>
+      <div id="devTools" class="row" style="flex-direction:column;align-items:stretch" hidden>
+        <p class="hint">Unlocked until the page is reloaded. The solution overlay stays on while you browse puzzles.</p>
+        <button class="big retry" id="devShow" type="button" style="justify-content:center"></button>
+        <button class="big retry" id="devSolve" type="button" style="justify-content:center">Solve this puzzle now</button>
+        <p class="hint">A puzzle solved here does not set a best time.</p>
+        <div class="row" style="justify-content:flex-end"><button class="big next" id="devClose" type="button">Done</button></div>
+      </div>
+    </div>
+  </div>
 
   <div class="overlay" id="settings" hidden>
     <div class="sheet" role="dialog" aria-label="Settings">
@@ -113,7 +142,7 @@
       <div class="row"><span class="lbl">Sound</span><button class="toggle" id="soundBtn" type="button"></button></div>
       <div class="row"><span class="lbl">Play time (kept on this device only)</span><table class="stats" id="stats"></table></div>
       <div class="row"><span class="lbl">Progress</span><button class="toggle danger" id="resetBtn" type="button">Reset all progress</button><span id="resetConfirm" hidden class="row"><span class="hint">Really erase all solved puzzles and times?</span><button class="toggle danger" id="resetYes" type="button">Erase</button><button class="toggle" id="resetNo" type="button">Keep</button></span></div>
-      <p class="hint">How to play: drag a piece onto the shape. Pieces keep their size; in the tray the triangles are marked <b>S</b>, <b>M</b> and <b>L</b>. <b>Tap</b> a piece, or use its <b>↺ ↻</b> buttons in the tray, to turn it 45°. With two fingers, hold the piece and <b>twist</b> with a second finger. On a computer, use the <b>mouse wheel</b> or <b>R</b> while dragging. A piece locks against the edges and other pieces, or goes back to the tray. TangramNoAds prototype 0.4.</p>
+      <p class="hint">How to play: drag a piece onto the shape. Pieces keep their size; in the tray the triangles are marked <b>S</b>, <b>M</b> and <b>L</b>. <b>Tap</b> a piece, or use its <b>↺ ↻</b> buttons in the tray, to turn it 45°. With two fingers, hold the piece and <b>twist</b> with a second finger. On a computer, use the <b>mouse wheel</b> or <b>R</b> while dragging. A piece locks against the edges and other pieces, or goes back to the tray. TangramNoAds prototype 0.5.</p>
       <p class="free"><b>Enjoy, it's absolutely free.</b> No ads, no purchases, no network. Your play time stays on this device.</p>
       <div class="row" style="justify-content:flex-end"><button class="big next" id="closeSettings" type="button">Done</button></div>
     </div>
@@ -191,7 +220,7 @@ let idx = Math.min(store.get("idx", 0), PUZZLES.length - 1);
 let P, pieces = [], L, drag = null, twist = null, selected = null, lastTouch = performance.now(), anchorsStatic = [];
 const byId = id => document.getElementById(id);
 const stage = byId("stage");
-const layers = { board: byId("layerBoard"), sil: byId("layerSil"), art: byId("artLayer"), tray: byId("layerTray"), preview: byId("layerPreview"), pieces: byId("layerPieces"), top: byId("layerTop") };
+const layers = { board: byId("layerBoard"), sil: byId("layerSil"), art: byId("artLayer"), tray: byId("layerTray"), preview: byId("layerPreview"), pieces: byId("layerPieces"), top: byId("layerTop"), hint: byId("layerHint") };
 const SVGNS = "http://www.w3.org/2000/svg";
 function el(tag, attrs = {}, parent) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
 const ptsAttr = pts => pts.map(p => p[0].toFixed(3) + "," + p[1].toFixed(3)).join(" ");
@@ -274,6 +303,7 @@ function build() {
     el("polygon", { points: pts, stroke: "#000", "stroke-width": 1.5, "stroke-linejoin": "round" }, clipEl);
   });
   drawArt();
+  drawHint();
   layers.art.style.transition = "none"; layers.art.setAttribute("opacity", solved ? 1 : 0); void layers.art.getBBox(); layers.art.style.transition = "";
   if (!solved) {
     el("rect", { x: L.trayX, y: L.trayY, width: L.trayW, height: L.trayH, rx: 24, fill: "var(--tray)" }, layers.tray);
@@ -326,6 +356,55 @@ function buildTrayUi(pc, c) {
     });
   });
 }
+// ---------------- developer aid: solution reveal (REQ-046, prototype only) ----------------
+const DEV_PASSCODE = "0417";
+let devUnlocked = false, devHint = false;
+function drawHint() {
+  layers.hint.replaceChildren();
+  if (!devHint || prog().status === "solved") return;
+  for (const sl of P.slots) {
+    el("polygon", { points: ptsAttr(sl.poly.map(p => toScreen(p[0], p[1]))), fill: COLORS[sl.piece], "fill-opacity": .55,
+                    stroke: "#fff", "stroke-width": 2, "stroke-dasharray": "6 4", "stroke-linejoin": "round" }, layers.hint);
+    const [x, y] = toScreen(...avg(sl.poly));
+    const t = el("text", { x, y: y + 5, "text-anchor": "middle", "font-size": 14, "font-weight": 800, fill: "#fff", "font-family": "var(--ui)" }, layers.hint);
+    t.textContent = sl.piece;
+  }
+}
+function openDev() {
+  byId("devLock").hidden = devUnlocked; byId("devTools").hidden = !devUnlocked;
+  byId("devPin").value = ""; byId("devMsg").textContent = ""; byId("devPin").classList.remove("bad");
+  byId("devShow").textContent = devHint ? "Hide the solution" : "Show the solution";
+  byId("devSolve").disabled = prog().status === "solved";
+  byId("devDlg").hidden = false;
+  if (!devUnlocked) setTimeout(() => byId("devPin").focus(), 30);
+}
+function devSubmit() {
+  const pin = byId("devPin");
+  if (pin.value === DEV_PASSCODE) { devUnlocked = true; openDev(); return; }
+  pin.classList.remove("bad"); void pin.offsetWidth; pin.classList.add("bad");
+  byId("devMsg").textContent = "Wrong passcode."; pin.value = ""; sfx.nope();
+}
+function devSolveNow() {
+  if (prog().status === "solved") return;
+  for (const sl of P.slots) {
+    const pc = pieces.find(p => p.id === sl.piece), c = avg(sl.poly);
+    for (let k = 0; k < 8; k++) for (const f of [false, true]) {
+      const V = verts(pc.type, k, f, c[0], c[1]);
+      if (V.every(v => sl.poly.some(q => Math.abs(q[0] - v[0]) < 1e-6 && Math.abs(q[1] - v[1]) < 1e-6))) { setTurn(pc, k); pc.f = f; }
+    }
+    pc.st = "board"; pc.x = c[0]; pc.y = c[1]; render(pc);
+  }
+  prog().status = "progress"; prog().cheated = true; persistPieces(); updateChrome();
+  setTimeout(solve, 350);
+}
+byId("devBtn").onclick = openDev;
+byId("devOk").onclick = devSubmit;
+byId("devPin").addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") devSubmit(); if (e.key === "Escape") byId("devDlg").hidden = true; });
+byId("devCancel").onclick = byId("devClose").onclick = () => { byId("devDlg").hidden = true; };
+byId("devShow").onclick = () => { devHint = !devHint; drawHint(); updateChrome(); byId("devDlg").hidden = true; };
+byId("devSolve").onclick = () => { byId("devDlg").hidden = true; devSolveNow(); };
+byId("devDlg").addEventListener("pointerdown", e => { if (e.target.id === "devDlg") byId("devDlg").hidden = true; });
+
 function drawArt() {
   const A = P.art, s = L.bs, g = layers.art;
   const xs = P.slots.flatMap(q => q.poly.map(p => p[0])), ys = P.slots.flatMap(q => q.poly.map(p => p[1]));
@@ -372,6 +451,8 @@ function updateChrome() {
   const showT = !solved && (settings.timer === "on" || (settings.timer === "auto" && settings.diff === "hard"));
   const tm = byId("timer"); tm.hidden = !showT; tm.textContent = "⏱ " + fmt(pr.time);
   Object.assign(tm.style, { right: (L.W - b.x - b.w + 14) + "px", top: (b.y + 14) + "px" });
+  const db = byId("devBtn"); db.hidden = solved; db.classList.toggle("on", devHint);
+  Object.assign(db.style, { left: (b.x + 10) + "px", top: (b.y + b.h - 38) + "px" });
   const sb = byId("solvedBar"); sb.hidden = !solved;
   Object.assign(sb.style, { left: L.trayX + "px", width: L.trayW + "px", top: L.trayY + "px", height: L.trayH + "px" });
   byId("bestTime").innerHTML = solved ? `best time<br><b style="font-size:20px;color:var(--ink)">${pr.best != null ? fmt(pr.best) : "–"}</b>` : "";
@@ -551,7 +632,7 @@ function updateFlip() {
 // ---------------- solving ----------------
 function solve() {
   const pr = prog();
-  pr.status = "solved"; pr.solves = (pr.solves || 0) + 1; pr.best = pr.best == null ? pr.time : Math.min(pr.best, pr.time); pr.lastTime = pr.time; pr.pieces = null;
+  pr.status = "solved"; pr.solves = (pr.solves || 0) + 1; if (!pr.cheated) pr.best = pr.best == null ? pr.time : Math.min(pr.best, pr.time); delete pr.cheated; pr.lastTime = pr.time; pr.pieces = null;
   saveAll(); sfx.win(); selected = null; updateFlip();
   layers.pieces.classList.remove("pop"); void layers.pieces.getBBox(); layers.pieces.classList.add("pop");
   confetti();
@@ -559,7 +640,7 @@ function solve() {
   setTimeout(() => { build(); }, 1500);
 }
 function restart() {
-  const pr = prog(); pr.status = "new"; pr.pieces = null; pr.time = 0; saveAll(); P = null; loadPuzzle(idx);
+  const pr = prog(); pr.status = "new"; pr.pieces = null; pr.time = 0; delete pr.cheated; saveAll(); P = null; loadPuzzle(idx);
 }
 function confetti() {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -576,7 +657,7 @@ function confetti() {
 }
 
 // ---------------- active play time (Study/07) ----------------
-const overlaysClosed = () => byId("settings").hidden;
+const overlaysClosed = () => byId("settings").hidden && byId("devDlg").hidden;
 setInterval(() => {
   if (document.visibilityState !== "visible" || !P) return;
   if (performance.now() - lastTouch > 60000) return;            // idle: not active

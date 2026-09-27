@@ -1,11 +1,11 @@
 # Requirements Index — TangramNoAds
 
-**Status:** Draft · **Version:** 0.2 · **Last updated:** 2026-09-27
+**Status:** Draft · **Version:** 0.3 · **Last updated:** 2026-09-27
 **Framework:** SwReqCollector format v2 (tools v0.4) at `C:\GitHub\AI\SwReqCollector`
 **Capture purpose:** build
 **Capture mode:** ai-led
 
-> Next free ID: **REQ-046**. IDs unique project-wide per kind, never
+> Next free ID: **REQ-047**. IDs unique project-wide per kind, never
 > reused; features are identified by unique #Tags in `features.md`.
 > Run `validate.py` + `views.py` after any item change; items are truth,
 > views are generated. Sources are this project's own material; other
@@ -34,10 +34,10 @@
 
 | What | Where | Count / range | Status |
 |---|---|---|---|
-| Features | `features.md` | 47 (10 top-level, 37 leaves; 2 are ideas) | 1 area and 1 leaf `captured`, 2 `idea`, the rest `ai-approved` |
-| Requirements | `reqs/` | REQ-001..045 (areas: promise, play, browsing, difficulty, time, settings, layout, content) | 44 `ai-approved`, 1 `draft` (REQ-042) |
+| Features | `features.md` | 49 (11 top-level, 38 leaves; 2 are ideas) | 1 area and 1 leaf `captured`, 2 `idea`, the rest `ai-approved` |
+| Requirements | `reqs/` | REQ-001..046 (areas: promise, play, browsing, difficulty, time, settings, layout, content, devtools) | 45 `ai-approved`, 1 `draft` (REQ-042) |
 | Shared types | `req_types.md` | TYPE-001..007 | draft |
-| Sources | `sources.md` | SRC-001..009 | all usable; SRC-004 is `generated` |
+| Sources | `sources.md` | SRC-001..010 | all usable; SRC-004 is `generated` |
 | Domain model | `domain.md` | none yet | — |
 | Views | `views/` | digest, feature-map, trace | generated |
 | Puzzle library | `../Tangrams/` | 12 puzzles (2 mini, 4 warm-ups, 6 full puzzles) | not requirements: content that REQ-038..041 govern |
@@ -54,6 +54,8 @@
 
 **time:** context ✅ · goals ✅ · actors ✅ · scope ✅ · capabilities ✅ (REQ-005, 029–031) · quantified rules ✅ TYPE-005 · entities ✅ · timing ✅ · edge cases ✅ idle, browsing away · unwanted behavior ✅ nothing leaves the device · assumptions ✅ · priorities ⏸ owner.
 
+**devtools:** context ✅ · goals ✅ testing aid · actors ✅ owner, testers · scope ✅ never in release · capabilities ✅ (REQ-046) · quantified rules ✅ passcode · entities n/a · timing n/a · edge cases ✅ wrong passcode, best time · unwanted behavior ✅ · assumptions ✅ · priorities ⏸ owner.
+
 **settings:** context ✅ · goals ✅ · actors ✅ · scope ✅ · capabilities ✅ (REQ-032–034) · quantified rules ✅ · entities n/a · timing n/a · edge cases ✅ reset confirmation · unwanted behavior ✅ · assumptions ✅ · priorities ⏸ owner.
 
 **layout:** context ✅ · goals ✅ · actors ✅ · scope ✅ · capabilities ✅ (REQ-006, 013, 035–037) · quantified rules ✅ TYPE-007, sizes as ASSUMPTIONs · entities n/a · timing n/a · edge cases ✅ rotation mid-puzzle · unwanted behavior n/a · assumptions ✅ · priorities ⏸ owner.
@@ -63,7 +65,7 @@
 ## 5. Open questions & assumptions (project-wide)
 
 - **Capture convention (SRC-002):** the owner calls his messages "ideas, not requirements". Firm wording ("I want", "no …", "lets …") is recorded as `stated`; wording marked "maybe" or with a question mark supports only `inferred` items, which name the idea in their Rationale.
-- **First use.** The owner has tried the puzzles (SRC-008: too hard for a quick test, so warm-ups were added, REQ-041) and then prototype 0.3 in a web browser (SRC-009): he confirmed the no-resize rule and asked for tray size marks (REQ-043), tray turn buttons (REQ-044) and 3-piece mini puzzles (REQ-045), "at least temporary" for web testing. No phone playtest yet. Prototype 0.4 (`../Spec/prototype/tangram-prototype.html`) is the build for this cut. Its behaviour is the agent's proposal (SRC-004, `generated`), not evidence of intent. The next session registers the owner's playtest as a source and classifies every item.
+- **First use.** The owner has tried the puzzles (SRC-008: too hard for a quick test, so warm-ups were added, REQ-041) and then prototype 0.3 in a web browser (SRC-009): he confirmed the no-resize rule and asked for tray size marks (REQ-043), tray turn buttons (REQ-044) and 3-piece mini puzzles (REQ-045), "at least temporary" for web testing. In round 5 (SRC-010) he kept the turn buttons for now and asked for a passcode-protected solution reveal for testing (REQ-046). No phone playtest yet. Prototype 0.5 (`../Spec/prototype/tangram-prototype.html`) is the build for this cut. Its behaviour is the agent's proposal (SRC-004, `generated`), not evidence of intent. The next session registers the owner's playtest as a source and classifies every item.
 - OPEN QUESTION (Q1 in `../Spec/05-open-questions.md`): should difficulty change the controls only (current ASSUMPTION, REQ-028) or offer different puzzle sets?
 - OPEN QUESTION (Q2): keep tap-to-turn next to the two-finger twist (current ASSUMPTION, REQ-016)?
 - OPEN QUESTION (Q5): keep the landing preview on Easy and Medium (REQ-021)?
@@ -89,3 +91,4 @@
 |---|---|---|---|---|
 | 0.1 | 2026-09-27 | initial ai-led capture: 44 features, REQ-001..042, TYPE-001..007, SRC-001..008; 41 REQs released `ai-approved` for prototype 0.3, REQ-042 draft | move the TangramNoAds study and spec into SwReqCollector format (owner request) | — |
 | 0.2 | 2026-09-27 | SRC-009; new #SizeMarks, #TurnButtons, #PuzzleMini with REQ-043..045 (ai-approved for prototype 0.4); REQ-012, 013, 014, 022, 025, 038, 041 and REQ-002 A1 updated for mini puzzles and the confirmed no-resize rule | owner round 4 after web testing | — |
+| 0.3 | 2026-09-27 | SRC-010; new #DevTools / #SolutionReveal with REQ-046 (ai-approved for prototype 0.5); REQ-018 and REQ-044 assumptions updated | owner round 5 | — |

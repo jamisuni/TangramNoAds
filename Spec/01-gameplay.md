@@ -91,3 +91,8 @@ There is no donation ask, rating request or any other interruption. Settings car
 | goes home / can't turn here | soft low tone (never a buzzer) |
 | solve | 4-note chime |
 Sound on/off in Settings.
+
+## 11. Developer aid (prototype and test builds only) [REQ-046]
+- A small dashed **DEV** button in the bottom-left corner of the board asks for the passcode **0417**.
+- Unlocked, it offers **Show the solution** (each piece's stored place drawn in its colour with its id; stays on while browsing until switched off) and **Solve this puzzle now** (places every piece and shows the picture; no best time is recorded).
+- It is a testing aid, not a player hint (Q10: no hints). Release builds leave it out.

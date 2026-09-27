@@ -48,6 +48,7 @@
 - **REQ-043** — Each triangle in the tray shows S, M or L, the size it has on the board. (2 assumption(s))
 - **REQ-044** — Each tray cell has ↺ and ↻ buttons that turn its piece 45° before it is dragged. (1 assumption(s))
 - **REQ-045** — A few tiny puzzles use only some pieces, for a fast first success and for testing the solved state. (1 assumption(s))
+- **REQ-046** — In prototype and test builds, a DEV button behind the passcode 0417 shows the solution or solves the puzzle; release builds leave it out. (1 assumption(s))
 
 ## Decisions the agent took instead of asking — check these first
 
@@ -59,7 +60,7 @@
 - **REQ-015** — the 12 dp threshold and the 12 dp touch-area margin.
 - **REQ-016** — tap-to-turn exists alongside the two-finger twist (the owner only named the twist).
 - **REQ-017** — the twist works only while a piece is being dragged.
-- **REQ-018** — mirroring is part of the game at all (the owner has not mentioned it).
+- **REQ-018** — mirroring is part of the game, automatic on Easy and Medium and by button on Hard. The owner asked whether a mirror button is needed (SRC-010, a question); the agent explained this split and the owner raised no objection.
 - **REQ-021** — a white dashed outline, 2.5 dp wide, over the silhouette.
 - **REQ-024** — the list does not wrap; at the ends ‹ or › does nothing.
 - **REQ-028** — difficulty changes the controls only (open question Q1 in ../Spec/05-open-questions.md).
@@ -69,8 +70,9 @@
 - **REQ-041** — four warm-ups (the owner said "few").
 - **REQ-043** — letters S, M, L are understood by players aged 8+; SRC-009 names small, medium and big.
 - **REQ-043** — the marks stay after testing; the owner called the tray aids "at least temporary".
-- **REQ-044** — the buttons show on every device, touch screens included, until the owner's phone playtest decides (SRC-009: "at least temporary").
+- **REQ-044** — the buttons show on every device, touch screens included, until the owner's phone playtest decides. SRC-009: "at least temporary"; SRC-010: "maybe those ↺ ↻ are not long run not need as pressing does same... but we keep them now".
 - **REQ-045** — two mini puzzles ship in the prototype (a triangle and a square) and they stay in the game as a first-run introduction; the owner asked for one, for testing.
+- **REQ-046** — the DEV button sits in the bottom-left corner of the board, small and dashed, so it is not mistaken for part of the game.
 
 ## Inferred items (never lock silently)
 
@@ -130,7 +132,6 @@
 - **REQ-010** — only SRC-004, SRC-007 (no usable authoritative/firsthand source)
 - **REQ-011** — single source SRC-002
 - **REQ-015** — only SRC-004, SRC-005 (no usable authoritative/firsthand source)
-- **REQ-018** — only SRC-004 (no usable authoritative/firsthand source)
 - **REQ-020** — single source SRC-002
 - **REQ-021** — only SRC-004 (no usable authoritative/firsthand source)
 - **REQ-022** — only SRC-004 (no usable authoritative/firsthand source)
@@ -145,6 +146,7 @@
 - **REQ-037** — only SRC-004, SRC-005, SRC-006 (no usable authoritative/firsthand source)
 - **REQ-042** — only SRC-004 (no usable authoritative/firsthand source)
 - **REQ-045** — single source SRC-009
+- **REQ-046** — single source SRC-010
 
 ## Unusable sources still cited
 
@@ -162,7 +164,7 @@
 ## Summary
 
 - capture mode: ai-led — ai-approved releases an item for a prototype; only a signed lock binds
-- 47 features (37 leaves = coding-agent work units), 45 REQs (44 ai-approved, 0 locked, 0 withdrawn)
-- feature status mix: idea: 2, captured: 2, specified: 0, ai-approved: 43, locked: 0
-- REQ status mix: draft: 1, observed-provisional: 0, ai-approved: 44, locked: 0, withdrawn: 0
-- next free ids: REQ-046 · TYPE-008 · SRC-010 · DEF-001
+- 49 features (38 leaves = coding-agent work units), 46 REQs (45 ai-approved, 0 locked, 0 withdrawn)
+- feature status mix: idea: 2, captured: 2, specified: 0, ai-approved: 45, locked: 0
+- REQ status mix: draft: 1, observed-provisional: 0, ai-approved: 45, locked: 0, withdrawn: 0
+- next free ids: REQ-047 · TYPE-008 · SRC-011 · DEF-001

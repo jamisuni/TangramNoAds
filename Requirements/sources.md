@@ -100,6 +100,16 @@
 - **Status:** usable
 - **Notes:** The first report from using the prototype. Evidences: pieces are never resized (confirmed, "rule stays"); the tray should show which size a piece will have, especially small, medium and big of the same shape ("maybe", so `inferred`); small turn icons in the tray cells, so a piece can be turned before it is dragged ("maybe", so `inferred`); a very simple 3-piece puzzle for testing the solved state (firm). The owner calls these "at least temporary" aids for web testing.
 
+### SRC-010 — Owner conversation, round 5
+
+- **Kind:** conversation
+- **Origin:** chat with Jami, 2026-09-27 10:52 and 12:36, while testing prototype 0.4 in a web browser
+- **Captured:** 2026-09-27 by Jami + AI
+- **Reliability:** authoritative
+- **Evidence file:** evidence/src-010-conversation-round5.md
+- **Status:** usable
+- **Notes:** Evidences: a question on whether the parallelogram needs a mirror button (answered, no decision); the tray turn buttons stay for now, possibly not in the long run; a development-time solution reveal behind the passcode 0417; the owner's expectation that this collection can feed a separate build framework.
+
 ---
 
 ## Change log
@@ -108,4 +118,5 @@
 |---|---|
 | 2026-09-27 | initial registry: SRC-001..007 (description, two owner conversations, the agent's proposal, three secondary references) |
 | 2026-09-27 | SRC-008 owner conversation round 3 (puzzle folder, warm-ups, abstract shapes, future piece sets) |
+| 2026-09-27 | SRC-010 owner conversation round 5 (mirror question, turn buttons kept for now, developer solution reveal) |
 | 2026-09-27 | SRC-009 owner conversation round 4 (no resize confirmed, tray size marks, tray turn buttons, 3-piece mini puzzles) |
