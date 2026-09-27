@@ -39,9 +39,10 @@ Solved: the tray area becomes  [ ↻ Retry ]  best time 2:21  [ Next › ]
 ## 3. Layout algorithm (deterministic, implemented in the prototype)
 Inputs: window width W and height H (dp).
 1. `compact = W < 600`. Top bar 66 dp (compact) or 74 dp.
-2. **Tray rows:** compact → 2 rows (row 1: LT1 LT2 MT; row 2: SQ PG ST1 ST2); otherwise 1 row. The order is fixed.
+2. **Tray rows:** compact → 2 rows (row 1: LT1 LT2 MT; row 2: SQ PG ST1 ST2); otherwise 1 row. The order is fixed. A mini puzzle lays out only its own pieces (an empty row is dropped).
 3. **Turn diameter** d = 2 × the largest centre-to-corner distance (LT 4.22, PG 3.16, MT 2.98, ST 2.11, SQ 2.00 units). A cell of d·s + padding fits the piece at scale s in *any* turn, so cells never change size when a piece is turned in the tray.
-4. **Tray scale** `ts` = the largest s where every row fits the width (padding 12, gap 8 / 14 dp, side margin 8 / 16 dp) and each row is ≤ max(84 dp, 16 % of H).
+4. **Tray scale** `ts` = the largest s where every row of the **full set** fits the width (padding 12, gap 8 / 14 dp, side margin 8 / 16 dp) and each row is ≤ max(84 dp, 16 % of H). Always computed for the full set, so a piece has the same miniature size in every puzzle.
+4b. **Cell contents:** each cell adds a 26 dp strip at the bottom for the ↺ ↻ turn buttons (≈ 19 dp circles, touch area 10 dp larger), and the triangles get an S / M / L size mark in the top-left corner. Both hide while the piece is on the board.
 5. **Board** = between the top bar and the tray. **Board scale** `bs` fits the silhouette with about 10 % padding.
 
 Measured values: phone 390×844 → ts ≈ 27, bs ≈ 42–60 dp/unit depending on the puzzle. Tablet 1280×800 → ts ≈ 27.5, bs ≈ 80–113.
@@ -52,7 +53,8 @@ Measured values: phone 390×844 → ts ≈ 27, bs ≈ 42–60 dp/unit depending 
 | ‹ › buttons | 52 dp square, rounded |
 | ⚙ | 44 dp |
 | Restart | pill, ≥ 44 dp high, top-left of the board |
-| Tray cells | computed; the smallest is about 60 × 88 dp on a 360 dp phone |
+| Tray cells | computed; the smallest is about 60 × 114 dp on a 360 dp phone (with the button strip) |
+| ↺ ↻ turn buttons | ≈ 19 dp circles, touch area ≈ 29 dp (a mouse and testing aid; see Q12) |
 | Piece touch area | its shape grown by 12 dp |
 | Flip badge | 38 dp visible, 60 dp touch area |
 | Retry / Next | ≥ 48 dp high; Next is filled green and is the primary action |

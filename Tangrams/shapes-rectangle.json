@@ -1,0 +1,41 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "shapes-rectangle",
+  "title": {
+    "en": "Chocolate bar (rectangle)",
+    "fi": "Suklaalevy (suorakulmio)"
+  },
+  "category": "shapes",
+  "difficulty": 3,
+  "solution": [
+    {"piece": "LT1", "polygon": [[0, [0, 2]], [[0, 2], 0], [0, 0]]},
+    {"piece": "LT2", "polygon": [[0, [0, 2]], [[0, 2], 0], [[0, 2], [0, 2]]]},
+    {"piece": "MT", "polygon": [[[0, 3], [0, 1]], [[0, 4], 0], [[0, 4], [0, 2]]]},
+    {"piece": "SQ", "polygon": [[[0, 2], [0, 2]], [[0, 2], [0, 1]], [[0, 3], [0, 1]], [[0, 3], [0, 2]]]},
+    {"piece": "PG", "polygon": [[[0, 4], 0], [[0, 3], [0, 1]], [[0, 2], [0, 1]], [[0, 3], 0]]},
+    {"piece": "ST1", "polygon": [[[0, 3], [0, 1]], [[0, 4], [0, 2]], [[0, 3], [0, 2]]]},
+    {"piece": "ST2", "polygon": [[[0, 3], 0], [[0, 2], [0, 1]], [[0, 2], 0]]}
+  ],
+  "art": {
+    "base": "#5C3620",
+    "shapes": [
+      {"type": "rect", "x": 0.18, "y": 0.18, "w": 5.297, "h": 2.468, "fill": "#7B4A2E", "rx": 0.12},
+      {"type": "line", "from": [1.414, 0.18], "to": [1.414, 2.648], "stroke": "#5C3620", "width": 0.1},
+      {"type": "line", "from": [2.828, 0.18], "to": [2.828, 2.648], "stroke": "#5C3620", "width": 0.1},
+      {"type": "line", "from": [4.243, 0.18], "to": [4.243, 2.648], "stroke": "#5C3620", "width": 0.1},
+      {"type": "line", "from": [0.18, 1.414], "to": [5.477, 1.414], "stroke": "#5C3620", "width": 0.1},
+      {"type": "rect", "x": 0.3, "y": 0.3, "w": 0.814, "h": 0.814, "fill": "#8E5A38", "rx": 0.08},
+      {"type": "rect", "x": 0.3, "y": 1.714, "w": 0.814, "h": 0.814, "fill": "#8E5A38", "rx": 0.08},
+      {"type": "rect", "x": 1.714, "y": 0.3, "w": 0.814, "h": 0.814, "fill": "#8E5A38", "rx": 0.08},
+      {"type": "rect", "x": 1.714, "y": 1.714, "w": 0.814, "h": 0.814, "fill": "#8E5A38", "rx": 0.08},
+      {"type": "rect", "x": 3.128, "y": 0.3, "w": 0.814, "h": 0.814, "fill": "#8E5A38", "rx": 0.08},
+      {"type": "rect", "x": 3.128, "y": 1.714, "w": 0.814, "h": 0.814, "fill": "#8E5A38", "rx": 0.08},
+      {"type": "rect", "x": 4.543, "y": 0.3, "w": 0.814, "h": 0.814, "fill": "#8E5A38", "rx": 0.08},
+      {"type": "rect", "x": 4.543, "y": 1.714, "w": 0.814, "h": 0.814, "fill": "#8E5A38", "rx": 0.08}
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude (found by solver)",
+    "reviewedByHuman": false
+  }
+}

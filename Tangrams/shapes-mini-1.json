@@ -1,0 +1,23 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "shapes-mini-1",
+  "title": {"en": "Mini: Pyramid", "fi": "Mini: Pyramidi"},
+  "category": "shapes",
+  "difficulty": 1,
+  "mini": true,
+  "solution": [
+    {"piece": "SQ", "polygon": [[2, 2], [3, 1], [2, 0], [1, 1]]},
+    {"piece": "ST1", "polygon": [[0, 2], [2, 2], [1, 1]]},
+    {"piece": "ST2", "polygon": [[2, 2], [4, 2], [3, 1]]}
+  ],
+  "art": {
+    "base": "#E9C46A",
+    "shapes": [
+      {"type": "polygon", "points": [[2, 0], [4, 2], [2, 2]], "fill": "#C98F3E", "opacity": 0.45},
+      {"type": "line", "from": [0, 0.67], "to": [4, 0.67], "stroke": "#B07B35", "width": 0.06, "opacity": 0.7},
+      {"type": "line", "from": [0, 1.33], "to": [4, 1.33], "stroke": "#B07B35", "width": 0.06, "opacity": 0.7},
+      {"type": "rect", "x": 1.78, "y": 1.55, "w": 0.44, "h": 0.45, "rx": 0.2, "fill": "#5A3E1B"}
+    ]
+  },
+  "provenance": {"author": "ai:claude (mini test puzzle)", "reviewedByHuman": false}
+}

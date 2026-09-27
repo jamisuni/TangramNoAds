@@ -20,6 +20,7 @@
   .piece { transform-origin: 0 0; transform-box: view-box; transition: transform 180ms cubic-bezier(.2,.8,.3,1), opacity 400ms; cursor: grab; }
   .piece.dragging { transition: transform 90ms linear; cursor: grabbing; }
   .piece.lifted polygon.body { filter: url(#lift); }
+  .spin:hover circle + circle { stroke: var(--accent); }
   .piece.shake { animation: shake 360ms ease-in-out 1; }
   @keyframes shake { 0%,100% { translate: 0 0; } 25% { translate: -6px 0; } 50% { translate: 6px 0; } 75% { translate: -3px 0; } }
   #artLayer { transition: opacity 800ms ease; }
@@ -112,7 +113,7 @@
       <div class="row"><span class="lbl">Sound</span><button class="toggle" id="soundBtn" type="button"></button></div>
       <div class="row"><span class="lbl">Play time (kept on this device only)</span><table class="stats" id="stats"></table></div>
       <div class="row"><span class="lbl">Progress</span><button class="toggle danger" id="resetBtn" type="button">Reset all progress</button><span id="resetConfirm" hidden class="row"><span class="hint">Really erase all solved puzzles and times?</span><button class="toggle danger" id="resetYes" type="button">Erase</button><button class="toggle" id="resetNo" type="button">Keep</button></span></div>
-      <p class="hint">How to play: drag a piece onto the shape. <b>Tap</b> a piece to turn it 45°. With two fingers, hold the piece and <b>twist</b> with a second finger. On a computer, use the <b>mouse wheel</b> or <b>R</b> while dragging. A piece locks against the edges and other pieces, or goes back to the tray. TangramNoAds prototype 0.3.</p>
+      <p class="hint">How to play: drag a piece onto the shape. Pieces keep their size; in the tray the triangles are marked <b>S</b>, <b>M</b> and <b>L</b>. <b>Tap</b> a piece, or use its <b>↺ ↻</b> buttons in the tray, to turn it 45°. With two fingers, hold the piece and <b>twist</b> with a second finger. On a computer, use the <b>mouse wheel</b> or <b>R</b> while dragging. A piece locks against the edges and other pieces, or goes back to the tray. TangramNoAds prototype 0.4.</p>
       <p class="free"><b>Enjoy, it's absolutely free.</b> No ads, no purchases, no network. Your play time stays on this device.</p>
       <div class="row" style="justify-content:flex-end"><button class="big next" id="closeSettings" type="button">Done</button></div>
     </div>
@@ -204,7 +205,8 @@ function loadPuzzle(i) {
   anchorsStatic = P.corners.slice();   // silhouette corners; placed-piece corners are added live
   P.silPolys = P.slots.map(s => ccw(s.poly));
   const saved = prog().pieces;
-  pieces = ORDER.map(id => {
+  P.used = ORDER.filter(id => P.slots.some(sl => sl.piece === id));   // mini puzzles use only some pieces
+  pieces = P.used.map(id => {
     const sv = saved && saved.find(x => x.id === id), type = TYPE[id];
     const pc = { id, type, st: "tray", x: 0, y: 0, k: STANDARD_TURN[type], f: false, g: null };
     if (sv && prog().status === "progress") Object.assign(pc, { st: sv.st, x: sv.x, y: sv.y, k: sv.k, f: sv.f });
@@ -228,23 +230,24 @@ function persistPieces() {
 // ---------------- layout ----------------
 function layout() {
   const W = stage.clientWidth, H = stage.clientHeight, compact = W < 600;
-  const gap = compact ? 8 : 14, pad = 12, side = compact ? 8 : 16, topH = compact ? 66 : 74;
-  const ids = ORDER;
-  const rows = compact ? [ids.filter(i => TYPE[i] === "LT" || TYPE[i] === "MT"), ids.filter(i => !(TYPE[i] === "LT" || TYPE[i] === "MT"))] : [ids];
+  const gap = compact ? 8 : 14, pad = 12, ctl = 26, side = compact ? 8 : 16, topH = compact ? 66 : 74;
+  const split = ids => compact ? [ids.filter(i => TYPE[i] === "LT" || TYPE[i] === "MT"), ids.filter(i => !(TYPE[i] === "LT" || TYPE[i] === "MT"))] : [ids];
   const trayW = W - 2 * side, maxCellH = Math.max(84, H * 0.16);
+  // The miniature scale is always computed for the full set, so a piece has the same tray size in every puzzle.
   let ts = Infinity;
-  for (const r of rows) {
+  for (const r of split(ORDER)) {
     const d = r.reduce((a, id) => a + TURN_D[TYPE[id]], 0);
     ts = Math.min(ts, (trayW - gap * (r.length + 1) - pad * r.length) / d, (maxCellH - pad) / Math.max(...r.map(id => TURN_D[TYPE[id]])));
   }
-  const rowHs = rows.map(r => Math.max(...r.map(id => TURN_D[TYPE[id]])) * ts + pad);
+  const rows = split(P.used).filter(r => r.length);
+  const rowHs = rows.map(r => Math.max(...r.map(id => TURN_D[TYPE[id]])) * ts + pad + ctl);   // ctl: strip for the ↺ ↻ buttons
   const trayH = rowHs.reduce((a, b) => a + b, 0) + gap * (rows.length + 1);
   const trayY = H - trayH - (compact ? 10 : 14);
   const cells = {}; let y = trayY + gap;
   rows.forEach((r, ri) => {
     const ws = r.map(id => TURN_D[TYPE[id]] * ts + pad), total = ws.reduce((a, b) => a + b, 0) + gap * (r.length - 1);
     let x = side + (trayW - total) / 2;
-    r.forEach((id, i) => { cells[id] = { x, y, w: ws[i], h: rowHs[ri], cx: x + ws[i] / 2, cy: y + rowHs[ri] / 2 }; x += ws[i] + gap; });
+    r.forEach((id, i) => { cells[id] = { x, y, w: ws[i], h: rowHs[ri], cx: x + ws[i] / 2, cy: y + (rowHs[ri] - ctl) / 2 + 2, ctl }; x += ws[i] + gap; });
     y += rowHs[ri] + gap;
   });
   const bx = side, by = topH + 4, bw = W - 2 * side, bh = trayY - by - (compact ? 8 : 12);
@@ -274,12 +277,13 @@ function build() {
   layers.art.style.transition = "none"; layers.art.setAttribute("opacity", solved ? 1 : 0); void layers.art.getBBox(); layers.art.style.transition = "";
   if (!solved) {
     el("rect", { x: L.trayX, y: L.trayY, width: L.trayW, height: L.trayH, rx: 24, fill: "var(--tray)" }, layers.tray);
-    for (const id of ORDER) {
+    for (const id of P.used) {
       const c = L.cells[id], pc = pieces.find(p => p.id === id);
       const cell = el("rect", { x: c.x, y: c.y, width: c.w, height: c.h, rx: 16, fill: "var(--cell)", stroke: "var(--cell-edge)", "stroke-width": 1.5 }, layers.tray);
       cell.addEventListener("pointerdown", e => { if (pc.st === "tray") startPointer(e, pc); });
       pc.ghost = el("polygon", { points: ptsAttr(verts(pc.type, STANDARD_TURN[pc.type], false, 0, 0).map(p => [c.cx + p[0] * L.ts, c.cy + p[1] * L.ts])),
         fill: "none", stroke: "#D5CDBB", "stroke-width": 2, "stroke-dasharray": "5 4", "stroke-linejoin": "round", "pointer-events": "none" }, layers.tray);
+      buildTrayUi(pc, c);
     }
     pieces.forEach(pc => {
       const g = el("g", { class: "piece" }, layers.pieces), pts = ptsAttr(CENTERED[pc.type]);
@@ -290,6 +294,37 @@ function build() {
     });
   }
   updateChrome();
+}
+// Tray helpers: a size badge on the three triangle sizes, and ↺ ↻ turn buttons (handy with a mouse).
+const SIZE_BADGE = { LT: ["L", "Big triangle"], MT: ["M", "Medium triangle"], ST: ["S", "Small triangle"] };
+function buildTrayUi(pc, c) {
+  const g = el("g", {}, layers.top); pc.trayUi = g;
+  const sb = SIZE_BADGE[pc.type];
+  if (sb) {
+    const b = el("g", { "pointer-events": "none" }, g);
+    el("rect", { x: c.x + 6, y: c.y + 6, width: 20, height: 18, rx: 6, fill: COLORS[pc.id], opacity: .16 }, b);
+    const t = el("text", { x: c.x + 16, y: c.y + 19.5, "text-anchor": "middle", "font-size": 13, "font-weight": 800, fill: "var(--ink)", "font-family": "var(--display)" }, b);
+    t.textContent = sb[0];
+    el("title", {}, b).textContent = sb[1];
+  }
+  const r = Math.max(8.5, Math.min(10.5, (c.w - 18) / 4.4));
+  [[-1, c.x + 6 + r], [1, c.x + c.w - 6 - r]].forEach(([dir, x]) => {
+    const y = c.y + c.h - c.ctl / 2 - 2;
+    const bt = el("g", { class: "spin", role: "button", "aria-label": dir > 0 ? "Turn right 45°" : "Turn left 45°", style: "cursor:pointer" }, g);
+    el("circle", { cx: x, cy: y, r: r + 5, fill: "transparent" }, bt);
+    el("circle", { cx: x, cy: y, r, fill: "#fff", stroke: "var(--cell-edge)", "stroke-width": 1.5 }, bt);
+    const a = r * .5, th0 = (dir > 0 ? 150 : 30) * Math.PI / 180, th1 = th0 + dir * 1.45 * Math.PI;
+    const P0 = [x + a * Math.cos(th0), y + a * Math.sin(th0)], P1 = [x + a * Math.cos(th1), y + a * Math.sin(th1)];
+    const t = [-Math.sin(th1) * dir, Math.cos(th1) * dir], n = [-t[1], t[0]];   // tangent and normal at the arrow end
+    el("path", { d: `M${P0[0]},${P0[1]} A${a},${a} 0 1 ${dir > 0 ? 1 : 0} ${P1[0]},${P1[1]}`, fill: "none", stroke: "var(--ink)", "stroke-width": 1.7, "stroke-linecap": "round" }, bt);
+    el("polygon", { points: ptsAttr([[P1[0] + t[0] * 3.4, P1[1] + t[1] * 3.4], [P1[0] + n[0] * 3, P1[1] + n[1] * 3], [P1[0] - n[0] * 3, P1[1] - n[1] * 3]]), fill: "var(--ink)" }, bt);
+    el("title", {}, bt).textContent = dir > 0 ? "Turn right 45°" : "Turn left 45°";
+    bt.addEventListener("pointerdown", e => {
+      e.preventDefault(); e.stopPropagation(); lastTouch = performance.now();
+      if (drag || pc.st !== "tray") return;
+      selected = pc; setTurn(pc, pc.k + dir); render(pc); sfx.turn(); persistPieces();
+    });
+  });
 }
 function drawArt() {
   const A = P.art, s = L.bs, g = layers.art;
@@ -322,6 +357,7 @@ function render(pc, instant) {
   g.style.transform = `translate(${x}px, ${y}px) rotate(${pc.ang}deg) scale(${pc.f ? -s : s}, ${s})`;
   if (instant) { void g.getBoundingClientRect(); g.style.transition = ""; }
   if (pc.ghost) pc.ghost.style.display = pc.st === "tray" ? "none" : "";
+  if (pc.trayUi) pc.trayUi.style.display = pc.st === "tray" ? "" : "none";
 }
 function setTurn(pc, k) { const d = k - pc.k; pc.k = ((k % 8) + 8) % 8; pc.ang += d * 45; }
 function fmt(sec) { sec = Math.round(sec); const m = Math.floor(sec / 60), s = sec % 60; return m >= 60 ? Math.floor(m / 60) + " h " + (m % 60) + " min" : m + ":" + String(s).padStart(2, "0"); }

@@ -1,0 +1,23 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "shapes-mini-2",
+  "title": {"en": "Mini: Window", "fi": "Mini: Ikkuna"},
+  "category": "shapes",
+  "difficulty": 1,
+  "mini": true,
+  "solution": [
+    {"piece": "MT", "polygon": [[0, 0], [2, 0], [0, 2]]},
+    {"piece": "ST1", "polygon": [[2, 0], [2, 2], [1, 1]]},
+    {"piece": "ST2", "polygon": [[2, 2], [0, 2], [1, 1]]}
+  ],
+  "art": {
+    "base": "#8ECAE6",
+    "shapes": [
+      {"type": "polygon", "points": [[0.1, 0.1], [0.75, 0.1], [0.1, 0.75]], "fill": "#FFFFFF", "opacity": 0.4},
+      {"type": "line", "from": [1, 0], "to": [1, 2], "stroke": "#FFFFFF", "width": 0.14},
+      {"type": "line", "from": [0, 1], "to": [2, 1], "stroke": "#FFFFFF", "width": 0.14},
+      {"type": "polygon", "points": [[0, 0], [2, 0], [2, 2], [0, 2]], "stroke": "#FFFFFF", "width": 0.28}
+    ]
+  },
+  "provenance": {"author": "ai:claude (mini test puzzle)", "reviewedByHuman": false}
+}

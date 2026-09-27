@@ -3,19 +3,19 @@
 Validate tangram puzzle files (Spec/03-puzzle-format.md).
 
 Usage:
-    python tools/validate_puzzles.py Spec/puzzles            # validate every *.json
-    python tools/validate_puzzles.py Spec/puzzles/cat.json   # one file
+    python tools/validate_puzzles.py Tangrams            # validate every *.json
+    python tools/validate_puzzles.py Tangrams/cat.json   # one file
 
 Checks (rule ids match the spec, section "Validation rules"):
   V1  format tag and required fields present
-  V2  piece ids are valid and unique; mini puzzles use a subset
+  V2  piece ids are valid and unique
   V3  every polygon is congruent to its piece (exact arithmetic), or placement is valid
   V4  no two pieces overlap (interior)
   V5  shape is connected through shared edges (point-only joins are errors)
   V6  total area equals sum of piece areas (implied by V3+V4, reported for info)
   V7  (optional) assist.preplacedOrder lists only pieces in the puzzle, no repeats
   V8  translations: 'en' title is mandatory
-  V9  all seven pieces are used (the tray always shows the full set)
+  V9  all seven pieces are used; a puzzle marked "mini": true (a fast test puzzle) uses 1-6 of them
   V10 art (solved picture) is well formed: base colour + known shape types
   V11 buildable edge-first: every piece can lock on an outline corner or on a corner of a piece
       placed before it (no piece has to float in the middle without neighbours)
@@ -133,7 +133,14 @@ def validate(puzzle):
         errors.append("V7 assist.preplacedOrder must list distinct pieces of this puzzle")
 
     # V9
-    if set(ids) != set(PIECE_SET):
+    mini = puzzle.get("mini", False)
+    if not isinstance(mini, bool):
+        errors.append("V9 mini must be true or false")
+    elif mini:
+        if len(ids) >= len(PIECE_SET):
+            errors.append("V9 a mini puzzle uses fewer than 7 pieces; drop the \"mini\" flag")
+        info.append("mini")
+    elif set(ids) != set(PIECE_SET):
         errors.append(f"V9 puzzle must use all 7 pieces; missing {sorted(set(PIECE_SET) - set(ids))}")
 
     # V10
@@ -180,7 +187,7 @@ def validate_art(art):
 
 def main(argv):
     targets = []
-    for arg in argv or ["Spec/puzzles"]:
+    for arg in argv or ["Tangrams"]:
         p = Path(arg)
         targets += sorted(x for x in p.glob("*.json") if not x.name.endswith(".schema.json")) if p.is_dir() else [p]
     failed = 0

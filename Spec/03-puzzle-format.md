@@ -1,6 +1,6 @@
 # 03 · Puzzle file format `tangram-puzzle/1`
 
-**Status:** draft 0.3. Reference code: `tools/tangram_geom.py`. Validator: `tools/validate_puzzles.py`. JSON Schema: `puzzles/puzzle.schema.json`. Examples: `puzzles/*.json`. Review sheets: `puzzles/previews/`.
+**Status:** draft 0.3. Reference code: `tools/tangram_geom.py`. Validator: `tools/validate_puzzles.py`. JSON Schema: `../Tangrams/puzzle.schema.json`. Puzzles: `../Tangrams/*.json`. Review sheets: `../Tangrams/previews/`.
 
 The format is made for **safe AI authoring**. Coordinates are exact, shapes are readable polygons, every rule is machine-checked, and a human signs off on how the puzzle looks.
 
@@ -46,7 +46,8 @@ The format is made for **safe AI authoring**. Coordinates are exact, shapes are 
 | `title` | yes | Translations; `en` is mandatory, `fi` is expected. |
 | `category` | yes | `shapes`, `animals`, `people`, `things`, `vehicles`, `nature`, `letters`, `numbers` |
 | `difficulty` | yes | 1–5. Sets the ‹ › order (easy first) and the dots in the top bar. |
-| `solution` | yes | **All 7 pieces.** Each entry: `piece` plus `polygon` (preferred) **or** `rot` 0–7 + `flip` + `at`. It is used to draw the silhouette and to find the outline corners (lock anchors). **It is not the only accepted answer:** any exact cover wins. |
+| `mini` | no | `true` marks a **mini puzzle**: a small test / first-success puzzle that uses 1–6 of the pieces. The tray then shows only those pieces. |
+| `solution` | yes | **All 7 pieces** (1–6 when `mini` is `true`). Each entry: `piece` plus `polygon` (preferred) **or** `rot` 0–7 + `flip` + `at`. It is used to draw the silhouette and to find the outline corners (lock anchors). **It is not the only accepted answer:** any exact cover wins. |
 | `art` | yes | The solved picture: `base` colour plus `shapes` drawn in order, clipped to the silhouette. |
 | `provenance` | no | `author` = `human:<name>` or `ai:<model>`; `reviewedByHuman` must be `true` to ship. |
 
@@ -85,15 +86,15 @@ World vertex = R(rot·45°) · F(flip) · local + at, where F mirrors x.
 | V6 | Area = the sum of the pieces (16). |
 | V7 | (optional) `assist.preplacedOrder` is consistent. Legacy from draft 0.1. |
 | V8 | `title.en` exists. |
-| V9 | All seven pieces are used. |
+| V9 | All seven pieces are used, unless `mini` is `true` (then 1–6 distinct pieces). |
 | V10 | `art` is present and well formed (base colour, known shape types, `#RRGGBB` colours, strokes on lines and paths). |
 | V11 | **Buildable edge-first:** there is an order in which every piece has a corner on an outline corner or on a corner of an earlier piece. Figures that need a piece floating in the middle are rejected. |
 
 ## 5. Authoring workflow (human or AI)
 1. Sketch the figure on the grid (whole numbers when pieces use 0/90/180/270° turns; `[a, b]` values when 45° turns are needed).
-2. Write the `solution` polygons, then run `python tools/validate_puzzles.py Spec/puzzles` (it prints the edge-first build order, or the pieces that can never lock).
+2. Write the `solution` polygons, then run `python tools/validate_puzzles.py Tangrams` (it prints the edge-first build order, or the pieces that can never lock).
 3. Write the `art` layer (simple shapes inside the outline).
-4. Run `python tools/render_puzzle.py Spec/puzzles Spec/puzzles/previews` and **look at the sheet**: silhouette | pieces | picture. Is the silhouette recognisable without inner lines? Does the picture read well?
+4. Run `python tools/render_puzzle.py Tangrams Tangrams/previews` and **look at the sheet**: silhouette | pieces | picture. Is the silhouette recognisable without inner lines? Does the picture read well?
 5. Run `python tools/build_prototype.py` and solve it in the prototype on Easy, and at least one puzzle on Hard.
 6. A human sets `reviewedByHuman: true`.
 

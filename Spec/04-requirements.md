@@ -1,5 +1,7 @@
 # 04 · Requirements (candidate list, draft 0.3)
 
+> **Superseded (2026-09-27)** by the SwReqCollector collection in `../Requirements/` (REQ-001..042). This file is kept as the draft it grew from; its REQ-XXX-n labels are not the collection's ids.
+
 **Status:** ready to import into SwReqCollector. Each item has an id, a priority (**M**ust / **S**hould / **C**ould) and a check that a person or a test can run. The prototype implements every M and S item except where noted. Technology-specific items (SDK levels, frame-rate targets) are parked until technology is discussed.
 
 ## Promise (PRM)

@@ -1,0 +1,44 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "things-house",
+  "title": {
+    "en": "House",
+    "fi": "Talo"
+  },
+  "category": "things",
+  "difficulty": 2,
+  "solution": [
+    {"piece": "LT1", "polygon": [[0, 2], [4, 2], [2, 0]]},
+    {"piece": "LT2", "polygon": [[0, 4], [4, 4], [2, 2]]},
+    {"piece": "MT", "polygon": [[0, 2], [2, 2], [0, 4]]},
+    {"piece": "ST1", "polygon": [[2, 2], [4, 2], [3, 3]]},
+    {"piece": "ST2", "polygon": [[4, 2], [4, 4], [3, 3]]},
+    {"piece": "PG", "polygon": [[3, 1], [3, -1], [4, 0], [4, 2]]},
+    {"piece": "SQ", "polygon": [[4, [4, -1]], [[4, 1], [4, -1]], [[4, 1], 4], [4, 4]]}
+  ],
+  "art": {
+    "base": "#F2D7B6",
+    "shapes": [
+      {"type": "polygon", "points": [[0, 2], [4, 2], [2, 0]], "fill": "#C4533A"},
+      {"type": "line", "from": [1.05, 1], "to": [2.95, 1], "stroke": "#9E3F2B", "width": 0.07},
+      {"type": "line", "from": [0.55, 1.5], "to": [3.45, 1.5], "stroke": "#9E3F2B", "width": 0.07},
+      {"type": "polygon", "points": [[3, 1], [3, -1], [4, 0], [4, 2]], "fill": "#8E3B2E"},
+      {"type": "polygon", "points": [[3, -0.55], [3, -1], [4, 0], [4, 0.45]], "fill": "#6E2C22"},
+      {"type": "rect", "x": 1.55, "y": 2.85, "w": 0.9, "h": 1.2, "fill": "#7A4B2A", "rx": 0.08},
+      {"type": "circle", "c": [2.3, 3.5], "r": 0.06, "fill": "#F2C14E"},
+      {"type": "rect", "x": 0.35, "y": 2.45, "w": 0.8, "h": 0.65, "fill": "#9FD3F0", "rx": 0.05},
+      {"type": "rect", "x": 2.85, "y": 2.45, "w": 0.8, "h": 0.65, "fill": "#9FD3F0", "rx": 0.05},
+      {"type": "line", "from": [0.75, 2.45], "to": [0.75, 3.1], "stroke": "#FFFFFF", "width": 0.06},
+      {"type": "line", "from": [0.35, 2.78], "to": [1.15, 2.78], "stroke": "#FFFFFF", "width": 0.06},
+      {"type": "line", "from": [3.25, 2.45], "to": [3.25, 3.1], "stroke": "#FFFFFF", "width": 0.06},
+      {"type": "line", "from": [2.85, 2.78], "to": [3.65, 2.78], "stroke": "#FFFFFF", "width": 0.06},
+      {"type": "rect", "x": 4, "y": 2.586, "w": 1.414, "h": 1.414, "fill": "#D9A66B"},
+      {"type": "rect", "x": 4.45, "y": 3.25, "w": 0.5, "h": 0.75, "fill": "#7A4B2A", "rx": 0.2},
+      {"type": "rect", "x": -0.2, "y": 3.9, "w": 6, "h": 0.2, "fill": "#7FA650"}
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude",
+    "reviewedByHuman": false
+  }
+}

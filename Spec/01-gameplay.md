@@ -10,10 +10,11 @@
 5. ▶ Next, or ‹ › to browse. Any puzzle can be skipped with › at any time.
 
 ## 2. Pieces and the tray [REQ-TRY-*]
-- Always the classic 7: LT1 LT2 (large triangles), MT, SQ, PG, ST1 ST2.
+- The classic 7: LT1 LT2 (large triangles), MT, SQ, PG, ST1 ST2. A **mini puzzle** (3 pieces, for a fast first success and for testing) shows only its own pieces, in the same order.
 - **Fixed order** in the tray: LT1, LT2, MT, SQ, PG, ST1, ST2. **Fixed colours** (`02-ui-layout.md`).
 - **Fixed resting turn**: all triangles have the long side down and point up, the square is upright, the parallelogram leans right. The tray looks the same in every puzzle.
-- Tray pieces are miniatures (one shared scale). On the board a piece is always its true size. There is no resizing.
+- Tray pieces are miniatures (one shared scale, the same in every puzzle). On the board a piece is always its true size. There is no resizing (confirmed by Jami, round 4).
+- **Size marks:** the triangles carry **S**, **M** or **L** in the corner of their cell, so the three sizes of the same shape are easy to tell apart.
 - A piece on the board leaves a dashed ghost in its tray cell.
 
 ## 3. Moving and turning [REQ-DRG-*, REQ-ROT-*]
@@ -21,6 +22,7 @@
 |---|---|
 | Touch and move ≥ 12 dp | Drag. A tray piece grows to board size (120 ms) and floats **above the finger**. |
 | Tap (moves < 12 dp, any duration) on a tray piece | Turn +45° clockwise in the tray. |
+| ↺ / ↻ button in a tray cell | Turn that piece −45° / +45° in the tray, ready before it is dragged (handy with a mouse). |
 | Tap on a board piece | Turn +45° in place. It stays only if it still locks near there; otherwise it turns back with a short shake. |
 | Second finger during a drag, then twist | Turn in **45° steps** (a step at every ±22.5° of twist), with a tick sound. |
 | Mouse wheel or R (Shift+R backwards) during a drag | Turn ±45° (desktop testing). |

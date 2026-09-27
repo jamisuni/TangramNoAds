@@ -4,7 +4,7 @@ Build the clickable HTML prototype from the puzzle files.
 
     python tools/build_prototype.py   -> Spec/prototype/tangram-prototype.html
 
-The prototype embeds every puzzle in Spec/puzzles (float coordinates + the exact
+The prototype embeds every puzzle in Tangrams (float coordinates + the exact
 rot/flip of each slot computed by tangram_geom.placement_from_polygon, and the
 silhouette's outline corners, which are the only fixed lock anchors).
 """
@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def main():
-    files = sorted((f for f in (ROOT / "Spec" / "puzzles").glob("*.json") if not f.name.endswith(".schema.json")),
+    files = sorted((f for f in (ROOT / "Tangrams").glob("*.json") if not f.name.endswith(".schema.json")),
                    key=lambda p: (json.loads(p.read_text(encoding="utf-8"))["difficulty"], p.stem))
     data = []
     for f in files:

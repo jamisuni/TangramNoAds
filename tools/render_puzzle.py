@@ -11,7 +11,7 @@ display styles used by the assist levels (Spec/01-gameplay.md):
     Picture - the stylised picture revealed after solving (art layer)
 
 Usage:
-    python tools/render_puzzle.py Spec/puzzles  out_dir
+    python tools/render_puzzle.py Tangrams  out_dir
 """
 import json
 import sys
@@ -156,8 +156,8 @@ def sheet(puzzle):
 
 
 def main(argv):
-    src = Path(argv[0] if argv else "Spec/puzzles")
-    out = Path(argv[1] if len(argv) > 1 else "Spec/puzzles/previews")
+    src = Path(argv[0] if argv else "Tangrams")
+    out = Path(argv[1] if len(argv) > 1 else "Tangrams/previews")
     out.mkdir(parents=True, exist_ok=True)
     files = sorted(f for f in src.glob("*.json") if not f.name.endswith(".schema.json")) if src.is_dir() else [src]
     for p in files:

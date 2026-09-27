@@ -101,7 +101,7 @@ def sheet(name, W, H, title, sub, frames, callouts, notes=()):
 
 def lock_rules_svg():
     """Diagram of the anchor locking rule, drawn from the Mountain geometry."""
-    pz = json.loads((ROOT / "Spec" / "puzzles" / "nature-mountain.json").read_text(encoding="utf-8"))
+    pz = json.loads((ROOT / "Tangrams" / "nature-mountain.json").read_text(encoding="utf-8"))
     exact = load_solution(pz, [])
     polys = {k: to_float(v) for k, v in exact.items()}
     corners = [(float(x), float(y)) for x, y in outline_corners(exact)]
@@ -205,7 +205,7 @@ def main():
               (0, pts["restart"], (R + 20, 330), "Restart (shown while a puzzle is in progress)", "start"),
               (0, pts["slot"], (R + 20, 420), "Landing preview (Easy/Medium): where the piece\nwill lock if released now. It shows a VALID spot,\nnot the correct one; there are no hidden slots.", "start"),
               (0, pts["piece"], (R + 20, 520), "Dragged piece at full size, floating above the finger.\nTap = turn 45°. Hold it and twist a second finger\n= turn in 45° steps.", "start"),
-              (0, pts["lt"], (R + 20, 700), "Tray: always the same 7 pieces, same order\n(big → small), same resting turn, same colours.\nPhone: 2 rows. Placed pieces leave a dashed ghost.", "start")]
+              (0, pts["lt"], (R + 20, 700), "Tray: same order (big → small), resting turn and colours\nin every puzzle; mini puzzles show only their pieces.\nS / M / L marks the triangle size; ↺ ↻ turn a piece\nbefore you drag it. Phone: 2 rows. Placed pieces\nleave a dashed ghost.", "start")]
         sheets.append(sheet("01-phone-play", 1100, 1000, "Phone · Play screen (portrait)",
                             "Cat, Easy. Three pieces placed; the medium triangle is being dragged. Silhouette only, no inner lines.", fr, co))
 
