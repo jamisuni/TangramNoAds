@@ -1,0 +1,584 @@
+<meta charset="utf-8">
+<title>TangramNoAds Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap">
+<style>
+  /* Single deliberate look: warm play-paper, like the lid of a wooden tangram box. */
+  :root {
+    --paper: #FBF7EE; --board: #FFFFFF; --board-edge: #EDE5D3; --tray: #EFE7D6; --cell: #FFFFFF; --cell-edge: #E0D6C2;
+    --ink: #2B2D42; --muted: #7E8299; --accent: #3D8BFD; --go: #2DBE7E; --shadow: #4A4E69; --warn: #E8505B;
+    --display: "Baloo 2", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+    --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--ui); overflow: hidden;
+         -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  #app { position: relative; width: 100%; height: 100%; overflow: hidden; touch-action: none; }
+  #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  .piece { transform-origin: 0 0; transform-box: view-box; transition: transform 180ms cubic-bezier(.2,.8,.3,1), opacity 400ms; cursor: grab; }
+  .piece.dragging { transition: transform 90ms linear; cursor: grabbing; }
+  .piece.lifted polygon.body { filter: url(#lift); }
+  .piece.shake { animation: shake 360ms ease-in-out 1; }
+  @keyframes shake { 0%,100% { translate: 0 0; } 25% { translate: -6px 0; } 50% { translate: 6px 0; } 75% { translate: -3px 0; } }
+  #artLayer { transition: opacity 800ms ease; }
+  .pop { animation: pop 700ms cubic-bezier(.3,1.6,.5,1) 1; transform-origin: 50% 55%; transform-box: fill-box; }
+  @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+  /* top bar */
+  .topbar { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; gap: 6px; padding: 8px 8px 0; z-index: 3; }
+  .nav { width: 52px; height: 52px; border-radius: 16px; border: 2px solid var(--cell-edge); background: var(--cell); cursor: pointer;
+         display: grid; place-items: center; flex: none; padding: 0; color: var(--ink); }
+  .nav:disabled { opacity: .35; cursor: default; }
+  .nav:focus-visible, .btn:focus-visible, .seg button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .gear { width: 44px; height: 44px; border-radius: 50%; border-color: transparent; background: transparent; }
+  .title { flex: 1; min-width: 0; text-align: center; line-height: 1.05; }
+  .title b { display: block; font-family: var(--display); font-weight: 800; font-size: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .title span { font-size: 12px; color: var(--muted); letter-spacing: .3px; font-variant-numeric: tabular-nums; }
+  .title .dots { letter-spacing: 1px; color: #F9A826; }
+
+  .btn { position: absolute; z-index: 2; border-radius: 999px; border: 2px solid var(--cell-edge); background: var(--cell); color: var(--ink);
+         font-family: var(--display); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 6px; padding: 8px 14px; cursor: pointer; }
+  .timer { position: absolute; z-index: 2; font-variant-numeric: tabular-nums; font-size: 14px; color: var(--muted); pointer-events: none; }
+
+  .solvedbar { position: absolute; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .big { border: none; border-radius: 999px; cursor: pointer; font-family: var(--display); font-weight: 800; font-size: 20px;
+         display: flex; align-items: center; gap: 8px; padding: 12px 22px; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+  .big.next { background: var(--go); color: #fff; }
+  .big.retry { background: #fff; color: var(--ink); border: 2px solid var(--cell-edge); box-shadow: none; }
+  .best { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 14px; text-align: center; }
+
+  /* overlays */
+  .overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(43,45,66,.32); padding: 16px; z-index: 5; }
+  .sheet { background: var(--paper); border-radius: 26px; padding: 18px 18px 16px; width: min(520px, 100%); max-height: 100%; overflow: auto;
+           box-shadow: 0 20px 60px rgba(0,0,0,.25); display: flex; flex-direction: column; gap: 14px; }
+  .sheet h2 { margin: 0; font-family: var(--display); font-size: 26px; font-weight: 800; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .lbl { font-size: 12px; letter-spacing: .7px; text-transform: uppercase; color: var(--muted); width: 100%; }
+  .seg { display: inline-flex; background: var(--tray); border-radius: 999px; padding: 3px; }
+  .seg button { border: none; background: transparent; border-radius: 999px; padding: 8px 14px; font-size: 15px; cursor: pointer; color: var(--ink); font-family: var(--ui); }
+  .seg button.on { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.12); font-weight: 700; }
+  .hint { font-size: 13px; color: var(--muted); line-height: 1.45; margin: 0; }
+  .toggle { border: 2px solid var(--cell-edge); background: #fff; border-radius: 999px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: var(--ink); font-family: var(--ui); }
+  .toggle.danger { color: var(--warn); }
+  table.stats { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+  table.stats td { padding: 4px 0; border-bottom: 1px solid var(--cell-edge); }
+  table.stats td:last-child { text-align: right; }
+  .free { margin: 0; padding: 12px 14px; border-radius: 16px; background: #EAF7F0; color: #1F6B47; font-size: 15px; line-height: 1.45; }
+  #confetti { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+  @media (prefers-reduced-motion: reduce) { .piece { transition: none; } .piece.shake, .pop { animation: none; } #artLayer { transition: none; } }
+</style>
+
+<div id="app">
+  <svg id="stage" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="lift" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="10" stdDeviation="7" flood-color="#000" flood-opacity=".28"/></filter>
+      <clipPath id="silClip"></clipPath>
+    </defs>
+    <g id="layerBoard"></g>
+    <g id="layerSil"></g>
+    <g id="artLayer" clip-path="url(#silClip)" opacity="0"></g>
+    <g id="layerTray"></g>
+    <g id="layerPreview"></g>
+    <g id="layerPieces"></g>
+    <g id="layerTop"></g>
+  </svg>
+
+  <div class="topbar">
+    <button class="nav" id="prevBtn" aria-label="Previous puzzle"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M14 3 L6 11 L14 19" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="title"><b id="pTitle">Cat</b><span id="pSub"></span></div>
+    <button class="nav" id="nextBtn" aria-label="Next puzzle"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M8 3 L16 11 L8 19" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="nav gear" id="gearBtn" aria-label="Settings"><svg width="24" height="24" viewBox="-12 -12 24 24"><g stroke="#7E8299" stroke-width="3" stroke-linecap="round"><line x1="0" y1="-10" x2="0" y2="-7"/><line x1="0" y1="10" x2="0" y2="7"/><line x1="-10" y1="0" x2="-7" y2="0"/><line x1="10" y1="0" x2="7" y2="0"/><line x1="-7" y1="-7" x2="-5" y2="-5"/><line x1="7" y1="7" x2="5" y2="5"/><line x1="-7" y1="7" x2="-5" y2="5"/><line x1="7" y1="-7" x2="5" y2="-5"/></g><circle r="5" fill="none" stroke="#7E8299" stroke-width="2.8"/></svg></button>
+  </div>
+
+  <button class="btn" id="restartBtn" aria-label="Restart this puzzle" hidden><svg width="18" height="18" viewBox="-10 -10 20 20"><path d="M6,-3 A7,7 0 1 0 7,2" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M3,-8 L8,-3 L2,-1 Z" fill="currentColor"/></svg>Restart</button>
+  <div class="timer" id="timer" hidden></div>
+  <div class="solvedbar" id="solvedBar" hidden>
+    <button class="big retry" id="retryBtn"><svg width="20" height="20" viewBox="-10 -10 20 20"><path d="M6,-3 A7,7 0 1 0 7,2" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M3,-8 L8,-3 L2,-1 Z" fill="currentColor"/></svg>Retry</button>
+    <div class="best" id="bestTime"></div>
+    <button class="big next" id="nextBig">Next<svg width="18" height="18" viewBox="0 0 22 22"><path d="M8 3 L16 11 L8 19" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+  <canvas id="confetti"></canvas>
+
+  <div class="overlay" id="settings" hidden>
+    <div class="sheet" role="dialog" aria-label="Settings">
+      <h2>Settings</h2>
+      <div class="row"><span class="lbl">Difficulty</span>
+        <div class="seg" id="diffSeg"><button data-d="easy" type="button">Easy</button><button data-d="medium" type="button">Medium</button><button data-d="hard" type="button">Hard</button></div>
+        <p class="hint" id="diffHint"></p></div>
+      <div class="row"><span class="lbl">Timer on screen</span>
+        <div class="seg" id="timerSeg"><button data-t="auto" type="button">Hard only</button><button data-t="on" type="button">Always</button><button data-t="off" type="button">Never</button></div></div>
+      <div class="row"><span class="lbl">Sound</span><button class="toggle" id="soundBtn" type="button"></button></div>
+      <div class="row"><span class="lbl">Play time (kept on this device only)</span><table class="stats" id="stats"></table></div>
+      <div class="row"><span class="lbl">Progress</span><button class="toggle danger" id="resetBtn" type="button">Reset all progress</button><span id="resetConfirm" hidden class="row"><span class="hint">Really erase all solved puzzles and times?</span><button class="toggle danger" id="resetYes" type="button">Erase</button><button class="toggle" id="resetNo" type="button">Keep</button></span></div>
+      <p class="hint">How to play: drag a piece onto the shape. <b>Tap</b> a piece to turn it 45°. With two fingers, hold the piece and <b>twist</b> with a second finger. On a computer, use the <b>mouse wheel</b> or <b>R</b> while dragging. A piece locks against the edges and other pieces, or goes back to the tray. TangramNoAds prototype 0.3.</p>
+      <p class="free"><b>Enjoy, it's absolutely free.</b> No ads, no purchases, no network. Your play time stays on this device.</p>
+      <div class="row" style="justify-content:flex-end"><button class="big next" id="closeSettings" type="button">Done</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const PUZZLES = __PUZZLES__;
+
+// ---------------- geometry (mirrors tools/tangram_geom.py) ----------------
+const SHAPES = { LT: [[0,0],[4,0],[2,2]], MT: [[0,0],[2,0],[0,2]], ST: [[0,0],[2,0],[1,1]], SQ: [[0,0],[1,-1],[2,0],[1,1]], PG: [[0,0],[2,0],[3,-1],[1,-1]] };
+const TYPE = { LT1:"LT", LT2:"LT", MT:"MT", ST1:"ST", ST2:"ST", SQ:"SQ", PG:"PG" };
+const COLORS = { LT1:"#E8505B", LT2:"#3D8BFD", MT:"#F9A826", ST1:"#2DBE7E", ST2:"#9B5DE5", SQ:"#FFD23F", PG:"#FF7AB8" };
+const ORDER = ["LT1","LT2","MT","SQ","PG","ST1","ST2"];
+const STANDARD_TURN = { LT: 4, MT: 1, ST: 4, SQ: 1, PG: 0 };   // how every piece rests in the tray
+const DIFF = {
+  easy:   { R: 0.9,  turnForgive: true,  autoFlip: true,  preview: true,  text: "Generous locking. A piece one turn (45°) off still locks, and the parallelogram mirrors itself." },
+  medium: { R: 0.65, turnForgive: false, autoFlip: true,  preview: true,  text: "The turn must be right. The parallelogram still mirrors itself." },
+  hard:   { R: 0.45, turnForgive: false, autoFlip: false, preview: false, text: "Exact turn, and you flip the parallelogram yourself (⇋). No landing preview; the timer shows." },
+};
+const avg = pts => [pts.reduce((a,p)=>a+p[0],0)/pts.length, pts.reduce((a,p)=>a+p[1],0)/pts.length];
+const CENTERED = {}; for (const t in SHAPES) { const c = avg(SHAPES[t]); CENTERED[t] = SHAPES[t].map(p => [p[0]-c[0], p[1]-c[1]]); }
+const TURN_D = {}; for (const t in SHAPES) TURN_D[t] = 2 * Math.max(...CENTERED[t].map(p => Math.hypot(p[0], p[1])));
+const AREA = { LT: 4, MT: 2, ST: 1, SQ: 2, PG: 2 };
+const C45 = Math.SQRT1_2;
+function verts(type, k, f, cx, cy) {
+  const a = ((k % 8) + 8) % 8 * Math.PI / 4, c = Math.cos(a), s = Math.sin(a);
+  return CENTERED[type].map(([x, y]) => { if (f) x = -x; return [cx + x*c - y*s, cy + x*s + y*c]; });
+}
+function polyArea(P) { let s = 0; for (let i = 0; i < P.length; i++) { const a = P[i], b = P[(i+1) % P.length]; s += a[0]*b[1] - b[0]*a[1]; } return s / 2; }
+function ccw(P) { return polyArea(P) < 0 ? P.slice().reverse() : P; }
+function clip(subject, clipper) { // Sutherland-Hodgman, both convex with positive orientation
+  let out = subject;
+  for (let i = 0; i < clipper.length && out.length; i++) {
+    const A = clipper[i], B = clipper[(i+1) % clipper.length], inp = out; out = [];
+    const side = p => (B[0]-A[0])*(p[1]-A[1]) - (B[1]-A[1])*(p[0]-A[0]);
+    for (let j = 0; j < inp.length; j++) {
+      const P = inp[j], Q = inp[(j+1) % inp.length], sp = side(P), sq = side(Q);
+      if (sp >= -1e-9) out.push(P);
+      if ((sp >= -1e-9) !== (sq >= -1e-9)) { const t = sp / (sp - sq); out.push([P[0] + t*(Q[0]-P[0]), P[1] + t*(Q[1]-P[1])]); }
+    }
+  }
+  return out;
+}
+const interArea = (P, Q) => { const r = clip(ccw(P), ccw(Q)); return r.length > 2 ? Math.abs(polyArea(r)) : 0; };
+
+// ---------------- sound ----------------
+let audio = null;
+function tone(freq, dur, type = "sine", vol = .08, slideTo = null, delay = 0) {
+  if (!settings.sound) return;
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = audio.currentTime + delay, o = audio.createOscillator(), g = audio.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t0); if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+    g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g).connect(audio.destination); o.start(t0); o.stop(t0 + dur + .02);
+  } catch (e) {}
+}
+const sfx = { pick: () => tone(520, .07, "sine", .06, 700), click: () => { tone(1320, .05, "triangle", .08); tone(1760, .06, "sine", .04, null, .03); },
+  turn: () => tone(760, .04, "square", .025), home: () => tone(300, .16, "sine", .05, 180), nope: () => tone(220, .12, "triangle", .05),
+  win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .24, "triangle", .07, null, i * .11)) };
+
+// ---------------- storage (per-viewer convenience; the page works without it) ----------------
+const store = { get(k, d) { try { const v = localStorage.getItem("tna2." + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+                set(k, v) { try { localStorage.setItem("tna2." + k, JSON.stringify(v)); } catch (e) {} } };
+const settings = Object.assign({ diff: "medium", timer: "auto", sound: true }, store.get("settings", {}));
+const stats = Object.assign({ day: "", today: 0, total: 0 }, store.get("stats", {}));
+const progress = store.get("progress", {});   // id -> {status, pieces, time, best, solves}
+const today = () => new Date().toISOString().slice(0, 10);
+function saveAll() { store.set("settings", settings); store.set("stats", stats); store.set("progress", progress); }
+
+// ---------------- state ----------------
+let idx = Math.min(store.get("idx", 0), PUZZLES.length - 1);
+let P, pieces = [], L, drag = null, twist = null, selected = null, lastTouch = performance.now(), anchorsStatic = [];
+const byId = id => document.getElementById(id);
+const stage = byId("stage");
+const layers = { board: byId("layerBoard"), sil: byId("layerSil"), art: byId("artLayer"), tray: byId("layerTray"), preview: byId("layerPreview"), pieces: byId("layerPieces"), top: byId("layerTop") };
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs = {}, parent) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+const ptsAttr = pts => pts.map(p => p[0].toFixed(3) + "," + p[1].toFixed(3)).join(" ");
+const cfg = () => DIFF[settings.diff];
+const prog = () => (progress[P.id] = progress[P.id] || { status: "new", pieces: null, time: 0, best: null, solves: 0 });
+
+function loadPuzzle(i) {
+  if (P) persistPieces();
+  idx = (i + PUZZLES.length) % PUZZLES.length; store.set("idx", idx);
+  P = PUZZLES[idx]; selected = null;
+  anchorsStatic = P.corners.slice();   // silhouette corners; placed-piece corners are added live
+  P.silPolys = P.slots.map(s => ccw(s.poly));
+  const saved = prog().pieces;
+  pieces = ORDER.map(id => {
+    const sv = saved && saved.find(x => x.id === id), type = TYPE[id];
+    const pc = { id, type, st: "tray", x: 0, y: 0, k: STANDARD_TURN[type], f: false, g: null };
+    if (sv && prog().status === "progress") Object.assign(pc, { st: sv.st, x: sv.x, y: sv.y, k: sv.k, f: sv.f });
+    pc.ang = pc.k * 45;
+    return pc;
+  });
+  byId("confetti").getContext("2d").clearRect(0, 0, 9999, 9999);
+  build();
+}
+function persistPieces() {
+  if (!P) return;
+  const pr = prog();
+  if (pr.status !== "solved") {
+    pr.pieces = pieces.map(p => ({ id: p.id, st: p.st === "drag" ? "tray" : p.st, x: p.x, y: p.y, k: p.k, f: p.f }));
+    pr.status = pieces.some(p => p.st === "board") || pr.time > 0 ? "progress" : "new";
+    if (pr.status === "new") pr.pieces = null;
+  }
+  saveAll();
+}
+
+// ---------------- layout ----------------
+function layout() {
+  const W = stage.clientWidth, H = stage.clientHeight, compact = W < 600;
+  const gap = compact ? 8 : 14, pad = 12, side = compact ? 8 : 16, topH = compact ? 66 : 74;
+  const ids = ORDER;
+  const rows = compact ? [ids.filter(i => TYPE[i] === "LT" || TYPE[i] === "MT"), ids.filter(i => !(TYPE[i] === "LT" || TYPE[i] === "MT"))] : [ids];
+  const trayW = W - 2 * side, maxCellH = Math.max(84, H * 0.16);
+  let ts = Infinity;
+  for (const r of rows) {
+    const d = r.reduce((a, id) => a + TURN_D[TYPE[id]], 0);
+    ts = Math.min(ts, (trayW - gap * (r.length + 1) - pad * r.length) / d, (maxCellH - pad) / Math.max(...r.map(id => TURN_D[TYPE[id]])));
+  }
+  const rowHs = rows.map(r => Math.max(...r.map(id => TURN_D[TYPE[id]])) * ts + pad);
+  const trayH = rowHs.reduce((a, b) => a + b, 0) + gap * (rows.length + 1);
+  const trayY = H - trayH - (compact ? 10 : 14);
+  const cells = {}; let y = trayY + gap;
+  rows.forEach((r, ri) => {
+    const ws = r.map(id => TURN_D[TYPE[id]] * ts + pad), total = ws.reduce((a, b) => a + b, 0) + gap * (r.length - 1);
+    let x = side + (trayW - total) / 2;
+    r.forEach((id, i) => { cells[id] = { x, y, w: ws[i], h: rowHs[ri], cx: x + ws[i] / 2, cy: y + rowHs[ri] / 2 }; x += ws[i] + gap; });
+    y += rowHs[ri] + gap;
+  });
+  const bx = side, by = topH + 4, bw = W - 2 * side, bh = trayY - by - (compact ? 8 : 12);
+  const xs = P.slots.flatMap(s => s.poly.map(p => p[0])), ys = P.slots.flatMap(s => s.poly.map(p => p[1]));
+  const minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
+  const bs = Math.min(bw * .82 / (maxx - minx), bh * .8 / (maxy - miny));
+  const ox = bx + (bw - (maxx - minx) * bs) / 2 - minx * bs, oy = by + (bh - (maxy - miny) * bs) / 2 - miny * bs;
+  return { W, H, compact, side, trayX: side, trayY, trayW, trayH, cells, ts, board: { x: bx, y: by, w: bw, h: bh }, bs, ox, oy };
+}
+const toScreen = (u, v) => [L.ox + u * L.bs, L.oy + v * L.bs];
+const toUnits = (x, y) => [(x - L.ox) / L.bs, (y - L.oy) / L.bs];
+
+// ---------------- rendering ----------------
+function build() {
+  L = layout();
+  stage.setAttribute("viewBox", `0 0 ${L.W} ${L.H}`);
+  for (const k in layers) layers[k].replaceChildren();
+  const b = L.board, solved = prog().status === "solved";
+  el("rect", { x: b.x, y: b.y, width: b.w, height: b.h, rx: 26, fill: "var(--board)", stroke: "var(--board-edge)", "stroke-width": 2 }, layers.board);
+  const clipEl = byId("silClip"); clipEl.replaceChildren();
+  P.slots.forEach(s => {
+    const pts = ptsAttr(s.poly.map(p => toScreen(p[0], p[1])));
+    el("polygon", { points: pts, fill: "var(--shadow)", stroke: "var(--shadow)", "stroke-width": 2.5, "stroke-linejoin": "round" }, layers.sil);
+    el("polygon", { points: pts, stroke: "#000", "stroke-width": 1.5, "stroke-linejoin": "round" }, clipEl);
+  });
+  drawArt();
+  layers.art.style.transition = "none"; layers.art.setAttribute("opacity", solved ? 1 : 0); void layers.art.getBBox(); layers.art.style.transition = "";
+  if (!solved) {
+    el("rect", { x: L.trayX, y: L.trayY, width: L.trayW, height: L.trayH, rx: 24, fill: "var(--tray)" }, layers.tray);
+    for (const id of ORDER) {
+      const c = L.cells[id], pc = pieces.find(p => p.id === id);
+      const cell = el("rect", { x: c.x, y: c.y, width: c.w, height: c.h, rx: 16, fill: "var(--cell)", stroke: "var(--cell-edge)", "stroke-width": 1.5 }, layers.tray);
+      cell.addEventListener("pointerdown", e => { if (pc.st === "tray") startPointer(e, pc); });
+      pc.ghost = el("polygon", { points: ptsAttr(verts(pc.type, STANDARD_TURN[pc.type], false, 0, 0).map(p => [c.cx + p[0] * L.ts, c.cy + p[1] * L.ts])),
+        fill: "none", stroke: "#D5CDBB", "stroke-width": 2, "stroke-dasharray": "5 4", "stroke-linejoin": "round", "pointer-events": "none" }, layers.tray);
+    }
+    pieces.forEach(pc => {
+      const g = el("g", { class: "piece" }, layers.pieces), pts = ptsAttr(CENTERED[pc.type]);
+      el("polygon", { points: pts, fill: "transparent", stroke: "transparent", "stroke-width": 24, "vector-effect": "non-scaling-stroke", "stroke-linejoin": "round" }, g);
+      el("polygon", { class: "body", points: pts, fill: COLORS[pc.id], stroke: "#FFFFFF", "stroke-width": 2, "vector-effect": "non-scaling-stroke", "stroke-linejoin": "round" }, g);
+      g.addEventListener("pointerdown", e => startPointer(e, pc));
+      pc.g = g; render(pc, true);
+    });
+  }
+  updateChrome();
+}
+function drawArt() {
+  const A = P.art, s = L.bs, g = layers.art;
+  const xs = P.slots.flatMap(q => q.poly.map(p => p[0])), ys = P.slots.flatMap(q => q.poly.map(p => p[1]));
+  const [x0, y0] = toScreen(Math.min(...xs) - 1, Math.min(...ys) - 1);
+  el("rect", { x: x0, y: y0, width: (Math.max(...xs) - Math.min(...xs) + 2) * s, height: (Math.max(...ys) - Math.min(...ys) + 2) * s, fill: A.base }, g);
+  for (const sh of A.shapes) {
+    const paint = { fill: sh.fill || "none" };
+    if (sh.stroke) Object.assign(paint, { stroke: sh.stroke, "stroke-width": (sh.width || .05) * s, "stroke-linecap": "round", "stroke-linejoin": "round" });
+    if (sh.opacity) paint.opacity = sh.opacity;
+    const T = p => toScreen(p[0], p[1]);
+    if (sh.type === "polygon") el("polygon", { points: ptsAttr(sh.points.map(T)), ...paint }, g);
+    else if (sh.type === "rect") { const [x, y] = T([sh.x, sh.y]); el("rect", { x, y, width: sh.w * s, height: sh.h * s, rx: (sh.rx || 0) * s, ...paint }, g); }
+    else if (sh.type === "circle") { const [x, y] = T(sh.c); el("circle", { cx: x, cy: y, r: sh.r * s, ...paint }, g); }
+    else if (sh.type === "ellipse") { const [x, y] = T(sh.c); el("ellipse", { cx: x, cy: y, rx: sh.rx * s, ry: sh.ry * s, ...paint }, g); }
+    else if (sh.type === "line") { const [x1, y1] = T(sh.from), [x2, y2] = T(sh.to); el("line", { x1, y1, x2, y2, ...paint }, g); }
+    else if (sh.type === "path") {
+      const d = sh.d.replace(/(-?\d*\.?\d+),(-?\d*\.?\d+)/g, (m, a, b2) => T([+a, +b2]).map(v => v.toFixed(2)).join(","));
+      el("path", { d, ...paint }, g);
+    }
+  }
+}
+function render(pc, instant) {
+  const g = pc.g; if (!g) return;
+  if (instant) g.style.transition = "none";
+  let x, y, s;
+  if (pc.st === "tray") { const c = L.cells[pc.id]; x = c.cx; y = c.cy; s = L.ts; }
+  else if (pc.st === "drag") { x = drag.x; y = drag.y; s = drag.scale; }
+  else { [x, y] = toScreen(pc.x, pc.y); s = L.bs; }
+  g.style.transform = `translate(${x}px, ${y}px) rotate(${pc.ang}deg) scale(${pc.f ? -s : s}, ${s})`;
+  if (instant) { void g.getBoundingClientRect(); g.style.transition = ""; }
+  if (pc.ghost) pc.ghost.style.display = pc.st === "tray" ? "none" : "";
+}
+function setTurn(pc, k) { const d = k - pc.k; pc.k = ((k % 8) + 8) % 8; pc.ang += d * 45; }
+function fmt(sec) { sec = Math.round(sec); const m = Math.floor(sec / 60), s = sec % 60; return m >= 60 ? Math.floor(m / 60) + " h " + (m % 60) + " min" : m + ":" + String(s).padStart(2, "0"); }
+function updateChrome() {
+  const pr = prog(), solved = pr.status === "solved";
+  byId("pTitle").textContent = P.title;
+  byId("pSub").innerHTML = `<span class="dots">${"●".repeat(P.difficulty)}${"○".repeat(5 - P.difficulty)}</span> · ${idx + 1} / ${PUZZLES.length}` +
+    (solved ? " · solved ✓" : pr.status === "progress" ? " · in progress" : "");
+  const b = L.board;
+  const rb = byId("restartBtn"); rb.hidden = solved || !(pr.status === "progress" || pieces.some(p => p.st === "board"));
+  Object.assign(rb.style, { left: (b.x + 10) + "px", top: (b.y + 10) + "px" });
+  const showT = !solved && (settings.timer === "on" || (settings.timer === "auto" && settings.diff === "hard"));
+  const tm = byId("timer"); tm.hidden = !showT; tm.textContent = "⏱ " + fmt(pr.time);
+  Object.assign(tm.style, { right: (L.W - b.x - b.w + 14) + "px", top: (b.y + 14) + "px" });
+  const sb = byId("solvedBar"); sb.hidden = !solved;
+  Object.assign(sb.style, { left: L.trayX + "px", width: L.trayW + "px", top: L.trayY + "px", height: L.trayH + "px" });
+  byId("bestTime").innerHTML = solved ? `best time<br><b style="font-size:20px;color:var(--ink)">${pr.best != null ? fmt(pr.best) : "–"}</b>` : "";
+  updateFlip();
+}
+
+// ---------------- locking (Study/06-snapping-by-anchors.md) ----------------
+function anchors(except) {
+  const out = anchorsStatic.slice();
+  for (const p of pieces) if (p.st === "board" && p !== except) out.push(...verts(p.type, p.k, p.f, p.x, p.y));
+  return out;
+}
+function validAt(V, except) {
+  const want = Math.abs(polyArea(V));
+  let inside = 0; for (const S of P.silPolys) inside += interArea(V, S);
+  if (inside < want - 1e-6) return false;
+  for (const p of pieces) if (p.st === "board" && p !== except && interArea(V, verts(p.type, p.k, p.f, p.x, p.y)) > 1e-6) return false;
+  return true;
+}
+function findLock(pc, cx, cy, exact) {
+  const c = cfg(), R = Math.max(c.R, 30 / L.bs), A = anchors(pc);
+  const variants = [[pc.k, pc.f, 0]];
+  if (exact) {} else if (c.turnForgive) variants.push([pc.k + 1, pc.f, .25], [pc.k - 1, pc.f, .25]);
+  if (!exact && c.autoFlip && pc.type === "PG") variants.slice().forEach(([k, f, pen]) => variants.push([k, !f, pen + .1]));
+  const cands = [];
+  for (const [k, f, pen] of variants) {
+    const V = verts(pc.type, k, f, cx, cy);
+    for (const v of V) for (const a of A) {
+      const tx = a[0] - v[0], ty = a[1] - v[1], d = Math.hypot(tx, ty);
+      if (d <= R) cands.push({ k, f, x: cx + tx, y: cy + ty, base: d + pen });
+    }
+  }
+  cands.sort((p, q) => p.base - q.base);
+  let best = null;
+  for (const cd of cands) {
+    if (best && cd.base - .16 > best.score) break;
+    const V = verts(pc.type, cd.k, cd.f, cd.x, cd.y);
+    if (!validAt(V, pc)) continue;
+    const snug = V.filter(v => A.some(a => Math.abs(a[0]-v[0]) < 1e-6 && Math.abs(a[1]-v[1]) < 1e-6)).length;
+    const score = cd.base - .04 * snug;
+    if (!best || score < best.score) best = { ...cd, score };
+  }
+  return best;
+}
+function lockTo(pc, r) {
+  pc.st = "board"; pc.x = r.x; pc.y = r.y;
+  if (r.k !== pc.k) setTurn(pc, r.k);
+  pc.f = r.f; render(pc); sfx.click();
+  const pr = prog(); if (pr.status === "new") pr.status = "progress";
+  if (pieces.every(p => p.st === "board")) setTimeout(solve, 250);
+  persistPieces(); updateChrome();
+}
+function sendHome(pc) { pc.st = "tray"; setTurn(pc, pc.k); render(pc); sfx.home(); persistPieces(); updateChrome(); }
+
+// ---------------- input ----------------
+function pointerPos(e) { const r = stage.getBoundingClientRect(); return [(e.clientX - r.left) * L.W / r.width, (e.clientY - r.top) * L.H / r.height]; }
+function startPointer(e, pc) {
+  lastTouch = performance.now();
+  if (drag) return;               // second finger is handled by the twist listener
+  if (prog().status === "solved") return;
+  e.preventDefault(); e.stopPropagation();
+  const [px, py] = pointerPos(e);
+  const origin = pc.st === "tray" ? [L.cells[pc.id].cx, L.cells[pc.id].cy] : toScreen(pc.x, pc.y);
+  drag = { pc, id: e.pointerId, sx: px, sy: py, px, py, moved: false, x: origin[0], y: origin[1], offx: origin[0] - px, offy: origin[1] - py,
+           from: pc.st, fromPos: [pc.x, pc.y], scale: pc.st === "tray" ? L.ts : L.bs };
+  layers.pieces.appendChild(pc.g);
+  window.addEventListener("pointermove", onMove); window.addEventListener("pointerup", onUp); window.addEventListener("pointercancel", onUp);
+}
+function liftOffset(pc) { return Math.max(...verts(pc.type, pc.k, pc.f, 0, 0).map(v => v[1])) * L.bs + (L.compact ? 30 : 40); }
+function beginDrag() {
+  const pc = drag.pc; drag.moved = true; drag.t0 = performance.now(); drag.startScale = drag.scale;
+  pc.st = "drag"; pc.g.classList.add("dragging", "lifted"); sfx.pick();
+  if (drag.from === "tray") { drag.offx = 0; drag.offy = -liftOffset(pc); } else drag.offy -= 14;
+  selected = pc; updateChrome();
+}
+function onMove(e) {
+  lastTouch = performance.now();
+  if (!drag) return;
+  if (twist && e.pointerId === twist.id) { twist.bx = pointerPos(e)[0]; twist.by = pointerPos(e)[1]; applyTwist(); return; }
+  if (e.pointerId !== drag.id) return;
+  const [px, py] = pointerPos(e); drag.px = px; drag.py = py;
+  if (!drag.moved && Math.hypot(px - drag.sx, py - drag.sy) < 12) return;
+  if (!drag.moved) beginDrag();
+  const pc = drag.pc, k = Math.min(1, (performance.now() - drag.t0) / 120);
+  drag.scale = drag.startScale + (L.bs - drag.startScale) * (1 - Math.pow(1 - k, 3));
+  drag.x = px + drag.offx; drag.y = py + drag.offy;
+  render(pc);
+  if (k < 1 && !drag.raf) drag.raf = requestAnimationFrame(() => { if (drag) { drag.raf = null; onMove({ pointerId: drag.id, clientX: e.clientX, clientY: e.clientY }); } });
+  if (twist) applyTwist();
+  schedulePreview();
+}
+let previewQueued = false;
+function schedulePreview() { if (previewQueued) return; previewQueued = true; requestAnimationFrame(() => { previewQueued = false; showPreview(); }); }
+function showPreview() {
+  layers.preview.replaceChildren();
+  if (!drag || !drag.moved || !cfg().preview) return;
+  const [ux, uy] = toUnits(drag.x, drag.y);
+  if (drag.y > L.trayY) return;
+  const r = findLock(drag.pc, ux, uy); if (!r) return;
+  el("polygon", { points: ptsAttr(verts(drag.pc.type, r.k, r.f, r.x, r.y).map(p => toScreen(p[0], p[1]))), fill: "rgba(255,255,255,.18)",
+                  stroke: "#FFFFFF", "stroke-width": 2.5, "stroke-dasharray": "7 5", "stroke-linejoin": "round" }, layers.preview);
+}
+function onUp(e) {
+  if (twist && e.pointerId === twist.id) { twist = null; return; }
+  if (!drag || e.pointerId !== drag.id) return;
+  window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); window.removeEventListener("pointercancel", onUp);
+  const d = drag; drag = null; twist = null; const pc = d.pc;
+  pc.g.classList.remove("dragging", "lifted"); layers.preview.replaceChildren();
+  if (!d.moved) { tapPiece(pc); return; }
+  const inBoard = d.y < L.trayY - 4 && d.y > L.board.y - 20 && d.x > L.board.x - 20 && d.x < L.board.x + L.board.w + 20;
+  const [ux, uy] = toUnits(d.x, d.y);
+  const r = inBoard ? findLock(pc, ux, uy) : null;
+  if (r) lockTo(pc, r); else sendHome(pc);
+}
+function tapPiece(pc) {
+  selected = pc;
+  if (pc.st === "tray") { setTurn(pc, pc.k + 1); render(pc); sfx.turn(); updateChrome(); return; }
+  // on the board: turn in place, keep it only if it still fits near here
+  const was = { k: pc.k, ang: pc.ang, x: pc.x, y: pc.y, f: pc.f };
+  setTurn(pc, pc.k + 1); pc.st = "board";
+  const r = findLock(pc, pc.x, pc.y, true);
+  if (r) { pc.x = r.x; pc.y = r.y; render(pc); sfx.turn(); persistPieces(); }
+  else { pc.k = was.k; pc.ang = was.ang + 45; render(pc); setTimeout(() => { pc.ang = was.ang; render(pc); shake(pc); sfx.nope(); }, 140); }
+  updateChrome();
+}
+function shake(pc) { pc.g.classList.remove("shake"); void pc.g.getBBox(); pc.g.classList.add("shake"); setTimeout(() => pc.g && pc.g.classList.remove("shake"), 400); }
+// second finger → twist in 45° steps
+byId("app").addEventListener("pointerdown", e => {
+  lastTouch = performance.now();
+  if (!drag || e.pointerId === drag.id || twist) return;
+  e.preventDefault(); e.stopPropagation();
+  const [bx, by] = pointerPos(e);
+  twist = { id: e.pointerId, bx, by, a0: Math.atan2(by - drag.py, bx - drag.px), steps: 0 };
+}, true);
+function applyTwist() {
+  const a = Math.atan2(twist.by - drag.py, twist.bx - drag.px);
+  let d = (a - twist.a0) * 180 / Math.PI; while (d > 180) d -= 360; while (d < -180) d += 360;
+  const steps = Math.round(d / 45);
+  if (steps !== twist.steps) { setTurn(drag.pc, drag.pc.k + steps - twist.steps); twist.steps = steps; render(drag.pc); sfx.turn(); schedulePreview(); }
+}
+window.addEventListener("wheel", e => { if (!drag || !drag.moved) return; e.preventDefault(); setTurn(drag.pc, drag.pc.k + (e.deltaY > 0 ? 1 : -1)); render(drag.pc); sfx.turn(); schedulePreview(); }, { passive: false });
+window.addEventListener("keydown", e => {
+  lastTouch = performance.now();
+  const pc = drag ? drag.pc : null;
+  if (e.key === "ArrowRight" && !drag && overlaysClosed()) loadPuzzle(idx + 1);
+  if (e.key === "ArrowLeft" && !drag && overlaysClosed()) loadPuzzle(idx - 1);
+  if (!pc || !drag.moved) return;
+  if (e.key === "r" || e.key === "R") { setTurn(pc, pc.k + (e.shiftKey ? -1 : 1)); render(pc); sfx.turn(); schedulePreview(); }
+  if ((e.key === "f" || e.key === "F") && pc.type === "PG") { pc.f = !pc.f; render(pc); sfx.turn(); schedulePreview(); }
+});
+
+// flip badge (Hard mode, parallelogram)
+let flipBtn = null;
+function updateFlip() {
+  if (flipBtn) { flipBtn.remove(); flipBtn = null; }
+  const pc = pieces.find(p => p.type === "PG");
+  if (!pc || cfg().autoFlip || prog().status === "solved" || pc.st === "drag") return;
+  let x, y;
+  if (pc.st === "tray") { const c = L.cells[pc.id]; x = c.x + c.w - 4; y = c.y + 4; }
+  else { const vs = verts(pc.type, pc.k, pc.f, pc.x, pc.y).map(p => toScreen(p[0], p[1])); x = Math.max(...vs.map(v => v[0])) + 22; y = Math.min(...vs.map(v => v[1])) - 4; }
+  flipBtn = el("g", { style: "cursor:pointer", role: "button", "aria-label": "Flip the parallelogram" }, layers.top);
+  el("circle", { cx: x, cy: y, r: 30, fill: "transparent" }, flipBtn);
+  el("circle", { cx: x, cy: y, r: 19, fill: "#fff", stroke: "var(--accent)", "stroke-width": 2.5 }, flipBtn);
+  el("path", { d: `M${x},${y-10} L${x},${y+10}`, stroke: "var(--accent)", "stroke-width": 1.8, "stroke-dasharray": "3 3" }, flipBtn);
+  el("path", { d: `M${x-3},${y-7} L${x-11},${y+7} L${x-3},${y+7} Z`, fill: "var(--accent)" }, flipBtn);
+  el("path", { d: `M${x+3},${y-7} L${x+11},${y+7} L${x+3},${y+7} Z`, fill: "none", stroke: "var(--accent)", "stroke-width": 1.8 }, flipBtn);
+  flipBtn.addEventListener("pointerdown", e => {
+    e.stopPropagation(); e.preventDefault(); lastTouch = performance.now();
+    if (pc.st === "tray") { pc.f = !pc.f; render(pc); sfx.turn(); return; }
+    const was = pc.f; pc.f = !pc.f;
+    const r = findLock(pc, pc.x, pc.y, true);
+    if (r) { pc.x = r.x; pc.y = r.y; render(pc); sfx.turn(); persistPieces(); updateChrome(); }
+    else { pc.f = was; shake(pc); sfx.nope(); }
+  });
+}
+
+// ---------------- solving ----------------
+function solve() {
+  const pr = prog();
+  pr.status = "solved"; pr.solves = (pr.solves || 0) + 1; pr.best = pr.best == null ? pr.time : Math.min(pr.best, pr.time); pr.lastTime = pr.time; pr.pieces = null;
+  saveAll(); sfx.win(); selected = null; updateFlip();
+  layers.pieces.classList.remove("pop"); void layers.pieces.getBBox(); layers.pieces.classList.add("pop");
+  confetti();
+  setTimeout(() => { layers.art.setAttribute("opacity", 1); pieces.forEach(p => p.g && (p.g.style.opacity = 0)); }, 650);
+  setTimeout(() => { build(); }, 1500);
+}
+function restart() {
+  const pr = prog(); pr.status = "new"; pr.pieces = null; pr.time = 0; saveAll(); P = null; loadPuzzle(idx);
+}
+function confetti() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = byId("confetti"), ctx = cv.getContext("2d"), dpr = devicePixelRatio || 1;
+  cv.width = L.W * dpr; cv.height = L.H * dpr; cv.style.width = L.W + "px"; cv.style.height = L.H + "px"; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cols = Object.values(COLORS), parts = Array.from({ length: 110 }, () => ({ x: L.W / 2 + (Math.random() - .5) * 80, y: L.board.y + L.board.h * .5,
+    vx: (Math.random() - .5) * 11, vy: -Math.random() * 12 - 4, r: Math.random() * 6.3, vr: (Math.random() - .5) * .3, c: cols[(Math.random() * cols.length) | 0], w: 7 + Math.random() * 5, h: 10 + Math.random() * 6 }));
+  const t0 = performance.now();
+  (function frame(t) {
+    ctx.clearRect(0, 0, L.W, L.H);
+    for (const p of parts) { p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore(); }
+    if (t - t0 < 2400) requestAnimationFrame(frame); else ctx.clearRect(0, 0, L.W, L.H);
+  })(t0);
+}
+
+// ---------------- active play time (Study/07) ----------------
+const overlaysClosed = () => byId("settings").hidden;
+setInterval(() => {
+  if (document.visibilityState !== "visible" || !P) return;
+  if (performance.now() - lastTouch > 60000) return;            // idle: not active
+  if (stats.day !== today()) { stats.day = today(); stats.today = 0; }
+  stats.today++; stats.total++;
+  const pr = prog();
+  if (pr.status !== "solved" && overlaysClosed() && (pr.status === "progress" || pieces.some(p => p.st !== "tray"))) { pr.time++; }
+  if (!byId("timer").hidden) byId("timer").textContent = "⏱ " + fmt(pr.time);
+  if (stats.total % 5 === 0) saveAll();
+}, 1000);
+// ---------------- settings ----------------
+function openSettings() {
+  document.querySelectorAll("#diffSeg button").forEach(b => b.classList.toggle("on", b.dataset.d === settings.diff));
+  document.querySelectorAll("#timerSeg button").forEach(b => b.classList.toggle("on", b.dataset.t === settings.timer));
+  byId("diffHint").textContent = cfg().text;
+  byId("soundBtn").textContent = settings.sound ? "Sound on" : "Sound off";
+  const solvedN = PUZZLES.filter(p => (progress[p.id] || {}).status === "solved").length;
+  let rows = `<tr><td>Active today</td><td>${fmt(stats.day === today() ? stats.today : 0)}</td></tr><tr><td>Active in total</td><td>${fmt(stats.total)}</td></tr><tr><td>Puzzles solved</td><td>${solvedN} / ${PUZZLES.length}</td></tr>`;
+  for (const p of PUZZLES) { const pr = progress[p.id]; if (pr && pr.best != null) rows += `<tr><td>Best · ${p.title}</td><td>${fmt(pr.best)}</td></tr>`; }
+  byId("stats").innerHTML = rows;
+  byId("resetConfirm").hidden = true; byId("resetBtn").hidden = false;
+  byId("settings").hidden = false;
+}
+byId("diffSeg").onclick = e => { const d = e.target.closest("button"); if (!d) return; settings.diff = d.dataset.d; saveAll(); openSettings(); build(); };
+byId("timerSeg").onclick = e => { const d = e.target.closest("button"); if (!d) return; settings.timer = d.dataset.t; saveAll(); openSettings(); updateChrome(); };
+byId("soundBtn").onclick = () => { settings.sound = !settings.sound; saveAll(); openSettings(); };
+byId("resetBtn").onclick = () => { byId("resetConfirm").hidden = false; byId("resetBtn").hidden = true; };
+byId("resetNo").onclick = () => { byId("resetConfirm").hidden = true; byId("resetBtn").hidden = false; };
+byId("resetYes").onclick = () => { for (const k in progress) delete progress[k]; Object.assign(stats, { today: 0, total: 0 }); saveAll(); P = null; loadPuzzle(0); openSettings(); };
+byId("closeSettings").onclick = () => { byId("settings").hidden = true; };
+byId("settings").addEventListener("pointerdown", e => { if (e.target.id === "settings") byId("settings").hidden = true; });
+byId("gearBtn").onclick = openSettings;
+byId("prevBtn").onclick = () => loadPuzzle(idx - 1);
+byId("nextBtn").onclick = () => { loadPuzzle(idx + 1); };
+byId("nextBig").onclick = () => loadPuzzle(idx + 1);
+byId("retryBtn").onclick = restart;
+byId("restartBtn").onclick = restart;
+document.addEventListener("visibilitychange", () => { if (document.visibilityState !== "visible") persistPieces(); });
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (P && !drag) { persistPieces(); build(); } }, 120); });
+loadPuzzle(idx);
+</script>

@@ -1,0 +1,38 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "vehicles-sailboat",
+  "title": {
+    "en": "Sailboat",
+    "fi": "Purjevene"
+  },
+  "category": "vehicles",
+  "difficulty": 3,
+  "solution": [
+    {"piece": "LT1", "polygon": [[0, 0], [0, [0, 2]], [[0, -2], [0, 2]]]},
+    {"piece": "LT2", "polygon": [[0, 0], [0, [0, 2]], [[0, 2], [0, 2]]]},
+    {"piece": "ST1", "polygon": [[[0, -2.5], [0, 2]], [[0, -1.5], [0, 2]], [[0, -1.5], [0, 3]]]},
+    {"piece": "SQ", "polygon": [[[0, -1.5], [0, 2]], [[0, -0.5], [0, 2]], [[0, -0.5], [0, 3]], [[0, -1.5], [0, 3]]]},
+    {"piece": "ST2", "polygon": [[[0, -0.5], [0, 2]], [[0, 0.5], [0, 3]], [[0, -0.5], [0, 3]]]},
+    {"piece": "MT", "polygon": [[[0, -0.5], [0, 2]], [[0, 1.5], [0, 2]], [[0, 0.5], [0, 3]]]},
+    {"piece": "PG", "polygon": [[[0, 1.5], [0, 2]], [[0, 2.5], [0, 2]], [[0, 1.5], [0, 3]], [[0, 0.5], [0, 3]]]}
+  ],
+  "art": {
+    "base": "#F3E3C0",
+    "shapes": [
+      {"type": "polygon", "points": [[-3.536, 2.828], [3.536, 2.828], [2.121, 4.243], [-2.121, 4.243]], "fill": "#8B5A3C"},
+      {"type": "rect", "x": -3.677, "y": 2.828, "w": 7.354, "h": 0.22, "fill": "#E8505B"},
+      {"type": "circle", "c": [-1.414, 3.606], "r": 0.16, "fill": "#F7F4EC"},
+      {"type": "circle", "c": [0, 3.606], "r": 0.16, "fill": "#F7F4EC"},
+      {"type": "circle", "c": [1.414, 3.606], "r": 0.16, "fill": "#F7F4EC"},
+      {"type": "polygon", "points": [[0, 0], [0, 2.828], [-2.828, 2.828]], "fill": "#F6E7C8"},
+      {"type": "polygon", "points": [[0, 0], [0, 2.828], [2.828, 2.828]], "fill": "#E6CFA3"},
+      {"type": "polygon", "points": [[0, 1.2], [0, 1.75], [-1.75, 2.828], [-1.2, 2.828]], "fill": "#3D8BFD", "opacity": 0.85},
+      {"type": "polygon", "points": [[0, 1.2], [0, 1.75], [1.75, 2.828], [1.2, 2.828]], "fill": "#3D8BFD", "opacity": 0.6},
+      {"type": "line", "from": [0, 0], "to": [0, 2.828], "stroke": "#5B3A26", "width": 0.1}
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude",
+    "reviewedByHuman": false
+  }
+}

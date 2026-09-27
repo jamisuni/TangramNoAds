@@ -1,0 +1,38 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "starter-little-boat",
+  "title": {
+    "en": "Little boat",
+    "fi": "Pikku vene"
+  },
+  "category": "starter",
+  "difficulty": 1,
+  "solution": [
+    {
+      "piece": "LT1",
+      "polygon": [[2, 0], [2, 4], [0, 2]]
+    },
+    {
+      "piece": "MT",
+      "polygon": [[2, 2], [2, 4], [4, 4]]
+    },
+    {
+      "piece": "PG",
+      "polygon": [[0, 4], [2, 4], [3, 5], [1, 5]]
+    },
+    {
+      "piece": "ST1",
+      "polygon": [[2, 4], [4, 4], [3, 5]]
+    }
+  ],
+  "assist": {
+    "preplacedOrder": [
+      "LT1",
+      "MT"
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude",
+    "reviewedByHuman": false
+  }
+}

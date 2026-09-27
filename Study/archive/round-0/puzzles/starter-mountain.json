@@ -1,0 +1,33 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "starter-mountain",
+  "title": {
+    "en": "Mountain",
+    "fi": "Vuori"
+  },
+  "category": "starter",
+  "difficulty": 1,
+  "solution": [
+    {
+      "piece": "SQ",
+      "polygon": [[1, 1], [2, 0], [3, 1], [2, 2]]
+    },
+    {
+      "piece": "ST1",
+      "polygon": [[0, 2], [2, 2], [1, 1]]
+    },
+    {
+      "piece": "ST2",
+      "polygon": [[2, 2], [4, 2], [3, 1]]
+    }
+  ],
+  "assist": {
+    "preplacedOrder": [
+      "SQ"
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude",
+    "reviewedByHuman": false
+  }
+}

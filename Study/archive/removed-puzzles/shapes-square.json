@@ -1,0 +1,38 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "shapes-square",
+  "title": {
+    "en": "Gift box",
+    "fi": "Lahjapaketti"
+  },
+  "category": "shapes",
+  "difficulty": 4,
+  "solution": [
+    {"piece": "LT1", "polygon": [[0, 0], [4, 0], [2, 2]]},
+    {"piece": "LT2", "polygon": [[0, 0], [2, 2], [0, 4]]},
+    {"piece": "MT", "polygon": [[4, 2], [4, 4], [2, 4]]},
+    {"piece": "ST1", "polygon": [[4, 0], [4, 2], [3, 1]]},
+    {"piece": "SQ", "polygon": [[2, 2], [3, 1], [4, 2], [3, 3]]},
+    {"piece": "ST2", "polygon": [[2, 2], [3, 3], [1, 3]]},
+    {"piece": "PG", "polygon": [[0, 4], [1, 3], [3, 3], [2, 4]]}
+  ],
+  "art": {
+    "base": "#3D8BFD",
+    "shapes": [
+      {"type": "rect", "x": 0, "y": 0, "w": 4, "h": 4, "fill": "#3D8BFD"},
+      {"type": "circle", "c": [0.7, 0.8], "r": 0.18, "fill": "#FFFFFF", "opacity": 0.35},
+      {"type": "circle", "c": [3.2, 3.3], "r": 0.22, "fill": "#FFFFFF", "opacity": 0.35},
+      {"type": "circle", "c": [1.0, 3.1], "r": 0.14, "fill": "#FFFFFF", "opacity": 0.35},
+      {"type": "circle", "c": [3.3, 0.9], "r": 0.14, "fill": "#FFFFFF", "opacity": 0.35},
+      {"type": "rect", "x": 1.7, "y": 0, "w": 0.6, "h": 4, "fill": "#FFD23F"},
+      {"type": "rect", "x": 0, "y": 1.7, "w": 4, "h": 0.6, "fill": "#FFD23F"},
+      {"type": "ellipse", "c": [1.45, 1.55], "rx": 0.55, "ry": 0.35, "fill": "#F9A826"},
+      {"type": "ellipse", "c": [2.55, 1.55], "rx": 0.55, "ry": 0.35, "fill": "#F9A826"},
+      {"type": "circle", "c": [2, 1.75], "r": 0.28, "fill": "#E8505B"}
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude",
+    "reviewedByHuman": false
+  }
+}

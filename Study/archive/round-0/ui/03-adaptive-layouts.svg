@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" font-family="Nunito, Segoe UI, Arial, sans-serif"><defs><filter id="lift" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="7" flood-color="#000" flood-opacity="0.28"/></filter><filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter></defs><rect width="1500" height="900" fill="#FFFFFF"/><text x="40" y="46" font-size="22" font-weight="800" fill="#2B2D42">Adaptive layout · one rule decides the tray</text><text x="40" y="68" font-size="14" fill="#8A8FA8">Phones (narrow): 2 tray rows, big pieces on top. Tablets (wide): 1 tray row. The tray is always at the bottom; the board takes what is left.</text>
+<rect x="53" y="103" width="294.8" height="622.4" rx="25" fill="#23252F"/><rect x="60" y="110" width="280.8" height="608.4" rx="18" fill="#FBF8F2"/>
+<rect x="68" y="118" width="264.8" height="45.92" rx="8" fill="#E6E1D6"/>
+<rect x="68" y="171.92000000000002" width="264.8" height="387.59999999999997" rx="10" fill="#FFFFFF" stroke="#D9D2C3"/>
+<text x="200.4" y="368.72" text-anchor="middle" font-size="15" fill="#8A8FA8">BOARD</text>
+<rect x="68" y="565.52" width="264.8" height="145.08" rx="10" fill="#F1ECE1"/>
+<rect x="104.5" y="573.3" width="60.8" height="60.8" rx="5" fill="#FFFFFF"/>
+<rect x="170.0" y="573.3" width="60.8" height="60.8" rx="5" fill="#FFFFFF"/>
+<rect x="235.5" y="573.3" width="60.8" height="60.8" rx="5" fill="#FFFFFF"/>
+<rect x="71.7" y="642.0" width="60.8" height="60.8" rx="5" fill="#FFFFFF"/>
+<rect x="137.2" y="642.0" width="60.8" height="60.8" rx="5" fill="#FFFFFF"/>
+<rect x="202.7" y="642.0" width="60.8" height="60.8" rx="5" fill="#FFFFFF"/>
+<rect x="268.3" y="642.0" width="60.8" height="60.8" rx="5" fill="#FFFFFF"/>
+<text x="60" y="754.4" font-size="16" font-weight="700" fill="#2B2D42">Phone portrait</text>
+<text x="60" y="774.4" font-size="13" fill="#8A8FA8">360×780 dp · tray 2 rows · locked portrait</text>
+<rect x="413" y="103" width="398.0" height="628.4" rx="25" fill="#23252F"/><rect x="420" y="110" width="384.0" height="614.4" rx="18" fill="#FBF8F2"/>
+
+<rect x="428" y="122" width="368.0" height="522.48" rx="10" fill="#FFFFFF" stroke="#D9D2C3"/>
+<text x="612.0" y="386.24" text-anchor="middle" font-size="15" fill="#8A8FA8">BOARD</text>
+<rect x="428" y="650.48" width="368.0" height="69.12" rx="10" fill="#F1ECE1"/>
+<rect x="434.9" y="655.3" width="48.1" height="48.1" rx="5" fill="#FFFFFF"/>
+<rect x="485.9" y="655.3" width="48.1" height="48.1" rx="5" fill="#FFFFFF"/>
+<rect x="536.9" y="655.3" width="48.1" height="48.1" rx="5" fill="#FFFFFF"/>
+<rect x="587.9" y="655.3" width="48.1" height="48.1" rx="5" fill="#FFFFFF"/>
+<rect x="638.9" y="655.3" width="48.1" height="48.1" rx="5" fill="#FFFFFF"/>
+<rect x="690.0" y="655.3" width="48.1" height="48.1" rx="5" fill="#FFFFFF"/>
+<rect x="741.0" y="655.3" width="48.1" height="48.1" rx="5" fill="#FFFFFF"/>
+<text x="420" y="760.4" font-size="16" font-weight="700" fill="#2B2D42">Tablet portrait</text>
+<text x="420" y="780.4" font-size="13" fill="#8A8FA8">800×1280 dp · tray 1 row</text>
+<rect x="853" y="103" width="628.4" height="398.0" rx="25" fill="#23252F"/><rect x="860" y="110" width="614.4" height="384.0" rx="18" fill="#FBF8F2"/>
+
+<rect x="868" y="122" width="598.4" height="292.08" rx="10" fill="#FFFFFF" stroke="#D9D2C3"/>
+<text x="1167.2" y="271.03999999999996" text-anchor="middle" font-size="15" fill="#8A8FA8">BOARD</text>
+<rect x="868" y="420.08" width="598.4" height="69.12" rx="10" fill="#F1ECE1"/>
+<rect x="950.2" y="424.9" width="59.5" height="59.5" rx="5" fill="#FFFFFF"/>
+<rect x="1012.6" y="424.9" width="59.5" height="59.5" rx="5" fill="#FFFFFF"/>
+<rect x="1075.0" y="424.9" width="59.5" height="59.5" rx="5" fill="#FFFFFF"/>
+<rect x="1137.4" y="424.9" width="59.5" height="59.5" rx="5" fill="#FFFFFF"/>
+<rect x="1199.8" y="424.9" width="59.5" height="59.5" rx="5" fill="#FFFFFF"/>
+<rect x="1262.2" y="424.9" width="59.5" height="59.5" rx="5" fill="#FFFFFF"/>
+<rect x="1324.6" y="424.9" width="59.5" height="59.5" rx="5" fill="#FFFFFF"/>
+<text x="860" y="530.0" font-size="16" font-weight="700" fill="#2B2D42">Tablet landscape</text>
+<text x="860" y="550.0" font-size="13" fill="#8A8FA8">1280×800 dp · tray 1 row · corner buttons</text>
+<text x="860" y="610" font-size="15" font-weight="700" fill="#2B2D42">Layout rules (Android window size classes):</text>
+<text x="860" y="633" font-size="14" font-weight="400" fill="#2B2D42">• Compact width (< 600 dp): phone → portrait only, top bar, tray 2 rows</text>
+<text x="860" y="656" font-size="14" font-weight="400" fill="#2B2D42">   row 1 = big pieces (LT, LT, MT), row 2 = small (SQ, PG, ST, ST)</text>
+<text x="860" y="679" font-size="14" font-weight="400" fill="#2B2D42">• Medium / Expanded (≥ 600 dp): tablet → both orientations, tray 1 row,</text>
+<text x="860" y="702" font-size="14" font-weight="400" fill="#2B2D42">   Home / Hint in the corners</text>
+<text x="860" y="725" font-size="14" font-weight="400" fill="#2B2D42">• Cells are sized per piece so ALL miniatures share one scale, the largest</text>
+<text x="860" y="748" font-size="14" font-weight="400" fill="#2B2D42">   that fits the width; one tray row is at most 16 % of the window height</text>
+<text x="860" y="771" font-size="14" font-weight="400" fill="#2B2D42">• Board = the largest box left; puzzle fitted with 10 % padding</text>
+<text x="860" y="794" font-size="14" font-weight="400" fill="#2B2D42">• Phone landscape is NOT supported in v1 (board would be too small)</text></svg>
