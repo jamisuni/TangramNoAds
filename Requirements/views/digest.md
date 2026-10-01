@@ -6,53 +6,57 @@
 
 | Feature | Status | REQs |
 |---|---|---|
-| **#Promise** — Enjoy, it's absolutely free | ai-approved | REQ-001 |
-| &nbsp;&nbsp;&nbsp;└ **#NoMoney** — No ads, purchases or money asks | ai-approved | REQ-008, REQ-009 |
-| &nbsp;&nbsp;&nbsp;└ **#DeviceOnly** — Everything stays on the device | ai-approved | REQ-010 |
-| **#Solving** — Solving a puzzle | ai-approved | REQ-002 |
-| &nbsp;&nbsp;&nbsp;└ **#Board** — Silhouette board | ai-approved | REQ-011 |
-| &nbsp;&nbsp;&nbsp;└ **#Tray** — Piece tray | ai-approved | REQ-012, REQ-013 |
-| &nbsp;&nbsp;&nbsp;└ **#SizeMarks** — Size marks in the tray | ai-approved | REQ-043 |
-| &nbsp;&nbsp;&nbsp;└ **#Drag** — Drag and drop a piece | ai-approved | REQ-014, REQ-015 |
-| &nbsp;&nbsp;&nbsp;└ **#Turning** — Turning pieces | ai-approved | — |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#TapTurn** — Tap to turn | ai-approved | REQ-016 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#TwistTurn** — Two-finger twist | ai-approved | REQ-017 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#TurnButtons** — Turn buttons in the tray | ai-approved | REQ-044 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#Flip** — Mirror the parallelogram | ai-approved | REQ-018 |
-| &nbsp;&nbsp;&nbsp;└ **#Locking** — Pieces lock or go home | ai-approved | — |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#AnchorLock** — Lock to corners and neighbours | ai-approved | REQ-019 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#GoHome** — Missed drop returns to the tray | ai-approved | REQ-020 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#LandingPreview** — Landing preview | ai-approved | REQ-021 |
-| &nbsp;&nbsp;&nbsp;└ **#SolvedCheck** — Any exact cover solves | ai-approved | REQ-022 |
-| &nbsp;&nbsp;&nbsp;└ **#SolvedPicture** — Solved picture | ai-approved | REQ-023 |
-| **#Browsing** — Moving between puzzles | ai-approved | REQ-003 |
-| &nbsp;&nbsp;&nbsp;└ **#PuzzleNav** — Previous and next puzzle | ai-approved | REQ-024 |
-| &nbsp;&nbsp;&nbsp;└ **#ResumePuzzle** — Continue or restart | ai-approved | REQ-025 |
-| &nbsp;&nbsp;&nbsp;└ **#SolvedView** — Solved puzzle with retry | ai-approved | REQ-026 |
-| **#Difficulty** — Easy, Medium, Hard | ai-approved | REQ-004 |
-| &nbsp;&nbsp;&nbsp;└ **#DifficultyChoice** — Choose the difficulty | ai-approved | REQ-027 |
-| &nbsp;&nbsp;&nbsp;└ **#DifficultyRules** — What a level changes | ai-approved | REQ-028 |
-| **#PlayTime** — Play time | ai-approved | REQ-005 |
-| &nbsp;&nbsp;&nbsp;└ **#ActiveTime** — Active play time | ai-approved | REQ-029 |
-| &nbsp;&nbsp;&nbsp;└ **#PuzzleTime** — Solve time and best time | ai-approved | REQ-030 |
-| &nbsp;&nbsp;&nbsp;└ **#TimerDisplay** — Timer on screen | ai-approved | REQ-031 |
-| **#Settings** — Settings | ai-approved | — |
-| &nbsp;&nbsp;&nbsp;└ **#SettingsMenu** — Open the settings | ai-approved | REQ-032 |
-| &nbsp;&nbsp;&nbsp;└ **#SoundToggle** — Sound effects | ai-approved | REQ-033 |
-| &nbsp;&nbsp;&nbsp;└ **#ResetProgress** — Reset all progress | ai-approved | REQ-034 |
-| **#Layout** — Phone and tablet | ai-approved | REQ-006 |
-| &nbsp;&nbsp;&nbsp;└ **#PhoneLayout** — Phone portrait layout | ai-approved | REQ-035 |
-| &nbsp;&nbsp;&nbsp;└ **#TabletLayout** — Tablet layout | ai-approved | REQ-036 |
-| &nbsp;&nbsp;&nbsp;└ **#TouchTargets** — Touch target sizes | ai-approved | REQ-037 |
-| **#Content** — Puzzle content | captured | REQ-007 |
-| &nbsp;&nbsp;&nbsp;└ **#PuzzleShapes** — Full-set, edge-first puzzles | ai-approved | REQ-038 |
-| &nbsp;&nbsp;&nbsp;└ **#PuzzleMini** — Mini 3-piece puzzles | ai-approved | REQ-045 |
-| &nbsp;&nbsp;&nbsp;└ **#PuzzleWarmups** — Warm-up puzzles first | ai-approved | REQ-041 |
-| &nbsp;&nbsp;&nbsp;└ **#PuzzleArt** — Picture for every puzzle | ai-approved | REQ-039 |
-| &nbsp;&nbsp;&nbsp;└ **#PuzzleOrder** — Puzzle difficulty and order | ai-approved | REQ-040 |
-| &nbsp;&nbsp;&nbsp;└ **#PuzzleVolume** — First-version puzzle count | captured | REQ-042 |
-| **#DevTools** — Developer aids | ai-approved | — |
-| &nbsp;&nbsp;&nbsp;└ **#SolutionReveal** — Show the solution with a passcode | ai-approved | REQ-046 |
+| **#Promise** — Enjoy, it's absolutely free | locked | REQ-001 |
+| &nbsp;&nbsp;&nbsp;└ **#NoMoney** — No ads, purchases or money asks | locked | REQ-008, REQ-009 |
+| &nbsp;&nbsp;&nbsp;└ **#DeviceOnly** — Everything stays on the device | locked | REQ-010 |
+| **#Solving** — Solving a puzzle | locked | REQ-002 |
+| &nbsp;&nbsp;&nbsp;└ **#Board** — Silhouette board | locked | REQ-011 |
+| &nbsp;&nbsp;&nbsp;└ **#Tray** — Piece tray | locked | REQ-012, REQ-013 |
+| &nbsp;&nbsp;&nbsp;└ **#SizeMarks** — Size marks in the tray | locked | REQ-043 |
+| &nbsp;&nbsp;&nbsp;└ **#Drag** — Drag and drop a piece | locked | REQ-014, REQ-015 |
+| &nbsp;&nbsp;&nbsp;└ **#Turning** — Turning pieces | locked | — |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#TapTurn** — Tap to turn | locked | REQ-016 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#TwistTurn** — Two-finger twist | locked | REQ-017 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#TurnButtons** — Turn buttons in the tray | locked | REQ-044 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#Flip** — Mirror the parallelogram | locked | REQ-018 |
+| &nbsp;&nbsp;&nbsp;└ **#Locking** — Pieces lock or go home | locked | — |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#AnchorLock** — Lock to corners and neighbours | locked | REQ-019 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#GoHome** — Missed drop returns to the tray | locked | REQ-020 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#LandingPreview** — Landing preview | locked | REQ-021 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ **#CornerTeach** — The corners pulse once | locked | REQ-051 |
+| &nbsp;&nbsp;&nbsp;└ **#SolvedCheck** — Any exact cover solves | locked | REQ-022 |
+| &nbsp;&nbsp;&nbsp;└ **#SolvedPicture** — Solved picture | locked | REQ-023 |
+| **#Browsing** — Moving between puzzles | locked | REQ-003 |
+| &nbsp;&nbsp;&nbsp;└ **#PuzzleNav** — Previous and next puzzle | locked | REQ-024 |
+| &nbsp;&nbsp;&nbsp;└ **#ResumePuzzle** — Continue or restart | locked | REQ-025 |
+| &nbsp;&nbsp;&nbsp;└ **#SolvedView** — Solved puzzle with retry | locked | REQ-026 |
+| &nbsp;&nbsp;&nbsp;└ **#PuzzleOverview** — Finding a puzzle among many | locked | REQ-050 |
+| **#Difficulty** — Easy, Medium, Hard | locked | REQ-004 |
+| &nbsp;&nbsp;&nbsp;└ **#DifficultyChoice** — Choose the difficulty | locked | REQ-027 |
+| &nbsp;&nbsp;&nbsp;└ **#DifficultyRules** — What a level changes | locked | REQ-028 |
+| **#PlayTime** — Play time | locked | REQ-005 |
+| &nbsp;&nbsp;&nbsp;└ **#ActiveTime** — Active play time | locked | REQ-029 |
+| &nbsp;&nbsp;&nbsp;└ **#PuzzleTime** — Solve time and best time | locked | REQ-030 |
+| &nbsp;&nbsp;&nbsp;└ **#TimerDisplay** — Timer on screen | locked | REQ-031 |
+| **#Settings** — Settings | locked | — |
+| &nbsp;&nbsp;&nbsp;└ **#SettingsMenu** — Open the settings | locked | REQ-032 |
+| &nbsp;&nbsp;&nbsp;└ **#SoundToggle** — Sound effects | locked | REQ-033 |
+| &nbsp;&nbsp;&nbsp;└ **#ResetProgress** — Reset all progress | locked | REQ-034 |
+| &nbsp;&nbsp;&nbsp;└ **#Language** — Finnish and English | locked | REQ-047 |
+| **#Layout** — Phone and tablet | locked | REQ-006 |
+| &nbsp;&nbsp;&nbsp;└ **#PhoneLayout** — Phone portrait layout | locked | REQ-035 |
+| &nbsp;&nbsp;&nbsp;└ **#TabletLayout** — Tablet layout | locked | REQ-036 |
+| &nbsp;&nbsp;&nbsp;└ **#TouchTargets** — Touch target sizes | locked | REQ-037 |
+| **#Content** — Puzzle content | locked | REQ-007 |
+| &nbsp;&nbsp;&nbsp;└ **#PuzzleShapes** — Full-set puzzles | locked | REQ-038 |
+| &nbsp;&nbsp;&nbsp;└ **#PuzzleMini** — Mini 3-piece puzzles | locked | REQ-045 |
+| &nbsp;&nbsp;&nbsp;└ **#PuzzleWarmups** — Warm-up puzzles first | locked | REQ-041 |
+| &nbsp;&nbsp;&nbsp;└ **#PuzzleArt** — Picture for every puzzle | locked | REQ-039 |
+| &nbsp;&nbsp;&nbsp;└ **#PuzzleOrder** — Puzzle difficulty and order | locked | REQ-040 |
+| &nbsp;&nbsp;&nbsp;└ **#PuzzleVolume** — First-version puzzle count | locked | REQ-042 |
+| **#Release** — Shipping "Tangram, absolutely free" | locked | REQ-048, REQ-049 |
+| **#DevTools** — Developer aids | locked | — |
+| &nbsp;&nbsp;&nbsp;└ **#SolutionReveal** — Show the solution with a passcode | locked | REQ-046 |
 | **#PieceSets** — Other piece sets | idea | — |
 | **#Accessibility** — Colour-blind support | idea | — |
 
@@ -60,52 +64,57 @@
 
 | REQ | Feature | Lvl | Abstract | Conf | Status | Prio | Qs |
 |---|---|---|---|---|---|---|---|
-| REQ-001 | #Promise | BIZ | The game costs nothing and earns nothing: no ads, no purchases, no money asks. | Stated | AI-approved | none | — |
-| REQ-002 | #Solving | BIZ | A traditional 7-piece tangram game for players aged 8 and up, simple to control. | Stated | AI-approved | none | — |
-| REQ-003 | #Browsing | BIZ | Players move freely between puzzles; nothing is locked and no progress is lost. | Stated | AI-approved | none | — |
-| REQ-004 | #Difficulty | BIZ | The game offers Easy, Medium and Hard. | Stated | AI-approved | none | — |
-| REQ-005 | #PlayTime | BIZ | The game tracks each puzzle's solve time and the total active play time. | Stated | AI-approved | none | — |
-| REQ-006 | #Layout | BIZ | The game runs on Android phones in portrait and on Android tablets. | Stated | AI-approved | none | — |
-| REQ-007 | #Content | BIZ | A library of full-set, edge-first puzzles of any shape, each with a solved picture, starting with warm-ups. | Stated | AI-approved | none | — |
-| REQ-008 | #NoMoney | FUN | No screen shows an ad, a price or a request for money. | Stated | AI-approved | none | — |
-| REQ-009 | #NoMoney | UI | Settings shows the note "Enjoy, it's absolutely free." | Stated | AI-approved | none | — |
-| REQ-010 | #DeviceOnly | FUN | No network use; progress, settings and play time are stored locally only. | Inf | AI-approved | none | — |
-| REQ-011 | #Board | FUN | The target is one flat silhouette; drop places are never shown. | Stated | AI-approved | none | — |
-| REQ-012 | #Tray | FUN | The puzzle's pieces wait as miniatures below the board, always in the same order, colours and turn. | Inf | AI-approved | none | — |
-| REQ-013 | #Tray | UI | Tray cells are sized per piece so that all miniatures share one, as-large-as-possible scale. | Inf | AI-approved | none | — |
-| REQ-014 | #Drag | FUN | Pieces are dragged from the tray or board; on the board they have their true size; no resizing. | Stated | AI-approved | none | — |
-| REQ-015 | #Drag | FUN | A touch that moves under 12 dp is a tap whatever its length; touch areas are larger than the drawn pieces. | Inf | AI-approved | none | — |
-| REQ-016 | #TapTurn | FUN | A tap turns a piece one 45° step; on the board only if it still fits. | Inf | AI-approved | none | — |
-| REQ-017 | #TwistTurn | FUN | While dragging, a second finger twists the piece in fixed 45° steps. | Inf | AI-approved | none | — |
-| REQ-018 | #Flip | FUN | On Hard a flip button mirrors the parallelogram; on Easy and Medium it mirrors itself when it locks. | Inf | AI-approved | none | — |
-| REQ-019 | #AnchorLock | FUN | A dropped piece locks at the nearest spot where a corner meets an outline corner or a placed piece's corner. | Stated | AI-approved | none | — |
-| REQ-020 | #GoHome | FUN | A drop with no valid position sends the piece back to its tray cell; nothing lies loose. | Stated | AI-approved | none | — |
-| REQ-021 | #LandingPreview | UI | On Easy and Medium a dashed outline shows where the dragged piece would lock. | Inf | AI-approved | none | — |
-| REQ-022 | #SolvedCheck | FUN | The puzzle is solved when all its pieces are locked, whatever arrangement was used. | Inf | AI-approved | none | — |
-| REQ-023 | #SolvedPicture | FUN | On solving, the pieces turn into the puzzle's stylised picture with exactly the same outline. | Stated | AI-approved | none | — |
-| REQ-024 | #PuzzleNav | FUN | ‹ and › at the top move to the previous and next puzzle at any time, which is also how to skip. | Stated | AI-approved | none | — |
-| REQ-025 | #ResumePuzzle | FUN | An unsolved puzzle keeps its placed pieces; the player continues it or restarts it. | Stated | AI-approved | none | — |
-| REQ-026 | #SolvedView | FUN | Browsing to a solved puzzle shows only its picture and best time, with Retry and Next. | Stated | AI-approved | none | — |
-| REQ-027 | #DifficultyChoice | FUN | The player picks Easy, Medium or Hard in the settings; the choice applies at once. | Stated | AI-approved | none | — |
-| REQ-028 | #DifficultyRules | FUN | Easy, Medium and Hard differ in lock distance, turn forgiveness, auto-mirror, preview and timer; the puzzles are the same. | Inf | AI-approved | none | — |
-| REQ-029 | #ActiveTime | FUN | Today's and all-time active play time are counted and shown in the settings. | Stated | AI-approved | none | — |
-| REQ-030 | #PuzzleTime | FUN | Each puzzle counts its own active time; the fastest solve is kept as its best time. | Stated | AI-approved | none | — |
-| REQ-031 | #TimerDisplay | UI | An optional running timer on the board; by default only on Hard. | Inf | AI-approved | none | — |
-| REQ-032 | #SettingsMenu | UI | A gear in the top bar opens one settings screen: difficulty, timer, sound, play time, reset, how to play. | Inf | AI-approved | none | — |
-| REQ-033 | #SoundToggle | FUN | Short sounds for pick-up, turn, lock, return and solve; can be switched off. | Inf | AI-approved | none | — |
-| REQ-034 | #ResetProgress | FUN | Settings can erase all puzzle states and times after a confirmation step. | Inf | AI-approved | none | — |
-| REQ-035 | #PhoneLayout | UI | Phone layout: portrait only, top bar, board, and the tray at the bottom in two rows. | Stated | AI-approved | none | — |
-| REQ-036 | #TabletLayout | UI | Tablet layout: both orientations, top bar, board, and one wide tray row. | Stated | AI-approved | none | — |
-| REQ-037 | #TouchTargets | UI | Every control is at least 48 dp; the navigation buttons at least 52 dp. | Inf | AI-approved | none | — |
-| REQ-038 | #PuzzleShapes | FUN | Each puzzle uses all seven pieces and can be built edge-first; the shape may be abstract. | Stated | AI-approved | none | — |
-| REQ-039 | #PuzzleArt | FUN | Each puzzle carries a stylised picture clipped to its outline, reviewed by a person before release. | Stated | AI-approved | none | — |
-| REQ-040 | #PuzzleOrder | FUN | Each puzzle is rated 1–5; ‹ › lists them from the lowest rating. | Inf | AI-approved | none | — |
-| REQ-041 | #PuzzleWarmups | FUN | After the mini puzzles, the library opens with at least four warm-ups where every piece's shape shows in the silhouette. | Stated | AI-approved | none | — |
-| REQ-042 | #PuzzleVolume | FUN | How many puzzles the first release ships with is not decided yet. | Inf | Draft | none | 1 |
-| REQ-043 | #SizeMarks | UI | Each triangle in the tray shows S, M or L, the size it has on the board. | Inf | AI-approved | none | — |
-| REQ-044 | #TurnButtons | UI | Each tray cell has ↺ and ↻ buttons that turn its piece 45° before it is dragged. | Inf | AI-approved | none | — |
-| REQ-045 | #PuzzleMini | FUN | A few tiny puzzles use only some pieces, for a fast first success and for testing the solved state. | Stated | AI-approved | none | — |
-| REQ-046 | #SolutionReveal | FUN | In prototype and test builds, a DEV button behind the passcode 0417 shows the solution or solves the puzzle; release builds leave it out. | Stated | AI-approved | none | — |
+| REQ-001 | #Promise | BIZ | The game costs nothing and earns nothing: no ads, no purchases, no money asks. | Stated | Locked | none | — |
+| REQ-002 | #Solving | BIZ | A traditional 7-piece tangram game for players aged 8 and up, simple to control. | Stated | Locked | none | — |
+| REQ-003 | #Browsing | BIZ | Players move freely between puzzles; nothing is locked and no progress is lost. | Stated | Locked | none | — |
+| REQ-004 | #Difficulty | BIZ | The game offers Easy, Medium and Hard. | Stated | Withdrawn | none | — |
+| REQ-005 | #PlayTime | BIZ | The game tracks each puzzle's solve time and the total active play time. | Stated | Locked | none | — |
+| REQ-006 | #Layout | BIZ | The game runs on Android phones in portrait and on Android tablets. | Stated | Locked | none | — |
+| REQ-007 | #Content | BIZ | A library of full-set puzzles of any shape, each with a solved picture, starting with mini and warm-up puzzles. | Stated | Locked | none | — |
+| REQ-008 | #NoMoney | FUN | No screen shows an ad, a price or a request for money. | Stated | Locked | none | — |
+| REQ-009 | #NoMoney | UI | Settings shows the note "Enjoy, it's absolutely free." | Stated | Locked | none | — |
+| REQ-010 | #DeviceOnly | FUN | No network use; progress, settings and play time are stored locally only. | Stated | Locked | none | — |
+| REQ-011 | #Board | FUN | The target is one flat silhouette; drop places are never shown. | Stated | Locked | none | — |
+| REQ-012 | #Tray | FUN | The puzzle's pieces wait as miniatures below the board, always in the same order, colours and turn. | Stated | Locked | none | — |
+| REQ-013 | #Tray | UI | Tray cells are sized per piece so that all miniatures share one, as-large-as-possible scale. | Stated | Locked | none | — |
+| REQ-014 | #Drag | FUN | Pieces are dragged from the tray or board; on the board they have their true size; no resizing. | Stated | Locked | none | — |
+| REQ-015 | #Drag | FUN | A touch that moves under 12 dp is a tap whatever its length; touch areas are larger than the drawn pieces. | Stated | Locked | none | — |
+| REQ-016 | #TapTurn | FUN | A tap turns a piece one 45° step; on the board only if it still fits. | Stated | Locked | none | — |
+| REQ-017 | #TwistTurn | FUN | While dragging, a second finger twists the piece in fixed 45° steps. | Stated | Locked | none | — |
+| REQ-018 | #Flip | FUN | A flip badge next to the parallelogram mirrors it, in the tray and on the board; it is always shown. | Stated | Locked | none | — |
+| REQ-019 | #AnchorLock | FUN | A dropped piece locks at the nearest spot where a corner meets an outline corner or a placed piece's corner. | Stated | Locked | none | — |
+| REQ-020 | #GoHome | FUN | A drop with no valid position sends the piece back to its tray cell; nothing lies loose. | Stated | Locked | none | — |
+| REQ-021 | #LandingPreview | UI | While dragging, a dashed outline shows where the piece would lock. | Stated | Locked | none | — |
+| REQ-022 | #SolvedCheck | FUN | The puzzle is solved when all its pieces are locked, whatever arrangement was used. | Stated | Locked | none | — |
+| REQ-023 | #SolvedPicture | FUN | On solving, the pieces turn into the puzzle's stylised picture with exactly the same outline. | Stated | Locked | none | — |
+| REQ-024 | #PuzzleNav | FUN | ‹ and › at the top move to the previous and next puzzle at any time, which is also how to skip; the list wraps. | Stated | Locked | none | — |
+| REQ-025 | #ResumePuzzle | FUN | An unsolved puzzle keeps its placed pieces; the player continues it or restarts it. | Stated | Locked | none | — |
+| REQ-026 | #SolvedView | FUN | Browsing to a solved puzzle shows only its picture and best time, with Retry and Next. | Stated | Locked | none | — |
+| REQ-027 | #DifficultyChoice | FUN | The player picks Easy, Medium or Hard in the settings; the choice applies at once. | Stated | Withdrawn | none | — |
+| REQ-028 | #DifficultyRules | FUN | Easy, Medium and Hard differ in lock distance, turn forgiveness, auto-mirror, preview and timer; the puzzles are the same. | Inf | Withdrawn | none | — |
+| REQ-029 | #ActiveTime | FUN | Today's and all-time active play time are counted and shown in the settings. | Stated | Locked | none | — |
+| REQ-030 | #PuzzleTime | FUN | Each puzzle counts its own active time while in progress; the fastest solve is kept as its best time. | Stated | Locked | none | — |
+| REQ-031 | #TimerDisplay | UI | An optional running timer on the board; off by default. | Stated | Locked | none | — |
+| REQ-032 | #SettingsMenu | UI | A gear in the top bar opens one settings screen: timer, sound, play time, reset, how to play, the free note and the privacy text. | Stated | Locked | none | — |
+| REQ-033 | #SoundToggle | FUN | Short sounds for pick-up, turn, lock, return and solve; can be switched off. | Stated | Locked | none | — |
+| REQ-034 | #ResetProgress | FUN | Settings can erase all puzzle states and times after a confirmation step. | Stated | Locked | none | — |
+| REQ-035 | #PhoneLayout | UI | Phone layout: portrait only, top bar, board, and the tray at the bottom in two rows. | Stated | Locked | none | — |
+| REQ-036 | #TabletLayout | UI | Tablet layout: both orientations, top bar, board, and one wide tray row. | Stated | Locked | none | — |
+| REQ-037 | #TouchTargets | UI | Every player control is at least 48 dp; the navigation buttons at least 52 dp; testing aids are exempt. | Stated | Locked | none | — |
+| REQ-038 | #PuzzleShapes | FUN | Each puzzle uses all seven pieces and passes the geometric validator; the shape may be abstract. | Stated | Locked | none | — |
+| REQ-039 | #PuzzleArt | FUN | Each puzzle carries a stylised picture clipped to its outline, reviewed by a person before release. | Stated | Locked | none | — |
+| REQ-040 | #PuzzleOrder | FUN | Each puzzle is rated 1–5; ‹ › lists them from the lowest rating. | Stated | Locked | none | — |
+| REQ-041 | #PuzzleWarmups | FUN | After the mini puzzles, the library opens with at least four warm-ups where every piece's shape shows in the silhouette. | Stated | Locked | none | — |
+| REQ-042 | #PuzzleVolume | FUN | The first release ships at least 20 hand-checked puzzles over four themes, including the classic square. | Stated | Locked | none | — |
+| REQ-043 | #SizeMarks | UI | Each triangle in the tray shows S, M or L, the size it has on the board. | Stated | Locked | none | — |
+| REQ-044 | #TurnButtons | UI | Each tray cell has ↺ and ↻ buttons that turn its piece 45° before it is dragged. | Inf | Withdrawn | none | — |
+| REQ-045 | #PuzzleMini | FUN | A few tiny puzzles use only some pieces, for a fast first success and for testing the solved state. | Stated | Locked | none | — |
+| REQ-046 | #SolutionReveal | FUN | In prototype and test builds, a DEV button behind the passcode 0417 shows the solution or solves the puzzle; release builds leave it out. | Stated | Locked | none | — |
+| REQ-047 | #Language | FUN | The game follows the device language, ships Finnish and English, and falls back to English. | Stated | Locked | none | — |
+| REQ-048 | #Release | BIZ | The release meets the store's rules for a children's audience: privacy policy, data safety, content rating, target audience, Families policy; store name "Tangram, absolutely free". | Stated | Locked | none | — |
+| REQ-049 | #Release | UI | The settings screen carries the privacy policy as plain text, next to the free note. | Stated | Locked | none | — |
+| REQ-050 | #PuzzleOverview | FUN | A long press on › jumps to the next unsolved puzzle; the counter in the top bar opens a grid of all silhouettes. | Stated | Locked | none | — |
+| REQ-051 | #CornerTeach | UI | In a mini puzzle, when a drop goes home, the silhouette's corners pulse once, teaching that pieces hold on to corners. | Stated | Locked | none | — |
 
 ## Shared types — used by
 
@@ -114,9 +123,9 @@
 | TYPE-001 | REQ-002, REQ-007, REQ-012, REQ-013, REQ-038, REQ-043, REQ-045 |
 | TYPE-002 | REQ-004, REQ-027 |
 | TYPE-003 | REQ-016, REQ-017, REQ-018, REQ-044 |
-| TYPE-004 | REQ-018, REQ-019, REQ-021, REQ-027, REQ-028, REQ-031 |
+| TYPE-004 | REQ-019, REQ-021, REQ-027, REQ-028 |
 | TYPE-005 | REQ-005, REQ-029, REQ-030 |
-| TYPE-006 | REQ-003, REQ-025, REQ-030 |
+| TYPE-006 | REQ-003, REQ-025, REQ-030, REQ-050 |
 | TYPE-007 | REQ-006, REQ-035, REQ-036 |
 
 ## Sources — cited by
@@ -126,10 +135,15 @@
 | SRC-001 | document | authoritative | usable | REQ-001, REQ-002, REQ-006, REQ-012, REQ-014, REQ-035, REQ-036 |
 | SRC-002 | conversation | authoritative | usable | REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-007, REQ-008, REQ-011, REQ-012, REQ-014, REQ-016, REQ-017, REQ-019, REQ-020, REQ-023, REQ-024, REQ-025, REQ-026, REQ-027, REQ-029, REQ-030, REQ-032, REQ-039 |
 | SRC-003 | conversation | authoritative | usable | REQ-001, REQ-005, REQ-007, REQ-008, REQ-009, REQ-019, REQ-029, REQ-038 |
-| SRC-004 | proposal | generated | usable | REQ-009, REQ-010, REQ-012, REQ-013, REQ-015, REQ-016, REQ-017, REQ-018, REQ-019, REQ-021, REQ-022, REQ-027, REQ-028, REQ-029, REQ-030, REQ-031, REQ-032, REQ-033, REQ-034, REQ-035, REQ-036, REQ-037, REQ-038, REQ-039, REQ-040, REQ-041, REQ-042, REQ-043, REQ-044 |
+| SRC-004 | proposal | generated | usable | REQ-009, REQ-010, REQ-012, REQ-013, REQ-015, REQ-016, REQ-017, REQ-018, REQ-019, REQ-021, REQ-022, REQ-025, REQ-027, REQ-028, REQ-029, REQ-030, REQ-031, REQ-032, REQ-033, REQ-034, REQ-035, REQ-036, REQ-037, REQ-038, REQ-039, REQ-040, REQ-041, REQ-042, REQ-043, REQ-044, REQ-047, REQ-050, REQ-051 |
 | SRC-005 | web page | secondary | usable | REQ-014, REQ-015, REQ-037 |
 | SRC-006 | web page | secondary | usable | REQ-037 |
-| SRC-007 | web page | secondary | usable | REQ-010 |
+| SRC-007 | web page | secondary | usable | REQ-010, REQ-048 |
 | SRC-008 | conversation | authoritative | usable | REQ-007, REQ-038, REQ-040, REQ-041 |
 | SRC-009 | conversation | authoritative | usable | REQ-013, REQ-014, REQ-043, REQ-044, REQ-045 |
 | SRC-010 | conversation | authoritative | usable | REQ-018, REQ-044, REQ-046 |
+| SRC-011 | conversation | authoritative | usable | REQ-004, REQ-007, REQ-010, REQ-012, REQ-013, REQ-016, REQ-018, REQ-019, REQ-021, REQ-023, REQ-024, REQ-025, REQ-027, REQ-028, REQ-030, REQ-031, REQ-032, REQ-033, REQ-034, REQ-035, REQ-036, REQ-037, REQ-038, REQ-040, REQ-041, REQ-042, REQ-043, REQ-044, REQ-045, REQ-047, REQ-048, REQ-049, REQ-050, REQ-051 |
+| SRC-012 | web page | secondary | usable | REQ-048, REQ-049 |
+| SRC-013 | web page | secondary | usable | REQ-048 |
+| SRC-014 | conversation | authoritative | usable | REQ-001, REQ-002, REQ-003, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-014, REQ-015, REQ-016, REQ-017, REQ-018, REQ-019, REQ-020, REQ-021, REQ-022, REQ-023, REQ-024, REQ-025, REQ-026, REQ-029, REQ-030, REQ-031, REQ-032, REQ-033, REQ-034, REQ-035, REQ-036, REQ-037, REQ-038, REQ-039, REQ-040, REQ-041, REQ-042, REQ-043, REQ-045, REQ-046, REQ-047, REQ-048, REQ-049, REQ-050, REQ-051 |
+| SRC-015 | conversation | authoritative | usable | — |

@@ -7,9 +7,9 @@ Feature tree (from features.md) with attached REQs. Dashed red = inferred REQ; t
 ```mermaid
 flowchart LR
   subgraph sg_DevTools ["#DevTools — Developer aids"]
-    DevTools["#DevTools"]:::featAi
-    SolutionReveal["#SolutionReveal"]:::featAi
-    REQ-046["REQ-046 (FUN)<br/>Passcode-protected solution reveal for testing"]:::funAi
+    DevTools["#DevTools"]:::featLock
+    SolutionReveal["#SolutionReveal"]:::featLock
+    REQ-046["REQ-046 (FUN)<br/>Passcode-protected solution reveal for testing"]:::fun
   end
   DevTools --> SolutionReveal
   SolutionReveal --> REQ-046

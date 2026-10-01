@@ -7,13 +7,13 @@ Feature tree (from features.md) with attached REQs. Dashed red = inferred REQ; t
 ```mermaid
 flowchart LR
   subgraph sg_Promise ["#Promise — Enjoy, it's absolutely free"]
-    Promise["#Promise"]:::featAi
-    REQ-001["REQ-001 (BIZ)<br/>Enjoy, it's absolutely free"]:::bizAi
-    NoMoney["#NoMoney"]:::featAi
-    REQ-008["REQ-008 (FUN)<br/>No ads, no purchases, no money asks"]:::funAi
-    REQ-009["REQ-009 (UI)<br/>'Enjoy, it's absolutely free' note"]:::uiAi
-    DeviceOnly["#DeviceOnly"]:::featAi
-    REQ-010["REQ-010 (FUN)<br/>Everything stays on the device"]:::funAi
+    Promise["#Promise"]:::featLock
+    REQ-001["REQ-001 (BIZ)<br/>Enjoy, it's absolutely free"]:::biz
+    NoMoney["#NoMoney"]:::featLock
+    REQ-008["REQ-008 (FUN)<br/>No ads, no purchases, no money asks"]:::fun
+    REQ-009["REQ-009 (UI)<br/>'Enjoy, it's absolutely free' note"]:::ui
+    DeviceOnly["#DeviceOnly"]:::featLock
+    REQ-010["REQ-010 (FUN)<br/>Everything stays on the device"]:::fun
   end
   Promise --> REQ-001
   Promise --> NoMoney

@@ -7,14 +7,14 @@ Feature tree (from features.md) with attached REQs. Dashed red = inferred REQ; t
 ```mermaid
 flowchart LR
   subgraph sg_Layout ["#Layout — Phone and tablet"]
-    Layout["#Layout"]:::featAi
-    REQ-006["REQ-006 (BIZ)<br/>Phones in portrait and tablets"]:::bizAi
-    PhoneLayout["#PhoneLayout"]:::featAi
-    REQ-035["REQ-035 (UI)<br/>Phone portrait layout"]:::uiAi
-    TabletLayout["#TabletLayout"]:::featAi
-    REQ-036["REQ-036 (UI)<br/>Tablet layout"]:::uiAi
-    TouchTargets["#TouchTargets"]:::featAi
-    REQ-037["REQ-037 (UI)<br/>Touch target sizes"]:::uiAi
+    Layout["#Layout"]:::featLock
+    REQ-006["REQ-006 (BIZ)<br/>Phones in portrait and tablets"]:::biz
+    PhoneLayout["#PhoneLayout"]:::featLock
+    REQ-035["REQ-035 (UI)<br/>Phone portrait layout"]:::ui
+    TabletLayout["#TabletLayout"]:::featLock
+    REQ-036["REQ-036 (UI)<br/>Tablet layout"]:::ui
+    TouchTargets["#TouchTargets"]:::featLock
+    REQ-037["REQ-037 (UI)<br/>Touch target sizes"]:::ui
   end
   Layout --> REQ-006
   Layout --> PhoneLayout

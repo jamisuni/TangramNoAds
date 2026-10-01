@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>TangramNoAds Prototype</title>
+<title>Tangram, absolutely free · prototype</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap">
@@ -20,24 +20,27 @@
   .piece { transform-origin: 0 0; transform-box: view-box; transition: transform 180ms cubic-bezier(.2,.8,.3,1), opacity 400ms; cursor: grab; }
   .piece.dragging { transition: transform 90ms linear; cursor: grabbing; }
   .piece.lifted polygon.body { filter: url(#lift); }
-  .spin:hover circle + circle { stroke: var(--accent); }
   .piece.shake { animation: shake 360ms ease-in-out 1; }
   @keyframes shake { 0%,100% { translate: 0 0; } 25% { translate: -6px 0; } 50% { translate: 6px 0; } 75% { translate: -3px 0; } }
   #artLayer { transition: opacity 800ms ease; }
   .pop { animation: pop 700ms cubic-bezier(.3,1.6,.5,1) 1; transform-origin: 50% 55%; transform-box: fill-box; }
   @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.05); } 100% { transform: scale(1); } }
+  /* REQ-051: in a mini puzzle the outline corners pulse once when a drop goes home */
+  .pulse circle { animation: pulse 600ms ease-out 1; transform-box: fill-box; transform-origin: center; }
+  @keyframes pulse { 0% { transform: scale(.3); opacity: 0; } 45% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(1); opacity: .9; } }
 
   /* top bar */
   .topbar { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; gap: 6px; padding: 8px 8px 0; z-index: 3; }
   .nav { width: 52px; height: 52px; border-radius: 16px; border: 2px solid var(--cell-edge); background: var(--cell); cursor: pointer;
-         display: grid; place-items: center; flex: none; padding: 0; color: var(--ink); }
-  .nav:disabled { opacity: .35; cursor: default; }
-  .nav:focus-visible, .btn:focus-visible, .seg button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+         display: grid; place-items: center; flex: none; padding: 0; color: var(--ink); touch-action: none; }
+  .nav.pressing { background: var(--tray); }
+  .nav:focus-visible, .btn:focus-visible, .title:focus-visible, .toggle:focus-visible, .gcell:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
   .gear { width: 44px; height: 44px; border-radius: 50%; border-color: transparent; background: transparent; }
-  .title { flex: 1; min-width: 0; text-align: center; line-height: 1.05; }
+  .title { flex: 1; min-width: 0; text-align: center; line-height: 1.05; cursor: pointer; border: none; background: transparent; padding: 4px 0; font-family: var(--ui); color: var(--ink); }
   .title b { display: block; font-family: var(--display); font-weight: 800; font-size: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .title span { font-size: 12px; color: var(--muted); letter-spacing: .3px; font-variant-numeric: tabular-nums; }
   .title .dots { letter-spacing: 1px; color: #F9A826; }
+  .title .num { text-decoration: underline dotted; text-underline-offset: 3px; }
 
   .btn { position: absolute; z-index: 2; border-radius: 999px; border: 2px solid var(--cell-edge); background: var(--cell); color: var(--ink);
          font-family: var(--display); font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 6px; padding: 8px 14px; cursor: pointer; }
@@ -57,16 +60,21 @@
   .sheet h2 { margin: 0; font-family: var(--display); font-size: 26px; font-weight: 800; }
   .row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
   .lbl { font-size: 12px; letter-spacing: .7px; text-transform: uppercase; color: var(--muted); width: 100%; }
-  .seg { display: inline-flex; background: var(--tray); border-radius: 999px; padding: 3px; }
-  .seg button { border: none; background: transparent; border-radius: 999px; padding: 8px 14px; font-size: 15px; cursor: pointer; color: var(--ink); font-family: var(--ui); }
-  .seg button.on { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.12); font-weight: 700; }
   .hint { font-size: 13px; color: var(--muted); line-height: 1.45; margin: 0; }
-  .toggle { border: 2px solid var(--cell-edge); background: #fff; border-radius: 999px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: var(--ink); font-family: var(--ui); }
+  .toggle { border: 2px solid var(--cell-edge); background: #fff; border-radius: 999px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: var(--ink); font-family: var(--ui); min-height: 44px; }
   .toggle.danger { color: var(--warn); }
   table.stats { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
   table.stats td { padding: 4px 0; border-bottom: 1px solid var(--cell-edge); }
   table.stats td:last-child { text-align: right; }
   .free { margin: 0; padding: 12px 14px; border-radius: 16px; background: #EAF7F0; color: #1F6B47; font-size: 15px; line-height: 1.45; }
+  .privacy { margin: 0; padding: 12px 14px; border-radius: 16px; background: #F1EDE3; color: var(--ink); font-size: 13px; line-height: 1.45; }
+  /* REQ-050: grid of all puzzles */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
+  .gcell { position: relative; aspect-ratio: 1; border: 2px solid var(--cell-edge); border-radius: 16px; background: #fff; padding: 8px; cursor: pointer; display: grid; place-items: center; min-width: 64px; min-height: 64px; }
+  .gcell.cur { border-color: var(--accent); }
+  .gcell svg { width: 100%; height: 100%; display: block; }
+  .gcell .n { position: absolute; left: 7px; top: 4px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .gcell.prog::after { content: ""; position: absolute; right: 8px; bottom: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
   /* developer aid (prototype only, REQ-046): passcode-protected solution reveal */
   .devbtn { position: absolute; z-index: 2; border: 1.5px dashed var(--cell-edge); background: transparent; color: var(--muted); border-radius: 999px;
             font: 700 11px/1 var(--ui); letter-spacing: .8px; padding: 7px 10px; cursor: pointer; opacity: .75; }
@@ -76,7 +84,7 @@
          border: 2px solid var(--cell-edge); background: #fff; color: var(--ink); }
   .pin.bad { border-color: var(--warn); animation: shake 360ms ease-in-out 1; }
   #confetti { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
-  @media (prefers-reduced-motion: reduce) { .piece { transition: none; } .piece.shake, .pop { animation: none; } #artLayer { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .piece { transition: none; } .piece.shake, .pop, .pulse circle { animation: none; } #artLayer { transition: none; } }
 </style>
 
 <div id="app">
@@ -96,18 +104,18 @@
   </svg>
 
   <div class="topbar">
-    <button class="nav" id="prevBtn" aria-label="Previous puzzle"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M14 3 L6 11 L14 19" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <div class="title"><b id="pTitle">Cat</b><span id="pSub"></span></div>
-    <button class="nav" id="nextBtn" aria-label="Next puzzle"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M8 3 L16 11 L8 19" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <button class="nav gear" id="gearBtn" aria-label="Settings"><svg width="24" height="24" viewBox="-12 -12 24 24"><g stroke="#7E8299" stroke-width="3" stroke-linecap="round"><line x1="0" y1="-10" x2="0" y2="-7"/><line x1="0" y1="10" x2="0" y2="7"/><line x1="-10" y1="0" x2="-7" y2="0"/><line x1="10" y1="0" x2="7" y2="0"/><line x1="-7" y1="-7" x2="-5" y2="-5"/><line x1="7" y1="7" x2="5" y2="5"/><line x1="-7" y1="7" x2="-5" y2="5"/><line x1="7" y1="-7" x2="5" y2="-5"/></g><circle r="5" fill="none" stroke="#7E8299" stroke-width="2.8"/></svg></button>
+    <button class="nav" id="prevBtn" data-i18n-aria="prevPuzzle"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M14 3 L6 11 L14 19" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="title" id="titleBtn" type="button" data-i18n-aria="allPuzzles"><b id="pTitle">Cat</b><span id="pSub"></span></button>
+    <button class="nav" id="nextBtn" data-i18n-aria="nextPuzzle"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M8 3 L16 11 L8 19" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="nav gear" id="gearBtn" data-i18n-aria="settings"><svg width="24" height="24" viewBox="-12 -12 24 24"><g stroke="#7E8299" stroke-width="3" stroke-linecap="round"><line x1="0" y1="-10" x2="0" y2="-7"/><line x1="0" y1="10" x2="0" y2="7"/><line x1="-10" y1="0" x2="-7" y2="0"/><line x1="10" y1="0" x2="7" y2="0"/><line x1="-7" y1="-7" x2="-5" y2="-5"/><line x1="7" y1="7" x2="5" y2="5"/><line x1="-7" y1="7" x2="-5" y2="5"/><line x1="7" y1="-7" x2="5" y2="-5"/></g><circle r="5" fill="none" stroke="#7E8299" stroke-width="2.8"/></svg></button>
   </div>
 
-  <button class="btn" id="restartBtn" aria-label="Restart this puzzle" hidden><svg width="18" height="18" viewBox="-10 -10 20 20"><path d="M6,-3 A7,7 0 1 0 7,2" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M3,-8 L8,-3 L2,-1 Z" fill="currentColor"/></svg>Restart</button>
+  <button class="btn" id="restartBtn" data-i18n-aria="restart" hidden><svg width="18" height="18" viewBox="-10 -10 20 20"><path d="M6,-3 A7,7 0 1 0 7,2" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M3,-8 L8,-3 L2,-1 Z" fill="currentColor"/></svg><span data-i18n="restart">Restart</span></button>
   <div class="timer" id="timer" hidden></div>
   <div class="solvedbar" id="solvedBar" hidden>
-    <button class="big retry" id="retryBtn"><svg width="20" height="20" viewBox="-10 -10 20 20"><path d="M6,-3 A7,7 0 1 0 7,2" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M3,-8 L8,-3 L2,-1 Z" fill="currentColor"/></svg>Retry</button>
+    <button class="big retry" id="retryBtn"><svg width="20" height="20" viewBox="-10 -10 20 20"><path d="M6,-3 A7,7 0 1 0 7,2" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M3,-8 L8,-3 L2,-1 Z" fill="currentColor"/></svg><span data-i18n="retry">Retry</span></button>
     <div class="best" id="bestTime"></div>
-    <button class="big next" id="nextBig">Next<svg width="18" height="18" viewBox="0 0 22 22"><path d="M8 3 L16 11 L8 19" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="big next" id="nextBig"><span data-i18n="next">Next</span><svg width="18" height="18" viewBox="0 0 22 22"><path d="M8 3 L16 11 L8 19" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
   <button class="devbtn" id="devBtn" type="button" title="Developer: show the solution (passcode)" hidden>DEV</button>
   <canvas id="confetti"></canvas>
@@ -131,27 +139,66 @@
     </div>
   </div>
 
+  <div class="overlay" id="gridDlg" hidden>
+    <div class="sheet" role="dialog" data-i18n-aria="allPuzzles" style="width:min(640px,100%)">
+      <h2 data-i18n="allPuzzles">All puzzles</h2>
+      <div class="grid" id="grid"></div>
+      <div class="row" style="justify-content:flex-end"><button class="big next" id="closeGrid" type="button" data-i18n="done">Done</button></div>
+    </div>
+  </div>
+
   <div class="overlay" id="settings" hidden>
-    <div class="sheet" role="dialog" aria-label="Settings">
-      <h2>Settings</h2>
-      <div class="row"><span class="lbl">Difficulty</span>
-        <div class="seg" id="diffSeg"><button data-d="easy" type="button">Easy</button><button data-d="medium" type="button">Medium</button><button data-d="hard" type="button">Hard</button></div>
-        <p class="hint" id="diffHint"></p></div>
-      <div class="row"><span class="lbl">Timer on screen</span>
-        <div class="seg" id="timerSeg"><button data-t="auto" type="button">Hard only</button><button data-t="on" type="button">Always</button><button data-t="off" type="button">Never</button></div></div>
-      <div class="row"><span class="lbl">Sound</span><button class="toggle" id="soundBtn" type="button"></button></div>
-      <div class="row"><span class="lbl">Play time (kept on this device only)</span><table class="stats" id="stats"></table></div>
-      <div class="row"><span class="lbl">Progress</span><button class="toggle danger" id="resetBtn" type="button">Reset all progress</button><span id="resetConfirm" hidden class="row"><span class="hint">Really erase all solved puzzles and times?</span><button class="toggle danger" id="resetYes" type="button">Erase</button><button class="toggle" id="resetNo" type="button">Keep</button></span></div>
-      <p class="hint">How to play: drag a piece onto the shape. Pieces keep their size; in the tray the triangles are marked <b>S</b>, <b>M</b> and <b>L</b>. <b>Tap</b> a piece, or use its <b>↺ ↻</b> buttons in the tray, to turn it 45°. With two fingers, hold the piece and <b>twist</b> with a second finger. On a computer, use the <b>mouse wheel</b> or <b>R</b> while dragging. A piece locks against the edges and other pieces, or goes back to the tray. TangramNoAds prototype 0.5.</p>
-      <p class="free"><b>Enjoy, it's absolutely free.</b> No ads, no purchases, no network. Your play time stays on this device.</p>
-      <div class="row" style="justify-content:flex-end"><button class="big next" id="closeSettings" type="button">Done</button></div>
+    <div class="sheet" role="dialog" data-i18n-aria="settings">
+      <h2 data-i18n="settings">Settings</h2>
+      <div class="row"><span class="lbl" data-i18n="timerOnScreen">Timer on screen</span><button class="toggle" id="timerBtn" type="button"></button></div>
+      <div class="row"><span class="lbl" data-i18n="sound">Sound</span><button class="toggle" id="soundBtn" type="button"></button></div>
+      <div class="row"><span class="lbl" data-i18n="playTime">Play time (kept on this device only)</span><table class="stats" id="stats"></table></div>
+      <div class="row"><span class="lbl" data-i18n="progress">Progress</span><button class="toggle danger" id="resetBtn" type="button" data-i18n="reset">Reset all progress</button><span id="resetConfirm" hidden class="row"><span class="hint" data-i18n="reallyErase">Really erase all solved puzzles and times?</span><button class="toggle danger" id="resetYes" type="button" data-i18n="erase">Erase</button><button class="toggle" id="resetNo" type="button" data-i18n="keep">Keep</button></span></div>
+      <p class="hint" id="howTo"></p>
+      <p class="free" id="freeNote"></p>
+      <p class="privacy" id="privacyNote"></p>
+      <div class="row" style="justify-content:flex-end"><button class="big next" id="closeSettings" type="button" data-i18n="done">Done</button></div>
     </div>
   </div>
 </div>
 
 <script>
 "use strict";
-const PUZZLES = [{"id":"shapes-mini-1","title":"Mini: Pyramid","slots":[{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[2.0,2.0],[3.0,1.0],[2.0,0.0],[1.0,1.0]]},{"piece":"ST1","type":"ST","rot":4,"flip":false,"poly":[[0.0,2.0],[2.0,2.0],[1.0,1.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[2.0,2.0],[4.0,2.0],[3.0,1.0]]}],"corners":[[2.0,0.0],[0.0,2.0],[4.0,2.0]],"difficulty":1,"art":{"base":"#E9C46A","shapes":[{"type":"polygon","points":[[2,0],[4,2],[2,2]],"fill":"#C98F3E","opacity":0.45},{"type":"line","from":[0,0.67],"to":[4,0.67],"stroke":"#B07B35","width":0.06,"opacity":0.7},{"type":"line","from":[0,1.33],"to":[4,1.33],"stroke":"#B07B35","width":0.06,"opacity":0.7},{"type":"rect","x":1.78,"y":1.55,"w":0.44,"h":0.45,"rx":0.2,"fill":"#5A3E1B"}]}},{"id":"shapes-mini-2","title":"Mini: Window","slots":[{"piece":"MT","type":"MT","rot":0,"flip":false,"poly":[[0.0,0.0],[2.0,0.0],[0.0,2.0]]},{"piece":"ST1","type":"ST","rot":2,"flip":false,"poly":[[2.0,0.0],[2.0,2.0],[1.0,1.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[2.0,2.0],[0.0,2.0],[1.0,1.0]]}],"corners":[[0.0,0.0],[2.0,0.0],[0.0,2.0],[2.0,2.0]],"difficulty":1,"art":{"base":"#8ECAE6","shapes":[{"type":"polygon","points":[[0.1,0.1],[0.75,0.1],[0.1,0.75]],"fill":"#FFFFFF","opacity":0.4},{"type":"line","from":[1,0],"to":[1,2],"stroke":"#FFFFFF","width":0.14},{"type":"line","from":[0,1],"to":[2,1],"stroke":"#FFFFFF","width":0.14},{"type":"polygon","points":[[0,0],[2,0],[2,2],[0,2]],"stroke":"#FFFFFF","width":0.28}]}},{"id":"shapes-warmup-1","title":"Warm-up 1","slots":[{"piece":"LT1","type":"LT","rot":0,"flip":false,"poly":[[0.0,0.0],[4.0,0.0],[2.0,2.0]]},{"piece":"LT2","type":"LT","rot":4,"flip":false,"poly":[[5.0,5.0],[1.0,5.0],[3.0,3.0]]},{"piece":"MT","type":"MT","rot":6,"flip":false,"poly":[[0.0,6.0],[0.0,4.0],[2.0,6.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[1.0,5.0],[0.0,4.0],[1.0,3.0],[2.0,4.0]]},{"piece":"PG","type":"PG","rot":2,"flip":true,"poly":[[2.0,4.0],[2.0,2.0],[3.0,1.0],[3.0,3.0]]},{"piece":"ST1","type":"ST","rot":2,"flip":false,"poly":[[4.0,2.0],[4.0,4.0],[3.0,3.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[2.0,2.0],[0.0,2.0],[1.0,1.0]]}],"corners":[[0.0,0.0],[4.0,0.0],[2.0,2.0],[5.0,5.0],[1.0,5.0],[3.0,3.0],[0.0,6.0],[0.0,4.0],[2.0,6.0],[1.0,3.0],[2.0,4.0],[3.0,1.0],[4.0,2.0],[4.0,4.0],[0.0,2.0],[1.0,1.0]],"difficulty":1,"art":{"base":"#F9C74F","shapes":[{"type":"circle","c":[0.67,5.08],"r":0.76,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[1.28,2.97],"r":0.57,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.26,4.73],"r":0.36,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[0.14,5.01],"r":0.56,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.81,0.01],"r":0.57,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.61,1.37],"r":0.87,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[4.51,0.18],"r":0.32,"fill":"#FFFFFF","opacity":0.35},{"type":"line","from":[0,1.98],"to":[5.0,0.98],"stroke":"#FFFFFF","width":0.18,"opacity":0.5},{"type":"line","from":[0,4.2],"to":[5.0,3.2],"stroke":"#FFFFFF","width":0.18,"opacity":0.5}]}},{"id":"shapes-warmup-2","title":"Warm-up 2","slots":[{"piece":"LT1","type":"LT","rot":4,"flip":false,"poly":[[4.0,6.0],[0.0,6.0],[2.0,4.0]]},{"piece":"LT2","type":"LT","rot":2,"flip":false,"poly":[[5.0,1.0],[5.0,5.0],[3.0,3.0]]},{"piece":"MT","type":"MT","rot":0,"flip":false,"poly":[[1.0,1.0],[3.0,1.0],[1.0,3.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[3.0,3.0],[2.0,2.0],[3.0,1.0],[4.0,2.0]]},{"piece":"PG","type":"PG","rot":2,"flip":true,"poly":[[1.0,5.0],[1.0,3.0],[2.0,2.0],[2.0,4.0]]},{"piece":"ST1","type":"ST","rot":6,"flip":false,"poly":[[4.0,2.0],[4.0,0.0],[5.0,1.0]]},{"piece":"ST2","type":"ST","rot":6,"flip":false,"poly":[[4.0,6.0],[4.0,4.0],[5.0,5.0]]}],"corners":[[4.0,6.0],[0.0,6.0],[2.0,4.0],[5.0,1.0],[5.0,5.0],[1.0,1.0],[3.0,1.0],[2.0,2.0],[4.0,2.0],[1.0,5.0],[4.0,0.0],[4.0,4.0]],"difficulty":1,"art":{"base":"#90BE6D","shapes":[{"type":"circle","c":[4.78,5.69],"r":0.33,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[0.42,5.01],"r":0.74,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.35,1.85],"r":0.66,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.03,3.49],"r":0.4,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[2.15,2.36],"r":0.73,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[4.97,5.7],"r":0.63,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[2.22,1.61],"r":0.32,"fill":"#FFFFFF","opacity":0.35},{"type":"line","from":[0,1.98],"to":[5.0,0.98],"stroke":"#FFFFFF","width":0.18,"opacity":0.5},{"type":"line","from":[0,4.2],"to":[5.0,3.2],"stroke":"#FFFFFF","width":0.18,"opacity":0.5}]}},{"id":"shapes-warmup-3","title":"Warm-up 3","slots":[{"piece":"LT1","type":"LT","rot":0,"flip":false,"poly":[[1.0,0.0],[5.0,0.0],[3.0,2.0]]},{"piece":"LT2","type":"LT","rot":6,"flip":false,"poly":[[2.0,5.0],[2.0,1.0],[4.0,3.0]]},{"piece":"MT","type":"MT","rot":2,"flip":false,"poly":[[2.0,3.0],[2.0,5.0],[0.0,3.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[5.0,4.0],[4.0,3.0],[5.0,2.0],[6.0,3.0]]},{"piece":"PG","type":"PG","rot":2,"flip":true,"poly":[[4.0,3.0],[4.0,1.0],[5.0,0.0],[5.0,2.0]]},{"piece":"ST1","type":"ST","rot":4,"flip":false,"poly":[[2.0,1.0],[0.0,1.0],[1.0,0.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[2.0,5.0],[0.0,5.0],[1.0,4.0]]}],"corners":[[1.0,0.0],[5.0,0.0],[3.0,2.0],[2.0,5.0],[2.0,1.0],[4.0,3.0],[2.0,3.0],[0.0,3.0],[5.0,4.0],[5.0,2.0],[6.0,3.0],[4.0,1.0],[0.0,1.0],[0.0,5.0],[1.0,4.0]],"difficulty":1,"art":{"base":"#4D96FF","shapes":[{"type":"circle","c":[1.43,2.72],"r":0.52,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.62,3.13],"r":0.34,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[0.08,4.19],"r":0.46,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[1.41,4.98],"r":0.58,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[5.02,2.38],"r":0.68,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[0.9,3.17],"r":0.82,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.14,3.71],"r":0.7,"fill":"#FFFFFF","opacity":0.35},{"type":"line","from":[0,1.65],"to":[6.0,0.65],"stroke":"#FFFFFF","width":0.18,"opacity":0.5},{"type":"line","from":[0,3.5],"to":[6.0,2.5],"stroke":"#FFFFFF","width":0.18,"opacity":0.5}]}},{"id":"shapes-warmup-4","title":"Warm-up 4","slots":[{"piece":"LT1","type":"LT","rot":4,"flip":false,"poly":[[4.0,6.0],[0.0,6.0],[2.0,4.0]]},{"piece":"LT2","type":"LT","rot":0,"flip":false,"poly":[[2.0,2.0],[6.0,2.0],[4.0,4.0]]},{"piece":"MT","type":"MT","rot":6,"flip":false,"poly":[[2.0,2.0],[2.0,0.0],[4.0,2.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[0.0,4.0],[1.0,3.0],[2.0,4.0],[1.0,5.0]]},{"piece":"PG","type":"PG","rot":2,"flip":false,"poly":[[4.0,6.0],[4.0,4.0],[3.0,3.0],[3.0,5.0]]},{"piece":"ST1","type":"ST","rot":4,"flip":false,"poly":[[6.0,4.0],[4.0,4.0],[5.0,3.0]]},{"piece":"ST2","type":"ST","rot":2,"flip":false,"poly":[[2.0,2.0],[2.0,4.0],[1.0,3.0]]}],"corners":[[4.0,6.0],[0.0,6.0],[2.0,4.0],[6.0,2.0],[4.0,4.0],[2.0,0.0],[4.0,2.0],[0.0,4.0],[1.0,5.0],[3.0,3.0],[3.0,5.0],[6.0,4.0],[5.0,3.0]],"difficulty":1,"art":{"base":"#F8961E","shapes":[{"type":"circle","c":[1.42,0.62],"r":0.54,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[0.93,0.4],"r":0.54,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[5.51,4.8],"r":0.76,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[1.33,3.22],"r":0.47,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[1.04,0.64],"r":0.43,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[5.56,4.97],"r":0.78,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[4.8,1.16],"r":0.49,"fill":"#FFFFFF","opacity":0.35},{"type":"line","from":[0,1.98],"to":[6.0,0.98],"stroke":"#FFFFFF","width":0.18,"opacity":0.5},{"type":"line","from":[0,4.2],"to":[6.0,3.2],"stroke":"#FFFFFF","width":0.18,"opacity":0.5}]}},{"id":"things-arrow","title":"Arrow","slots":[{"piece":"LT1","type":"LT","rot":6,"flip":false,"poly":[[4.0,0.0],[4.0,4.0],[6.0,2.0]]},{"piece":"LT2","type":"LT","rot":4,"flip":false,"poly":[[0.0,3.0],[4.0,3.0],[2.0,1.0]]},{"piece":"MT","type":"MT","rot":0,"flip":false,"poly":[[0.0,1.0],[2.0,1.0],[0.0,3.0]]},{"piece":"ST1","type":"ST","rot":0,"flip":false,"poly":[[2.0,1.0],[4.0,1.0],[3.0,2.0]]},{"piece":"ST2","type":"ST","rot":2,"flip":false,"poly":[[4.0,1.0],[4.0,3.0],[3.0,2.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[-2.0,1.0],[-1.0,0.0],[0.0,1.0],[-1.0,2.0]]},{"piece":"PG","type":"PG","rot":2,"flip":true,"poly":[[0.0,1.0],[0.0,3.0],[-1.0,4.0],[-1.0,2.0]]}],"corners":[[4.0,0.0],[4.0,4.0],[6.0,2.0],[0.0,3.0],[4.0,3.0],[0.0,1.0],[4.0,1.0],[-2.0,1.0],[-1.0,0.0],[-1.0,2.0],[-1.0,4.0]],"difficulty":2,"art":{"base":"#B07A4F","shapes":[{"type":"line","from":[0,1.6],"to":[4,1.6],"stroke":"#9A6640","width":0.05},{"type":"line","from":[0,2.4],"to":[4,2.4],"stroke":"#9A6640","width":0.05},{"type":"polygon","points":[[4,0],[4,4],[6,2]],"fill":"#9AA5B1"},{"type":"polygon","points":[[4,0],[4,2],[6,2]],"fill":"#C3CCD5"},{"type":"polygon","points":[[-2,1],[-1,0],[0,1],[-1,2]],"fill":"#E8505B"},{"type":"polygon","points":[[0,1],[0,3],[-1,4],[-1,2]],"fill":"#E8505B"},{"type":"line","from":[-1.5,1.5],"to":[-0.5,0.5],"stroke":"#FFFFFF","width":0.05},{"type":"line","from":[-0.5,3.5],"to":[-0.5,1.5],"stroke":"#FFFFFF","width":0.05},{"type":"rect","x":-0.05,"y":1,"w":0.35,"h":2,"fill":"#3D2B1F"}]}},{"id":"things-house","title":"House","slots":[{"piece":"LT1","type":"LT","rot":4,"flip":false,"poly":[[0.0,2.0],[4.0,2.0],[2.0,0.0]]},{"piece":"LT2","type":"LT","rot":4,"flip":false,"poly":[[0.0,4.0],[4.0,4.0],[2.0,2.0]]},{"piece":"MT","type":"MT","rot":0,"flip":false,"poly":[[0.0,2.0],[2.0,2.0],[0.0,4.0]]},{"piece":"ST1","type":"ST","rot":0,"flip":false,"poly":[[2.0,2.0],[4.0,2.0],[3.0,3.0]]},{"piece":"ST2","type":"ST","rot":2,"flip":false,"poly":[[4.0,2.0],[4.0,4.0],[3.0,3.0]]},{"piece":"PG","type":"PG","rot":2,"flip":false,"poly":[[3.0,1.0],[3.0,-1.0],[4.0,0.0],[4.0,2.0]]},{"piece":"SQ","type":"SQ","rot":1,"flip":false,"poly":[[4.0,2.5857864376],[5.4142135624,2.5857864376],[5.4142135624,4.0],[4.0,4.0]]}],"corners":[[0.0,2.0],[2.0,0.0],[0.0,4.0],[3.0,1.0],[3.0,-1.0],[4.0,0.0],[4.0,2.5857864376],[5.4142135624,2.5857864376],[5.4142135624,4.0]],"difficulty":2,"art":{"base":"#F2D7B6","shapes":[{"type":"polygon","points":[[0,2],[4,2],[2,0]],"fill":"#C4533A"},{"type":"line","from":[1.05,1],"to":[2.95,1],"stroke":"#9E3F2B","width":0.07},{"type":"line","from":[0.55,1.5],"to":[3.45,1.5],"stroke":"#9E3F2B","width":0.07},{"type":"polygon","points":[[3,1],[3,-1],[4,0],[4,2]],"fill":"#8E3B2E"},{"type":"polygon","points":[[3,-0.55],[3,-1],[4,0],[4,0.45]],"fill":"#6E2C22"},{"type":"rect","x":1.55,"y":2.85,"w":0.9,"h":1.2,"fill":"#7A4B2A","rx":0.08},{"type":"circle","c":[2.3,3.5],"r":0.06,"fill":"#F2C14E"},{"type":"rect","x":0.35,"y":2.45,"w":0.8,"h":0.65,"fill":"#9FD3F0","rx":0.05},{"type":"rect","x":2.85,"y":2.45,"w":0.8,"h":0.65,"fill":"#9FD3F0","rx":0.05},{"type":"line","from":[0.75,2.45],"to":[0.75,3.1],"stroke":"#FFFFFF","width":0.06},{"type":"line","from":[0.35,2.78],"to":[1.15,2.78],"stroke":"#FFFFFF","width":0.06},{"type":"line","from":[3.25,2.45],"to":[3.25,3.1],"stroke":"#FFFFFF","width":0.06},{"type":"line","from":[2.85,2.78],"to":[3.65,2.78],"stroke":"#FFFFFF","width":0.06},{"type":"rect","x":4,"y":2.586,"w":1.414,"h":1.414,"fill":"#D9A66B"},{"type":"rect","x":4.45,"y":3.25,"w":0.5,"h":0.75,"fill":"#7A4B2A","rx":0.2},{"type":"rect","x":-0.2,"y":3.9,"w":6,"h":0.2,"fill":"#7FA650"}]}},{"id":"animals-cat","title":"Cat","slots":[{"piece":"LT1","type":"LT","rot":4,"flip":false,"poly":[[0.0,6.0],[4.0,6.0],[2.0,4.0]]},{"piece":"LT2","type":"LT","rot":2,"flip":false,"poly":[[4.0,6.0],[4.0,2.0],[2.0,4.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[2.0,2.0],[3.0,1.0],[4.0,2.0],[3.0,3.0]]},{"piece":"ST1","type":"ST","rot":6,"flip":false,"poly":[[2.0,2.0],[3.0,1.0],[2.0,0.0]]},{"piece":"ST2","type":"ST","rot":2,"flip":false,"poly":[[3.0,1.0],[4.0,2.0],[4.0,0.0]]},{"piece":"PG","type":"PG","rot":2,"flip":true,"poly":[[4.0,6.0],[4.0,4.0],[5.0,3.0],[5.0,5.0]]},{"piece":"MT","type":"MT","rot":0,"flip":false,"poly":[[0.0,4.0],[0.0,6.0],[2.0,4.0]]}],"corners":[[0.0,6.0],[4.0,6.0],[2.0,4.0],[2.0,2.0],[3.0,1.0],[3.0,3.0],[2.0,0.0],[4.0,0.0],[4.0,4.0],[5.0,3.0],[5.0,5.0],[0.0,4.0]],"difficulty":3,"art":{"base":"#F29E4C","shapes":[{"type":"polygon","points":[[2.15,1.55],[2.7,1.0],[2.15,0.45]],"fill":"#F7C6A3"},{"type":"polygon","points":[[3.3,1.0],[3.85,1.55],[3.85,0.45]],"fill":"#F7C6A3"},{"type":"polygon","points":[[0,4],[0,6],[2,4]],"fill":"#FBE7D3"},{"type":"path","d":"M3.3,3.35 Q3.7,3.55 4,3.35","stroke":"#C8651F","width":0.16},{"type":"path","d":"M3.0,4.05 Q3.5,4.3 4,4.05","stroke":"#C8651F","width":0.16},{"type":"path","d":"M2.8,4.85 Q3.4,5.1 4,4.85","stroke":"#C8651F","width":0.16},{"type":"line","from":[4,4.75],"to":[5,3.75],"stroke":"#C8651F","width":0.18},{"type":"line","from":[4,5.45],"to":[5,4.45],"stroke":"#C8651F","width":0.18},{"type":"ellipse","c":[2.65,1.95],"rx":0.1,"ry":0.14,"fill":"#2B2D42"},{"type":"ellipse","c":[3.35,1.95],"rx":0.1,"ry":0.14,"fill":"#2B2D42"},{"type":"circle","c":[2.68,1.9],"r":0.035,"fill":"#FFFFFF"},{"type":"circle","c":[3.38,1.9],"r":0.035,"fill":"#FFFFFF"},{"type":"polygon","points":[[2.88,2.28],[3.12,2.28],[3,2.42]],"fill":"#D65A7A"},{"type":"line","from":[2.7,2.45],"to":[2.25,2.3],"stroke":"#5A3A22","width":0.03},{"type":"line","from":[3.3,2.45],"to":[3.75,2.3],"stroke":"#5A3A22","width":0.03},{"type":"ellipse","c":[0.8,5.88],"rx":0.38,"ry":0.16,"fill":"#FBE7D3"},{"type":"ellipse","c":[1.7,5.88],"rx":0.38,"ry":0.16,"fill":"#FBE7D3"}]}},{"id":"shapes-rectangle","title":"Chocolate bar (rectangle)","slots":[{"piece":"LT1","type":"LT","rot":3,"flip":false,"poly":[[0.0,2.8284271247],[2.8284271247,0.0],[0.0,0.0]]},{"piece":"LT2","type":"LT","rot":7,"flip":false,"poly":[[0.0,2.8284271247],[2.8284271247,0.0],[2.8284271247,2.8284271247]]},{"piece":"MT","type":"MT","rot":7,"flip":false,"poly":[[4.2426406871,1.4142135624],[5.6568542495,0.0],[5.6568542495,2.8284271247]]},{"piece":"SQ","type":"SQ","rot":1,"flip":false,"poly":[[2.8284271247,2.8284271247],[2.8284271247,1.4142135624],[4.2426406871,1.4142135624],[4.2426406871,2.8284271247]]},{"piece":"PG","type":"PG","rot":3,"flip":true,"poly":[[5.6568542495,0.0],[4.2426406871,1.4142135624],[2.8284271247,1.4142135624],[4.2426406871,0.0]]},{"piece":"ST1","type":"ST","rot":1,"flip":false,"poly":[[4.2426406871,1.4142135624],[5.6568542495,2.8284271247],[4.2426406871,2.8284271247]]},{"piece":"ST2","type":"ST","rot":3,"flip":false,"poly":[[4.2426406871,0.0],[2.8284271247,1.4142135624],[2.8284271247,0.0]]}],"corners":[[0.0,2.8284271247],[0.0,0.0],[5.6568542495,0.0],[5.6568542495,2.8284271247]],"difficulty":3,"art":{"base":"#5C3620","shapes":[{"type":"rect","x":0.18,"y":0.18,"w":5.297,"h":2.468,"fill":"#7B4A2E","rx":0.12},{"type":"line","from":[1.414,0.18],"to":[1.414,2.648],"stroke":"#5C3620","width":0.1},{"type":"line","from":[2.828,0.18],"to":[2.828,2.648],"stroke":"#5C3620","width":0.1},{"type":"line","from":[4.243,0.18],"to":[4.243,2.648],"stroke":"#5C3620","width":0.1},{"type":"line","from":[0.18,1.414],"to":[5.477,1.414],"stroke":"#5C3620","width":0.1},{"type":"rect","x":0.3,"y":0.3,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":0.3,"y":1.714,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":1.714,"y":0.3,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":1.714,"y":1.714,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":3.128,"y":0.3,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":3.128,"y":1.714,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":4.543,"y":0.3,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":4.543,"y":1.714,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08}]}},{"id":"vehicles-sailboat","title":"Sailboat","slots":[{"piece":"LT1","type":"LT","rot":7,"flip":false,"poly":[[0.0,0.0],[0.0,2.8284271247],[-2.8284271247,2.8284271247]]},{"piece":"LT2","type":"LT","rot":1,"flip":false,"poly":[[0.0,0.0],[0.0,2.8284271247],[2.8284271247,2.8284271247]]},{"piece":"ST1","type":"ST","rot":5,"flip":false,"poly":[[-3.5355339059,2.8284271247],[-2.1213203436,2.8284271247],[-2.1213203436,4.2426406871]]},{"piece":"SQ","type":"SQ","rot":1,"flip":false,"poly":[[-2.1213203436,2.8284271247],[-0.7071067812,2.8284271247],[-0.7071067812,4.2426406871],[-2.1213203436,4.2426406871]]},{"piece":"ST2","type":"ST","rot":1,"flip":false,"poly":[[-0.7071067812,2.8284271247],[0.7071067812,4.2426406871],[-0.7071067812,4.2426406871]]},{"piece":"MT","type":"MT","rot":5,"flip":false,"poly":[[-0.7071067812,2.8284271247],[2.1213203436,2.8284271247],[0.7071067812,4.2426406871]]},{"piece":"PG","type":"PG","rot":3,"flip":true,"poly":[[2.1213203436,2.8284271247],[3.5355339059,2.8284271247],[2.1213203436,4.2426406871],[0.7071067812,4.2426406871]]}],"corners":[[0.0,0.0],[-2.8284271247,2.8284271247],[2.8284271247,2.8284271247],[-3.5355339059,2.8284271247],[-2.1213203436,4.2426406871],[3.5355339059,2.8284271247],[2.1213203436,4.2426406871]],"difficulty":3,"art":{"base":"#F3E3C0","shapes":[{"type":"polygon","points":[[-3.536,2.828],[3.536,2.828],[2.121,4.243],[-2.121,4.243]],"fill":"#8B5A3C"},{"type":"rect","x":-3.677,"y":2.828,"w":7.354,"h":0.22,"fill":"#E8505B"},{"type":"circle","c":[-1.414,3.606],"r":0.16,"fill":"#F7F4EC"},{"type":"circle","c":[0,3.606],"r":0.16,"fill":"#F7F4EC"},{"type":"circle","c":[1.414,3.606],"r":0.16,"fill":"#F7F4EC"},{"type":"polygon","points":[[0,0],[0,2.828],[-2.828,2.828]],"fill":"#F6E7C8"},{"type":"polygon","points":[[0,0],[0,2.828],[2.828,2.828]],"fill":"#E6CFA3"},{"type":"polygon","points":[[0,1.2],[0,1.75],[-1.75,2.828],[-1.2,2.828]],"fill":"#3D8BFD","opacity":0.85},{"type":"polygon","points":[[0,1.2],[0,1.75],[1.75,2.828],[1.2,2.828]],"fill":"#3D8BFD","opacity":0.6},{"type":"line","from":[0,0],"to":[0,2.828],"stroke":"#5B3A26","width":0.1}]}},{"id":"nature-mountain","title":"Mountain","slots":[{"piece":"LT1","type":"LT","rot":4,"flip":false,"poly":[[0.0,4.0],[4.0,4.0],[2.0,2.0]]},{"piece":"LT2","type":"LT","rot":2,"flip":false,"poly":[[4.0,4.0],[4.0,0.0],[2.0,2.0]]},{"piece":"ST1","type":"ST","rot":6,"flip":false,"poly":[[4.0,0.0],[4.0,2.0],[5.0,1.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[6.0,2.0],[5.0,1.0],[4.0,2.0],[5.0,3.0]]},{"piece":"MT","type":"MT","rot":6,"flip":false,"poly":[[4.0,2.0],[4.0,4.0],[6.0,4.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[6.0,2.0],[5.0,3.0],[7.0,3.0]]},{"piece":"PG","type":"PG","rot":0,"flip":true,"poly":[[8.0,4.0],[7.0,3.0],[5.0,3.0],[6.0,4.0]]}],"corners":[[0.0,4.0],[4.0,0.0],[8.0,4.0]],"difficulty":4,"art":{"base":"#7A8796","shapes":[{"type":"polygon","points":[[4,0],[8,4],[4,4]],"fill":"#667280"},{"type":"polygon","points":[[4,0],[2.5,1.5],[3.1,1.25],[3.6,1.7],[4.1,1.2],[4.7,1.6],[5.2,1.35],[5.5,1.5]],"fill":"#E4ECF4"},{"type":"rect","x":0,"y":3.25,"w":8,"h":0.8,"fill":"#2F7D4F"},{"type":"polygon","points":[[0.9,3.3],[1.25,2.7],[1.6,3.3]],"fill":"#2F7D4F"},{"type":"polygon","points":[[1.7,3.3],[2.05,2.55],[2.4,3.3]],"fill":"#276B43"},{"type":"polygon","points":[[5.6,3.3],[5.95,2.6],[6.3,3.3]],"fill":"#276B43"},{"type":"polygon","points":[[6.4,3.3],[6.75,2.8],[7.1,3.3]],"fill":"#2F7D4F"},{"type":"path","d":"M3.6,4 Q4.4,3.2 3.9,2.6 Q3.5,2.1 4.1,1.7","stroke":"#D9C49A","width":0.08}]}}];
+const PUZZLES = [{"id":"shapes-mini-1","title":{"en":"Mini: Pyramid","fi":"Mini: Pyramidi"},"kind":"mini","slots":[{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[2.0,2.0],[3.0,1.0],[2.0,0.0],[1.0,1.0]]},{"piece":"ST1","type":"ST","rot":4,"flip":false,"poly":[[0.0,2.0],[2.0,2.0],[1.0,1.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[2.0,2.0],[4.0,2.0],[3.0,1.0]]}],"corners":[[2.0,0.0],[0.0,2.0],[4.0,2.0]],"difficulty":1,"art":{"base":"#E9C46A","shapes":[{"type":"polygon","points":[[2,0],[4,2],[2,2]],"fill":"#C98F3E","opacity":0.45},{"type":"line","from":[0,0.67],"to":[4,0.67],"stroke":"#B07B35","width":0.06,"opacity":0.7},{"type":"line","from":[0,1.33],"to":[4,1.33],"stroke":"#B07B35","width":0.06,"opacity":0.7},{"type":"rect","x":1.78,"y":1.55,"w":0.44,"h":0.45,"rx":0.2,"fill":"#5A3E1B"}]}},{"id":"shapes-mini-2","title":{"en":"Mini: Window","fi":"Mini: Ikkuna"},"kind":"mini","slots":[{"piece":"MT","type":"MT","rot":0,"flip":false,"poly":[[0.0,0.0],[2.0,0.0],[0.0,2.0]]},{"piece":"ST1","type":"ST","rot":2,"flip":false,"poly":[[2.0,0.0],[2.0,2.0],[1.0,1.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[2.0,2.0],[0.0,2.0],[1.0,1.0]]}],"corners":[[0.0,0.0],[2.0,0.0],[0.0,2.0],[2.0,2.0]],"difficulty":1,"art":{"base":"#8ECAE6","shapes":[{"type":"polygon","points":[[0.1,0.1],[0.75,0.1],[0.1,0.75]],"fill":"#FFFFFF","opacity":0.4},{"type":"line","from":[1,0],"to":[1,2],"stroke":"#FFFFFF","width":0.14},{"type":"line","from":[0,1],"to":[2,1],"stroke":"#FFFFFF","width":0.14},{"type":"polygon","points":[[0,0],[2,0],[2,2],[0,2]],"stroke":"#FFFFFF","width":0.28}]}},{"id":"shapes-warmup-1","title":{"en":"Warm-up 1","fi":"L\u00e4mmittely 1"},"kind":"warmup","slots":[{"piece":"LT1","type":"LT","rot":0,"flip":false,"poly":[[0.0,0.0],[4.0,0.0],[2.0,2.0]]},{"piece":"LT2","type":"LT","rot":4,"flip":false,"poly":[[5.0,5.0],[1.0,5.0],[3.0,3.0]]},{"piece":"MT","type":"MT","rot":6,"flip":false,"poly":[[0.0,6.0],[0.0,4.0],[2.0,6.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[1.0,5.0],[0.0,4.0],[1.0,3.0],[2.0,4.0]]},{"piece":"PG","type":"PG","rot":2,"flip":true,"poly":[[2.0,4.0],[2.0,2.0],[3.0,1.0],[3.0,3.0]]},{"piece":"ST1","type":"ST","rot":2,"flip":false,"poly":[[4.0,2.0],[4.0,4.0],[3.0,3.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[2.0,2.0],[0.0,2.0],[1.0,1.0]]}],"corners":[[0.0,0.0],[4.0,0.0],[2.0,2.0],[5.0,5.0],[1.0,5.0],[3.0,3.0],[0.0,6.0],[0.0,4.0],[2.0,6.0],[1.0,3.0],[2.0,4.0],[3.0,1.0],[4.0,2.0],[4.0,4.0],[0.0,2.0],[1.0,1.0]],"difficulty":1,"art":{"base":"#F9C74F","shapes":[{"type":"circle","c":[0.67,5.08],"r":0.76,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[1.28,2.97],"r":0.57,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.26,4.73],"r":0.36,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[0.14,5.01],"r":0.56,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.81,0.01],"r":0.57,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.61,1.37],"r":0.87,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[4.51,0.18],"r":0.32,"fill":"#FFFFFF","opacity":0.35},{"type":"line","from":[0,1.98],"to":[5.0,0.98],"stroke":"#FFFFFF","width":0.18,"opacity":0.5},{"type":"line","from":[0,4.2],"to":[5.0,3.2],"stroke":"#FFFFFF","width":0.18,"opacity":0.5}]}},{"id":"shapes-warmup-2","title":{"en":"Warm-up 2","fi":"L\u00e4mmittely 2"},"kind":"warmup","slots":[{"piece":"LT1","type":"LT","rot":4,"flip":false,"poly":[[4.0,6.0],[0.0,6.0],[2.0,4.0]]},{"piece":"LT2","type":"LT","rot":2,"flip":false,"poly":[[5.0,1.0],[5.0,5.0],[3.0,3.0]]},{"piece":"MT","type":"MT","rot":0,"flip":false,"poly":[[1.0,1.0],[3.0,1.0],[1.0,3.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[3.0,3.0],[2.0,2.0],[3.0,1.0],[4.0,2.0]]},{"piece":"PG","type":"PG","rot":2,"flip":true,"poly":[[1.0,5.0],[1.0,3.0],[2.0,2.0],[2.0,4.0]]},{"piece":"ST1","type":"ST","rot":6,"flip":false,"poly":[[4.0,2.0],[4.0,0.0],[5.0,1.0]]},{"piece":"ST2","type":"ST","rot":6,"flip":false,"poly":[[4.0,6.0],[4.0,4.0],[5.0,5.0]]}],"corners":[[4.0,6.0],[0.0,6.0],[2.0,4.0],[5.0,1.0],[5.0,5.0],[1.0,1.0],[3.0,1.0],[2.0,2.0],[4.0,2.0],[1.0,5.0],[4.0,0.0],[4.0,4.0]],"difficulty":1,"art":{"base":"#90BE6D","shapes":[{"type":"circle","c":[4.78,5.69],"r":0.33,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[0.42,5.01],"r":0.74,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.35,1.85],"r":0.66,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.03,3.49],"r":0.4,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[2.15,2.36],"r":0.73,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[4.97,5.7],"r":0.63,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[2.22,1.61],"r":0.32,"fill":"#FFFFFF","opacity":0.35},{"type":"line","from":[0,1.98],"to":[5.0,0.98],"stroke":"#FFFFFF","width":0.18,"opacity":0.5},{"type":"line","from":[0,4.2],"to":[5.0,3.2],"stroke":"#FFFFFF","width":0.18,"opacity":0.5}]}},{"id":"shapes-warmup-3","title":{"en":"Warm-up 3","fi":"L\u00e4mmittely 3"},"kind":"warmup","slots":[{"piece":"LT1","type":"LT","rot":0,"flip":false,"poly":[[1.0,0.0],[5.0,0.0],[3.0,2.0]]},{"piece":"LT2","type":"LT","rot":6,"flip":false,"poly":[[2.0,5.0],[2.0,1.0],[4.0,3.0]]},{"piece":"MT","type":"MT","rot":2,"flip":false,"poly":[[2.0,3.0],[2.0,5.0],[0.0,3.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[5.0,4.0],[4.0,3.0],[5.0,2.0],[6.0,3.0]]},{"piece":"PG","type":"PG","rot":2,"flip":true,"poly":[[4.0,3.0],[4.0,1.0],[5.0,0.0],[5.0,2.0]]},{"piece":"ST1","type":"ST","rot":4,"flip":false,"poly":[[2.0,1.0],[0.0,1.0],[1.0,0.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[2.0,5.0],[0.0,5.0],[1.0,4.0]]}],"corners":[[1.0,0.0],[5.0,0.0],[3.0,2.0],[2.0,5.0],[2.0,1.0],[4.0,3.0],[2.0,3.0],[0.0,3.0],[5.0,4.0],[5.0,2.0],[6.0,3.0],[4.0,1.0],[0.0,1.0],[0.0,5.0],[1.0,4.0]],"difficulty":1,"art":{"base":"#4D96FF","shapes":[{"type":"circle","c":[1.43,2.72],"r":0.52,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.62,3.13],"r":0.34,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[0.08,4.19],"r":0.46,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[1.41,4.98],"r":0.58,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[5.02,2.38],"r":0.68,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[0.9,3.17],"r":0.82,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.14,3.71],"r":0.7,"fill":"#FFFFFF","opacity":0.35},{"type":"line","from":[0,1.65],"to":[6.0,0.65],"stroke":"#FFFFFF","width":0.18,"opacity":0.5},{"type":"line","from":[0,3.5],"to":[6.0,2.5],"stroke":"#FFFFFF","width":0.18,"opacity":0.5}]}},{"id":"shapes-warmup-4","title":{"en":"Warm-up 4","fi":"L\u00e4mmittely 4"},"kind":"warmup","slots":[{"piece":"LT1","type":"LT","rot":4,"flip":false,"poly":[[4.0,6.0],[0.0,6.0],[2.0,4.0]]},{"piece":"LT2","type":"LT","rot":0,"flip":false,"poly":[[2.0,2.0],[6.0,2.0],[4.0,4.0]]},{"piece":"MT","type":"MT","rot":6,"flip":false,"poly":[[2.0,2.0],[2.0,0.0],[4.0,2.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[0.0,4.0],[1.0,3.0],[2.0,4.0],[1.0,5.0]]},{"piece":"PG","type":"PG","rot":2,"flip":false,"poly":[[4.0,6.0],[4.0,4.0],[3.0,3.0],[3.0,5.0]]},{"piece":"ST1","type":"ST","rot":4,"flip":false,"poly":[[6.0,4.0],[4.0,4.0],[5.0,3.0]]},{"piece":"ST2","type":"ST","rot":2,"flip":false,"poly":[[2.0,2.0],[2.0,4.0],[1.0,3.0]]}],"corners":[[4.0,6.0],[0.0,6.0],[2.0,4.0],[6.0,2.0],[4.0,4.0],[2.0,0.0],[4.0,2.0],[0.0,4.0],[1.0,5.0],[3.0,3.0],[3.0,5.0],[6.0,4.0],[5.0,3.0]],"difficulty":1,"art":{"base":"#F8961E","shapes":[{"type":"circle","c":[1.42,0.62],"r":0.54,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[0.93,0.4],"r":0.54,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[5.51,4.8],"r":0.76,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[1.33,3.22],"r":0.47,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[1.04,0.64],"r":0.43,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[5.56,4.97],"r":0.78,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[4.8,1.16],"r":0.49,"fill":"#FFFFFF","opacity":0.35},{"type":"line","from":[0,1.98],"to":[6.0,0.98],"stroke":"#FFFFFF","width":0.18,"opacity":0.5},{"type":"line","from":[0,4.2],"to":[6.0,3.2],"stroke":"#FFFFFF","width":0.18,"opacity":0.5}]}},{"id":"things-arrow","title":{"en":"Arrow","fi":"Nuoli"},"kind":"full","slots":[{"piece":"LT1","type":"LT","rot":6,"flip":false,"poly":[[4.0,0.0],[4.0,4.0],[6.0,2.0]]},{"piece":"LT2","type":"LT","rot":4,"flip":false,"poly":[[0.0,3.0],[4.0,3.0],[2.0,1.0]]},{"piece":"MT","type":"MT","rot":0,"flip":false,"poly":[[0.0,1.0],[2.0,1.0],[0.0,3.0]]},{"piece":"ST1","type":"ST","rot":0,"flip":false,"poly":[[2.0,1.0],[4.0,1.0],[3.0,2.0]]},{"piece":"ST2","type":"ST","rot":2,"flip":false,"poly":[[4.0,1.0],[4.0,3.0],[3.0,2.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[-2.0,1.0],[-1.0,0.0],[0.0,1.0],[-1.0,2.0]]},{"piece":"PG","type":"PG","rot":2,"flip":true,"poly":[[0.0,1.0],[0.0,3.0],[-1.0,4.0],[-1.0,2.0]]}],"corners":[[4.0,0.0],[4.0,4.0],[6.0,2.0],[0.0,3.0],[4.0,3.0],[0.0,1.0],[4.0,1.0],[-2.0,1.0],[-1.0,0.0],[-1.0,2.0],[-1.0,4.0]],"difficulty":2,"art":{"base":"#B07A4F","shapes":[{"type":"line","from":[0,1.6],"to":[4,1.6],"stroke":"#9A6640","width":0.05},{"type":"line","from":[0,2.4],"to":[4,2.4],"stroke":"#9A6640","width":0.05},{"type":"polygon","points":[[4,0],[4,4],[6,2]],"fill":"#9AA5B1"},{"type":"polygon","points":[[4,0],[4,2],[6,2]],"fill":"#C3CCD5"},{"type":"polygon","points":[[-2,1],[-1,0],[0,1],[-1,2]],"fill":"#E8505B"},{"type":"polygon","points":[[0,1],[0,3],[-1,4],[-1,2]],"fill":"#E8505B"},{"type":"line","from":[-1.5,1.5],"to":[-0.5,0.5],"stroke":"#FFFFFF","width":0.05},{"type":"line","from":[-0.5,3.5],"to":[-0.5,1.5],"stroke":"#FFFFFF","width":0.05},{"type":"rect","x":-0.05,"y":1,"w":0.35,"h":2,"fill":"#3D2B1F"}]}},{"id":"things-house","title":{"en":"House","fi":"Talo"},"kind":"full","slots":[{"piece":"LT1","type":"LT","rot":4,"flip":false,"poly":[[0.0,2.0],[4.0,2.0],[2.0,0.0]]},{"piece":"LT2","type":"LT","rot":4,"flip":false,"poly":[[0.0,4.0],[4.0,4.0],[2.0,2.0]]},{"piece":"MT","type":"MT","rot":0,"flip":false,"poly":[[0.0,2.0],[2.0,2.0],[0.0,4.0]]},{"piece":"ST1","type":"ST","rot":0,"flip":false,"poly":[[2.0,2.0],[4.0,2.0],[3.0,3.0]]},{"piece":"ST2","type":"ST","rot":2,"flip":false,"poly":[[4.0,2.0],[4.0,4.0],[3.0,3.0]]},{"piece":"PG","type":"PG","rot":2,"flip":false,"poly":[[3.0,1.0],[3.0,-1.0],[4.0,0.0],[4.0,2.0]]},{"piece":"SQ","type":"SQ","rot":1,"flip":false,"poly":[[4.0,2.5857864376],[5.4142135624,2.5857864376],[5.4142135624,4.0],[4.0,4.0]]}],"corners":[[0.0,2.0],[2.0,0.0],[0.0,4.0],[3.0,1.0],[3.0,-1.0],[4.0,0.0],[4.0,2.5857864376],[5.4142135624,2.5857864376],[5.4142135624,4.0]],"difficulty":2,"art":{"base":"#F2D7B6","shapes":[{"type":"polygon","points":[[0,2],[4,2],[2,0]],"fill":"#C4533A"},{"type":"line","from":[1.05,1],"to":[2.95,1],"stroke":"#9E3F2B","width":0.07},{"type":"line","from":[0.55,1.5],"to":[3.45,1.5],"stroke":"#9E3F2B","width":0.07},{"type":"polygon","points":[[3,1],[3,-1],[4,0],[4,2]],"fill":"#8E3B2E"},{"type":"polygon","points":[[3,-0.55],[3,-1],[4,0],[4,0.45]],"fill":"#6E2C22"},{"type":"rect","x":1.55,"y":2.85,"w":0.9,"h":1.2,"fill":"#7A4B2A","rx":0.08},{"type":"circle","c":[2.3,3.5],"r":0.06,"fill":"#F2C14E"},{"type":"rect","x":0.35,"y":2.45,"w":0.8,"h":0.65,"fill":"#9FD3F0","rx":0.05},{"type":"rect","x":2.85,"y":2.45,"w":0.8,"h":0.65,"fill":"#9FD3F0","rx":0.05},{"type":"line","from":[0.75,2.45],"to":[0.75,3.1],"stroke":"#FFFFFF","width":0.06},{"type":"line","from":[0.35,2.78],"to":[1.15,2.78],"stroke":"#FFFFFF","width":0.06},{"type":"line","from":[3.25,2.45],"to":[3.25,3.1],"stroke":"#FFFFFF","width":0.06},{"type":"line","from":[2.85,2.78],"to":[3.65,2.78],"stroke":"#FFFFFF","width":0.06},{"type":"rect","x":4,"y":2.586,"w":1.414,"h":1.414,"fill":"#D9A66B"},{"type":"rect","x":4.45,"y":3.25,"w":0.5,"h":0.75,"fill":"#7A4B2A","rx":0.2},{"type":"rect","x":-0.2,"y":3.9,"w":6,"h":0.2,"fill":"#7FA650"}]}},{"id":"animals-cat","title":{"en":"Cat","fi":"Kissa"},"kind":"full","slots":[{"piece":"LT1","type":"LT","rot":4,"flip":false,"poly":[[0.0,6.0],[4.0,6.0],[2.0,4.0]]},{"piece":"LT2","type":"LT","rot":2,"flip":false,"poly":[[4.0,6.0],[4.0,2.0],[2.0,4.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[2.0,2.0],[3.0,1.0],[4.0,2.0],[3.0,3.0]]},{"piece":"ST1","type":"ST","rot":6,"flip":false,"poly":[[2.0,2.0],[3.0,1.0],[2.0,0.0]]},{"piece":"ST2","type":"ST","rot":2,"flip":false,"poly":[[3.0,1.0],[4.0,2.0],[4.0,0.0]]},{"piece":"PG","type":"PG","rot":2,"flip":true,"poly":[[4.0,6.0],[4.0,4.0],[5.0,3.0],[5.0,5.0]]},{"piece":"MT","type":"MT","rot":0,"flip":false,"poly":[[0.0,4.0],[0.0,6.0],[2.0,4.0]]}],"corners":[[0.0,6.0],[4.0,6.0],[2.0,4.0],[2.0,2.0],[3.0,1.0],[3.0,3.0],[2.0,0.0],[4.0,0.0],[4.0,4.0],[5.0,3.0],[5.0,5.0],[0.0,4.0]],"difficulty":3,"art":{"base":"#F29E4C","shapes":[{"type":"polygon","points":[[2.15,1.55],[2.7,1.0],[2.15,0.45]],"fill":"#F7C6A3"},{"type":"polygon","points":[[3.3,1.0],[3.85,1.55],[3.85,0.45]],"fill":"#F7C6A3"},{"type":"polygon","points":[[0,4],[0,6],[2,4]],"fill":"#FBE7D3"},{"type":"path","d":"M3.3,3.35 Q3.7,3.55 4,3.35","stroke":"#C8651F","width":0.16},{"type":"path","d":"M3.0,4.05 Q3.5,4.3 4,4.05","stroke":"#C8651F","width":0.16},{"type":"path","d":"M2.8,4.85 Q3.4,5.1 4,4.85","stroke":"#C8651F","width":0.16},{"type":"line","from":[4,4.75],"to":[5,3.75],"stroke":"#C8651F","width":0.18},{"type":"line","from":[4,5.45],"to":[5,4.45],"stroke":"#C8651F","width":0.18},{"type":"ellipse","c":[2.65,1.95],"rx":0.1,"ry":0.14,"fill":"#2B2D42"},{"type":"ellipse","c":[3.35,1.95],"rx":0.1,"ry":0.14,"fill":"#2B2D42"},{"type":"circle","c":[2.68,1.9],"r":0.035,"fill":"#FFFFFF"},{"type":"circle","c":[3.38,1.9],"r":0.035,"fill":"#FFFFFF"},{"type":"polygon","points":[[2.88,2.28],[3.12,2.28],[3,2.42]],"fill":"#D65A7A"},{"type":"line","from":[2.7,2.45],"to":[2.25,2.3],"stroke":"#5A3A22","width":0.03},{"type":"line","from":[3.3,2.45],"to":[3.75,2.3],"stroke":"#5A3A22","width":0.03},{"type":"ellipse","c":[0.8,5.88],"rx":0.38,"ry":0.16,"fill":"#FBE7D3"},{"type":"ellipse","c":[1.7,5.88],"rx":0.38,"ry":0.16,"fill":"#FBE7D3"}]}},{"id":"shapes-rectangle","title":{"en":"Chocolate bar (rectangle)","fi":"Suklaalevy (suorakulmio)"},"kind":"full","slots":[{"piece":"LT1","type":"LT","rot":3,"flip":false,"poly":[[0.0,2.8284271247],[2.8284271247,0.0],[0.0,0.0]]},{"piece":"LT2","type":"LT","rot":7,"flip":false,"poly":[[0.0,2.8284271247],[2.8284271247,0.0],[2.8284271247,2.8284271247]]},{"piece":"MT","type":"MT","rot":7,"flip":false,"poly":[[4.2426406871,1.4142135624],[5.6568542495,0.0],[5.6568542495,2.8284271247]]},{"piece":"SQ","type":"SQ","rot":1,"flip":false,"poly":[[2.8284271247,2.8284271247],[2.8284271247,1.4142135624],[4.2426406871,1.4142135624],[4.2426406871,2.8284271247]]},{"piece":"PG","type":"PG","rot":3,"flip":true,"poly":[[5.6568542495,0.0],[4.2426406871,1.4142135624],[2.8284271247,1.4142135624],[4.2426406871,0.0]]},{"piece":"ST1","type":"ST","rot":1,"flip":false,"poly":[[4.2426406871,1.4142135624],[5.6568542495,2.8284271247],[4.2426406871,2.8284271247]]},{"piece":"ST2","type":"ST","rot":3,"flip":false,"poly":[[4.2426406871,0.0],[2.8284271247,1.4142135624],[2.8284271247,0.0]]}],"corners":[[0.0,2.8284271247],[0.0,0.0],[5.6568542495,0.0],[5.6568542495,2.8284271247]],"difficulty":3,"art":{"base":"#5C3620","shapes":[{"type":"rect","x":0.18,"y":0.18,"w":5.297,"h":2.468,"fill":"#7B4A2E","rx":0.12},{"type":"line","from":[1.414,0.18],"to":[1.414,2.648],"stroke":"#5C3620","width":0.1},{"type":"line","from":[2.828,0.18],"to":[2.828,2.648],"stroke":"#5C3620","width":0.1},{"type":"line","from":[4.243,0.18],"to":[4.243,2.648],"stroke":"#5C3620","width":0.1},{"type":"line","from":[0.18,1.414],"to":[5.477,1.414],"stroke":"#5C3620","width":0.1},{"type":"rect","x":0.3,"y":0.3,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":0.3,"y":1.714,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":1.714,"y":0.3,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":1.714,"y":1.714,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":3.128,"y":0.3,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":3.128,"y":1.714,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":4.543,"y":0.3,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08},{"type":"rect","x":4.543,"y":1.714,"w":0.814,"h":0.814,"fill":"#8E5A38","rx":0.08}]}},{"id":"vehicles-sailboat","title":{"en":"Sailboat","fi":"Purjevene"},"kind":"full","slots":[{"piece":"LT1","type":"LT","rot":7,"flip":false,"poly":[[0.0,0.0],[0.0,2.8284271247],[-2.8284271247,2.8284271247]]},{"piece":"LT2","type":"LT","rot":1,"flip":false,"poly":[[0.0,0.0],[0.0,2.8284271247],[2.8284271247,2.8284271247]]},{"piece":"ST1","type":"ST","rot":5,"flip":false,"poly":[[-3.5355339059,2.8284271247],[-2.1213203436,2.8284271247],[-2.1213203436,4.2426406871]]},{"piece":"SQ","type":"SQ","rot":1,"flip":false,"poly":[[-2.1213203436,2.8284271247],[-0.7071067812,2.8284271247],[-0.7071067812,4.2426406871],[-2.1213203436,4.2426406871]]},{"piece":"ST2","type":"ST","rot":1,"flip":false,"poly":[[-0.7071067812,2.8284271247],[0.7071067812,4.2426406871],[-0.7071067812,4.2426406871]]},{"piece":"MT","type":"MT","rot":5,"flip":false,"poly":[[-0.7071067812,2.8284271247],[2.1213203436,2.8284271247],[0.7071067812,4.2426406871]]},{"piece":"PG","type":"PG","rot":3,"flip":true,"poly":[[2.1213203436,2.8284271247],[3.5355339059,2.8284271247],[2.1213203436,4.2426406871],[0.7071067812,4.2426406871]]}],"corners":[[0.0,0.0],[-2.8284271247,2.8284271247],[2.8284271247,2.8284271247],[-3.5355339059,2.8284271247],[-2.1213203436,4.2426406871],[3.5355339059,2.8284271247],[2.1213203436,4.2426406871]],"difficulty":3,"art":{"base":"#F3E3C0","shapes":[{"type":"polygon","points":[[-3.536,2.828],[3.536,2.828],[2.121,4.243],[-2.121,4.243]],"fill":"#8B5A3C"},{"type":"rect","x":-3.677,"y":2.828,"w":7.354,"h":0.22,"fill":"#E8505B"},{"type":"circle","c":[-1.414,3.606],"r":0.16,"fill":"#F7F4EC"},{"type":"circle","c":[0,3.606],"r":0.16,"fill":"#F7F4EC"},{"type":"circle","c":[1.414,3.606],"r":0.16,"fill":"#F7F4EC"},{"type":"polygon","points":[[0,0],[0,2.828],[-2.828,2.828]],"fill":"#F6E7C8"},{"type":"polygon","points":[[0,0],[0,2.828],[2.828,2.828]],"fill":"#E6CFA3"},{"type":"polygon","points":[[0,1.2],[0,1.75],[-1.75,2.828],[-1.2,2.828]],"fill":"#3D8BFD","opacity":0.85},{"type":"polygon","points":[[0,1.2],[0,1.75],[1.75,2.828],[1.2,2.828]],"fill":"#3D8BFD","opacity":0.6},{"type":"line","from":[0,0],"to":[0,2.828],"stroke":"#5B3A26","width":0.1}]}},{"id":"nature-mountain","title":{"en":"Mountain","fi":"Vuori"},"kind":"full","slots":[{"piece":"LT1","type":"LT","rot":4,"flip":false,"poly":[[0.0,4.0],[4.0,4.0],[2.0,2.0]]},{"piece":"LT2","type":"LT","rot":2,"flip":false,"poly":[[4.0,4.0],[4.0,0.0],[2.0,2.0]]},{"piece":"ST1","type":"ST","rot":6,"flip":false,"poly":[[4.0,0.0],[4.0,2.0],[5.0,1.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[6.0,2.0],[5.0,1.0],[4.0,2.0],[5.0,3.0]]},{"piece":"MT","type":"MT","rot":6,"flip":false,"poly":[[4.0,2.0],[4.0,4.0],[6.0,4.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[6.0,2.0],[5.0,3.0],[7.0,3.0]]},{"piece":"PG","type":"PG","rot":0,"flip":true,"poly":[[8.0,4.0],[7.0,3.0],[5.0,3.0],[6.0,4.0]]}],"corners":[[0.0,4.0],[4.0,0.0],[8.0,4.0]],"difficulty":4,"art":{"base":"#7A8796","shapes":[{"type":"polygon","points":[[4,0],[8,4],[4,4]],"fill":"#667280"},{"type":"polygon","points":[[4,0],[2.5,1.5],[3.1,1.25],[3.6,1.7],[4.1,1.2],[4.7,1.6],[5.2,1.35],[5.5,1.5]],"fill":"#E4ECF4"},{"type":"rect","x":0,"y":3.25,"w":8,"h":0.8,"fill":"#2F7D4F"},{"type":"polygon","points":[[0.9,3.3],[1.25,2.7],[1.6,3.3]],"fill":"#2F7D4F"},{"type":"polygon","points":[[1.7,3.3],[2.05,2.55],[2.4,3.3]],"fill":"#276B43"},{"type":"polygon","points":[[5.6,3.3],[5.95,2.6],[6.3,3.3]],"fill":"#276B43"},{"type":"polygon","points":[[6.4,3.3],[6.75,2.8],[7.1,3.3]],"fill":"#2F7D4F"},{"type":"path","d":"M3.6,4 Q4.4,3.2 3.9,2.6 Q3.5,2.1 4.1,1.7","stroke":"#D9C49A","width":0.08}]}},{"id":"shapes-square","title":{"en":"Gift box","fi":"Lahjapaketti"},"kind":"full","slots":[{"piece":"LT1","type":"LT","rot":0,"flip":false,"poly":[[0.0,0.0],[4.0,0.0],[2.0,2.0]]},{"piece":"LT2","type":"LT","rot":6,"flip":false,"poly":[[0.0,0.0],[2.0,2.0],[0.0,4.0]]},{"piece":"MT","type":"MT","rot":4,"flip":false,"poly":[[4.0,2.0],[4.0,4.0],[2.0,4.0]]},{"piece":"ST1","type":"ST","rot":2,"flip":false,"poly":[[4.0,0.0],[4.0,2.0],[3.0,1.0]]},{"piece":"SQ","type":"SQ","rot":0,"flip":false,"poly":[[2.0,2.0],[3.0,1.0],[4.0,2.0],[3.0,3.0]]},{"piece":"ST2","type":"ST","rot":4,"flip":false,"poly":[[2.0,2.0],[3.0,3.0],[1.0,3.0]]},{"piece":"PG","type":"PG","rot":0,"flip":false,"poly":[[0.0,4.0],[1.0,3.0],[3.0,3.0],[2.0,4.0]]}],"corners":[[0.0,0.0],[4.0,0.0],[0.0,4.0],[4.0,4.0]],"difficulty":4,"art":{"base":"#3D8BFD","shapes":[{"type":"rect","x":0,"y":0,"w":4,"h":4,"fill":"#3D8BFD"},{"type":"circle","c":[0.7,0.8],"r":0.18,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.2,3.3],"r":0.22,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[1.0,3.1],"r":0.14,"fill":"#FFFFFF","opacity":0.35},{"type":"circle","c":[3.3,0.9],"r":0.14,"fill":"#FFFFFF","opacity":0.35},{"type":"rect","x":1.7,"y":0,"w":0.6,"h":4,"fill":"#FFD23F"},{"type":"rect","x":0,"y":1.7,"w":4,"h":0.6,"fill":"#FFD23F"},{"type":"ellipse","c":[1.45,1.55],"rx":0.55,"ry":0.35,"fill":"#F9A826"},{"type":"ellipse","c":[2.55,1.55],"rx":0.55,"ry":0.35,"fill":"#F9A826"},{"type":"circle","c":[2,1.75],"r":0.28,"fill":"#E8505B"}]}}];
+const VERSION = "0.6";
+
+// ---------------- language (REQ-047): the device language decides, fi or en ----------------
+const LANG = ((navigator.language || "en").toLowerCase().startsWith("fi")) ? "fi" : "en";
+const STR = {
+  en: { restart: "Restart", retry: "Retry", next: "Next", settings: "Settings", timerOnScreen: "Timer on screen", on: "On", off: "Off",
+        sound: "Sound", soundOn: "Sound on", soundOff: "Sound off", playTime: "Play time (kept on this device only)",
+        activeToday: "Active today", activeTotal: "Active in total", puzzlesSolved: "Puzzles solved", best: "Best", progress: "Progress",
+        reset: "Reset all progress", reallyErase: "Really erase all solved puzzles and times?", erase: "Erase", keep: "Keep", done: "Done",
+        inProgress: "in progress", solved: "solved ✓", bestTime: "best time", allPuzzles: "All puzzles", prevPuzzle: "Previous puzzle", nextPuzzle: "Next puzzle (hold: next unsolved)",
+        flip: "Flip the parallelogram", sizeL: "Big triangle", sizeM: "Medium triangle", sizeS: "Small triangle",
+        howTo: "How to play: drag a piece onto the shape. Pieces keep their size; in the tray the triangles are marked <b>S</b>, <b>M</b> and <b>L</b>. <b>Tap</b> a piece to turn it 45°, in the tray or on the board. With two fingers, hold the piece and <b>twist</b> with a second finger. The <b>⇋</b> badge mirrors the parallelogram. On a computer, use the <b>mouse wheel</b> or <b>R</b> while dragging. A piece locks against the shape's corners and other pieces, or goes back to the tray. <b>Hold ›</b> to jump to the next unsolved puzzle; the number in the top bar opens all puzzles. Tangram, absolutely free · prototype " + VERSION + ".",
+        free: "<b>Enjoy, it's absolutely free.</b> No ads, no purchases, no network. Your play time stays on this device.",
+        privacy: "Privacy: this game collects no data. It has no network access, no accounts and no analytics. Your puzzle progress and play times are stored only on this device and are deleted when the game is uninstalled." },
+  fi: { restart: "Aloita alusta", retry: "Uudestaan", next: "Seuraava", settings: "Asetukset", timerOnScreen: "Ajastin näytöllä", on: "Päällä", off: "Pois",
+        sound: "Äänet", soundOn: "Äänet päällä", soundOff: "Äänet pois", playTime: "Peliaika (vain tällä laitteella)",
+        activeToday: "Aktiivinen tänään", activeTotal: "Aktiivinen yhteensä", puzzlesSolved: "Ratkaistu", best: "Paras", progress: "Edistyminen",
+        reset: "Nollaa kaikki edistyminen", reallyErase: "Poistetaanko varmasti kaikki ratkaisut ja ajat?", erase: "Poista", keep: "Säilytä", done: "Valmis",
+        inProgress: "kesken", solved: "ratkaistu ✓", bestTime: "paras aika", allPuzzles: "Kaikki tehtävät", prevPuzzle: "Edellinen tehtävä", nextPuzzle: "Seuraava tehtävä (pidä pohjassa: seuraava ratkaisematon)",
+        flip: "Peilaa suunnikas", sizeL: "Iso kolmio", sizeM: "Keskikokoinen kolmio", sizeS: "Pieni kolmio",
+        howTo: "Näin pelataan: vedä pala kuvion päälle. Palat pysyvät oikean kokoisina; tarjottimella kolmiot on merkitty <b>S</b>, <b>M</b> ja <b>L</b>. <b>Napauta</b> palaa kääntääksesi sitä 45°, tarjottimella tai laudalla. Kahdella sormella: pidä palasta kiinni ja <b>kierrä</b> toisella sormella. <b>⇋</b>-nappi peilaa suunnikkaan. Tietokoneella käytä <b>hiiren rullaa</b> tai <b>R</b>-näppäintä vetämisen aikana. Pala lukittuu kuvion kulmiin ja muihin paloihin, tai palaa tarjottimelle. <b>Pidä ›</b> pohjassa hypätäksesi seuraavaan ratkaisemattomaan tehtävään; yläpalkin numero avaa kaikki tehtävät. Tangram, ihan ilmainen · prototyyppi " + VERSION + ".",
+        free: "<b>Nauti, se on ihan ilmaista.</b> Ei mainoksia, ei ostoksia, ei verkkoa. Peliaikasi pysyy tällä laitteella.",
+        privacy: "Tietosuoja: tämä peli ei kerää mitään tietoja. Sillä ei ole verkkoyhteyttä, tilejä eikä analytiikkaa. Ratkaisusi ja peliaikasi tallennetaan vain tälle laitteelle, ja ne poistuvat kun peli poistetaan." }
+};
+const T = STR[LANG];
+const title = pz => (pz.title && (pz.title[LANG] || pz.title.en)) || pz.id;
+function applyLang() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i18n]").forEach(e => { e.textContent = T[e.dataset.i18n]; });
+  document.querySelectorAll("[data-i18n-aria]").forEach(e => { e.setAttribute("aria-label", T[e.dataset.i18nAria]); });
+  document.getElementById("howTo").innerHTML = T.howTo;
+  document.getElementById("freeNote").innerHTML = T.free;
+  document.getElementById("privacyNote").textContent = T.privacy;
+}
 
 // ---------------- geometry (mirrors tools/tangram_geom.py) ----------------
 const SHAPES = { LT: [[0,0],[4,0],[2,2]], MT: [[0,0],[2,0],[0,2]], ST: [[0,0],[2,0],[1,1]], SQ: [[0,0],[1,-1],[2,0],[1,1]], PG: [[0,0],[2,0],[3,-1],[1,-1]] };
@@ -159,16 +206,12 @@ const TYPE = { LT1:"LT", LT2:"LT", MT:"MT", ST1:"ST", ST2:"ST", SQ:"SQ", PG:"PG"
 const COLORS = { LT1:"#E8505B", LT2:"#3D8BFD", MT:"#F9A826", ST1:"#2DBE7E", ST2:"#9B5DE5", SQ:"#FFD23F", PG:"#FF7AB8" };
 const ORDER = ["LT1","LT2","MT","SQ","PG","ST1","ST2"];
 const STANDARD_TURN = { LT: 4, MT: 1, ST: 4, SQ: 1, PG: 0 };   // how every piece rests in the tray
-const DIFF = {
-  easy:   { R: 0.9,  turnForgive: true,  autoFlip: true,  preview: true,  text: "Generous locking. A piece one turn (45°) off still locks, and the parallelogram mirrors itself." },
-  medium: { R: 0.65, turnForgive: false, autoFlip: true,  preview: true,  text: "The turn must be right. The parallelogram still mirrors itself." },
-  hard:   { R: 0.45, turnForgive: false, autoFlip: false, preview: false, text: "Exact turn, and you flip the parallelogram yourself (⇋). No landing preview; the timer shows." },
-};
+// TYPE-004: one lock parameter set for everyone (the difficulty levels were removed in round 6)
+const LOCK = { R: 0.65, minDp: 30, snugBonus: 0.04, window: 0.16 };
 const avg = pts => [pts.reduce((a,p)=>a+p[0],0)/pts.length, pts.reduce((a,p)=>a+p[1],0)/pts.length];
 const CENTERED = {}; for (const t in SHAPES) { const c = avg(SHAPES[t]); CENTERED[t] = SHAPES[t].map(p => [p[0]-c[0], p[1]-c[1]]); }
 const TURN_D = {}; for (const t in SHAPES) TURN_D[t] = 2 * Math.max(...CENTERED[t].map(p => Math.hypot(p[0], p[1])));
 const AREA = { LT: 4, MT: 2, ST: 1, SQ: 2, PG: 2 };
-const C45 = Math.SQRT1_2;
 function verts(type, k, f, cx, cy) {
   const a = ((k % 8) + 8) % 8 * Math.PI / 4, c = Math.cos(a), s = Math.sin(a);
   return CENTERED[type].map(([x, y]) => { if (f) x = -x; return [cx + x*c - y*s, cy + x*s + y*c]; });
@@ -190,7 +233,7 @@ function clip(subject, clipper) { // Sutherland-Hodgman, both convex with positi
 }
 const interArea = (P, Q) => { const r = clip(ccw(P), ccw(Q)); return r.length > 2 ? Math.abs(polyArea(r)) : 0; };
 
-// ---------------- sound ----------------
+// ---------------- sound and haptics ----------------
 let audio = null;
 function tone(freq, dur, type = "sine", vol = .08, slideTo = null, delay = 0) {
   if (!settings.sound) return;
@@ -202,17 +245,22 @@ function tone(freq, dur, type = "sine", vol = .08, slideTo = null, delay = 0) {
     o.connect(g).connect(audio.destination); o.start(t0); o.stop(t0 + dur + .02);
   } catch (e) {}
 }
-const sfx = { pick: () => tone(520, .07, "sine", .06, 700), click: () => { tone(1320, .05, "triangle", .08); tone(1760, .06, "sine", .04, null, .03); },
+const sfx = { pick: () => tone(520, .07, "sine", .06, 700), click: () => { tone(1320, .05, "triangle", .08); tone(1760, .06, "sine", .04, null, .03); haptic(); },
   turn: () => tone(760, .04, "square", .025), home: () => tone(300, .16, "sine", .05, 180), nope: () => tone(220, .12, "triangle", .05),
   win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .24, "triangle", .07, null, i * .11)) };
+// REQ-033 / REQ-010: a short haptic tick on lock, only the permission-free kind, and it follows the sound switch
+function haptic() { if (!settings.sound) return; try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} }
 
 // ---------------- storage (per-viewer convenience; the page works without it) ----------------
 const store = { get(k, d) { try { const v = localStorage.getItem("tna2." + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
                 set(k, v) { try { localStorage.setItem("tna2." + k, JSON.stringify(v)); } catch (e) {} } };
-const settings = Object.assign({ diff: "medium", timer: "auto", sound: true }, store.get("settings", {}));
+const settings = Object.assign({ timer: "off", sound: true }, store.get("settings", {}));
+delete settings.diff;                                   // levels removed in 0.6
+if (settings.timer !== "on") settings.timer = "off";    // 0.5 had "auto" (Hard only); REQ-031: off by default
 const stats = Object.assign({ day: "", today: 0, total: 0 }, store.get("stats", {}));
 const progress = store.get("progress", {});   // id -> {status, pieces, time, best, solves}
-const today = () => new Date().toISOString().slice(0, 10);
+// REQ-029: "today" restarts at LOCAL midnight (DEF-001: 0.5 used the UTC date)
+const today = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
 function saveAll() { store.set("settings", settings); store.set("stats", stats); store.set("progress", progress); }
 
 // ---------------- state ----------------
@@ -224,12 +272,12 @@ const layers = { board: byId("layerBoard"), sil: byId("layerSil"), art: byId("ar
 const SVGNS = "http://www.w3.org/2000/svg";
 function el(tag, attrs = {}, parent) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
 const ptsAttr = pts => pts.map(p => p[0].toFixed(3) + "," + p[1].toFixed(3)).join(" ");
-const cfg = () => DIFF[settings.diff];
 const prog = () => (progress[P.id] = progress[P.id] || { status: "new", pieces: null, time: 0, best: null, solves: 0 });
+const progOf = pz => progress[pz.id] || { status: "new" };
 
 function loadPuzzle(i) {
   if (P) persistPieces();
-  idx = (i + PUZZLES.length) % PUZZLES.length; store.set("idx", idx);
+  idx = (i + PUZZLES.length) % PUZZLES.length; store.set("idx", idx);   // REQ-024: the list wraps
   P = PUZZLES[idx]; selected = null;
   anchorsStatic = P.corners.slice();   // silhouette corners; placed-piece corners are added live
   P.silPolys = P.slots.map(s => ccw(s.poly));
@@ -242,6 +290,14 @@ function loadPuzzle(i) {
     pc.ang = pc.k * 45;
     return pc;
   });
+  // REQ-025: a saved piece that is no longer a valid lock against the current silhouette goes back to the tray
+  const placed = [];
+  for (const pc of pieces) {
+    if (pc.st !== "board") continue;
+    const V = verts(pc.type, pc.k, pc.f, pc.x, pc.y);
+    if (insideSilhouette(V) && placed.every(Q => interArea(V, Q) <= 1e-6)) placed.push(V);
+    else { pc.st = "tray"; pc.k = STANDARD_TURN[pc.type]; pc.f = false; pc.ang = pc.k * 45; }
+  }
   byId("confetti").getContext("2d").clearRect(0, 0, 9999, 9999);
   build();
 }
@@ -259,7 +315,7 @@ function persistPieces() {
 // ---------------- layout ----------------
 function layout() {
   const W = stage.clientWidth, H = stage.clientHeight, compact = W < 600;
-  const gap = compact ? 8 : 14, pad = 12, ctl = 26, side = compact ? 8 : 16, topH = compact ? 66 : 74;
+  const gap = compact ? 8 : 14, pad = 12, side = compact ? 8 : 16, topH = compact ? 66 : 74;
   const split = ids => compact ? [ids.filter(i => TYPE[i] === "LT" || TYPE[i] === "MT"), ids.filter(i => !(TYPE[i] === "LT" || TYPE[i] === "MT"))] : [ids];
   const trayW = W - 2 * side, maxCellH = Math.max(84, H * 0.16);
   // The miniature scale is always computed for the full set, so a piece has the same tray size in every puzzle.
@@ -269,14 +325,14 @@ function layout() {
     ts = Math.min(ts, (trayW - gap * (r.length + 1) - pad * r.length) / d, (maxCellH - pad) / Math.max(...r.map(id => TURN_D[TYPE[id]])));
   }
   const rows = split(P.used).filter(r => r.length);
-  const rowHs = rows.map(r => Math.max(...r.map(id => TURN_D[TYPE[id]])) * ts + pad + ctl);   // ctl: strip for the ↺ ↻ buttons
+  const rowHs = rows.map(r => Math.max(...r.map(id => TURN_D[TYPE[id]])) * ts + pad);
   const trayH = rowHs.reduce((a, b) => a + b, 0) + gap * (rows.length + 1);
   const trayY = H - trayH - (compact ? 10 : 14);
   const cells = {}; let y = trayY + gap;
   rows.forEach((r, ri) => {
     const ws = r.map(id => TURN_D[TYPE[id]] * ts + pad), total = ws.reduce((a, b) => a + b, 0) + gap * (r.length - 1);
     let x = side + (trayW - total) / 2;
-    r.forEach((id, i) => { cells[id] = { x, y, w: ws[i], h: rowHs[ri], cx: x + ws[i] / 2, cy: y + (rowHs[ri] - ctl) / 2 + 2, ctl }; x += ws[i] + gap; });
+    r.forEach((id, i) => { cells[id] = { x, y, w: ws[i], h: rowHs[ri], cx: x + ws[i] / 2, cy: y + rowHs[ri] / 2 }; x += ws[i] + gap; });
     y += rowHs[ri] + gap;
   });
   const bx = side, by = topH + 4, bw = W - 2 * side, bh = trayY - by - (compact ? 8 : 12);
@@ -302,7 +358,7 @@ function build() {
     el("polygon", { points: pts, fill: "var(--shadow)", stroke: "var(--shadow)", "stroke-width": 2.5, "stroke-linejoin": "round" }, layers.sil);
     el("polygon", { points: pts, stroke: "#000", "stroke-width": 1.5, "stroke-linejoin": "round" }, clipEl);
   });
-  drawArt();
+  drawArt(layers.art, P, (u, v) => toScreen(u, v), L.bs);
   drawHint();
   layers.art.style.transition = "none"; layers.art.setAttribute("opacity", solved ? 1 : 0); void layers.art.getBBox(); layers.art.style.transition = "";
   if (!solved) {
@@ -325,8 +381,8 @@ function build() {
   }
   updateChrome();
 }
-// Tray helpers: a size badge on the three triangle sizes, and ↺ ↻ turn buttons (handy with a mouse).
-const SIZE_BADGE = { LT: ["L", "Big triangle"], MT: ["M", "Medium triangle"], ST: ["S", "Small triangle"] };
+// Tray helper: a size mark on the three triangle sizes (REQ-043). The ↺ ↻ buttons went in 0.6 (REQ-044 withdrawn): a tap turns the piece.
+const SIZE_BADGE = { LT: ["L", "sizeL"], MT: ["M", "sizeM"], ST: ["S", "sizeS"] };
 function buildTrayUi(pc, c) {
   const g = el("g", {}, layers.top); pc.trayUi = g;
   const sb = SIZE_BADGE[pc.type];
@@ -335,26 +391,8 @@ function buildTrayUi(pc, c) {
     el("rect", { x: c.x + 6, y: c.y + 6, width: 20, height: 18, rx: 6, fill: COLORS[pc.id], opacity: .16 }, b);
     const t = el("text", { x: c.x + 16, y: c.y + 19.5, "text-anchor": "middle", "font-size": 13, "font-weight": 800, fill: "var(--ink)", "font-family": "var(--display)" }, b);
     t.textContent = sb[0];
-    el("title", {}, b).textContent = sb[1];
+    el("title", {}, b).textContent = T[sb[1]];
   }
-  const r = Math.max(8.5, Math.min(10.5, (c.w - 18) / 4.4));
-  [[-1, c.x + 6 + r], [1, c.x + c.w - 6 - r]].forEach(([dir, x]) => {
-    const y = c.y + c.h - c.ctl / 2 - 2;
-    const bt = el("g", { class: "spin", role: "button", "aria-label": dir > 0 ? "Turn right 45°" : "Turn left 45°", style: "cursor:pointer" }, g);
-    el("circle", { cx: x, cy: y, r: r + 5, fill: "transparent" }, bt);
-    el("circle", { cx: x, cy: y, r, fill: "#fff", stroke: "var(--cell-edge)", "stroke-width": 1.5 }, bt);
-    const a = r * .5, th0 = (dir > 0 ? 150 : 30) * Math.PI / 180, th1 = th0 + dir * 1.45 * Math.PI;
-    const P0 = [x + a * Math.cos(th0), y + a * Math.sin(th0)], P1 = [x + a * Math.cos(th1), y + a * Math.sin(th1)];
-    const t = [-Math.sin(th1) * dir, Math.cos(th1) * dir], n = [-t[1], t[0]];   // tangent and normal at the arrow end
-    el("path", { d: `M${P0[0]},${P0[1]} A${a},${a} 0 1 ${dir > 0 ? 1 : 0} ${P1[0]},${P1[1]}`, fill: "none", stroke: "var(--ink)", "stroke-width": 1.7, "stroke-linecap": "round" }, bt);
-    el("polygon", { points: ptsAttr([[P1[0] + t[0] * 3.4, P1[1] + t[1] * 3.4], [P1[0] + n[0] * 3, P1[1] + n[1] * 3], [P1[0] - n[0] * 3, P1[1] - n[1] * 3]]), fill: "var(--ink)" }, bt);
-    el("title", {}, bt).textContent = dir > 0 ? "Turn right 45°" : "Turn left 45°";
-    bt.addEventListener("pointerdown", e => {
-      e.preventDefault(); e.stopPropagation(); lastTouch = performance.now();
-      if (drag || pc.st !== "tray") return;
-      selected = pc; setTurn(pc, pc.k + dir); render(pc); sfx.turn(); persistPieces();
-    });
-  });
 }
 // ---------------- developer aid: solution reveal (REQ-046, prototype only) ----------------
 const DEV_PASSCODE = "0417";
@@ -405,23 +443,24 @@ byId("devShow").onclick = () => { devHint = !devHint; drawHint(); updateChrome()
 byId("devSolve").onclick = () => { byId("devDlg").hidden = true; devSolveNow(); };
 byId("devDlg").addEventListener("pointerdown", e => { if (e.target.id === "devDlg") byId("devDlg").hidden = true; });
 
-function drawArt() {
-  const A = P.art, s = L.bs, g = layers.art;
-  const xs = P.slots.flatMap(q => q.poly.map(p => p[0])), ys = P.slots.flatMap(q => q.poly.map(p => p[1]));
-  const [x0, y0] = toScreen(Math.min(...xs) - 1, Math.min(...ys) - 1);
+// The art layer, drawn through a mapping Tf (puzzle units → target coordinates) at scale s (for stroke widths).
+function drawArt(g, pz, Tf, s) {
+  const A = pz.art;
+  const xs = pz.slots.flatMap(q => q.poly.map(p => p[0])), ys = pz.slots.flatMap(q => q.poly.map(p => p[1]));
+  const [x0, y0] = Tf(Math.min(...xs) - 1, Math.min(...ys) - 1);
   el("rect", { x: x0, y: y0, width: (Math.max(...xs) - Math.min(...xs) + 2) * s, height: (Math.max(...ys) - Math.min(...ys) + 2) * s, fill: A.base }, g);
+  const Tp = p => Tf(p[0], p[1]);
   for (const sh of A.shapes) {
     const paint = { fill: sh.fill || "none" };
     if (sh.stroke) Object.assign(paint, { stroke: sh.stroke, "stroke-width": (sh.width || .05) * s, "stroke-linecap": "round", "stroke-linejoin": "round" });
     if (sh.opacity) paint.opacity = sh.opacity;
-    const T = p => toScreen(p[0], p[1]);
-    if (sh.type === "polygon") el("polygon", { points: ptsAttr(sh.points.map(T)), ...paint }, g);
-    else if (sh.type === "rect") { const [x, y] = T([sh.x, sh.y]); el("rect", { x, y, width: sh.w * s, height: sh.h * s, rx: (sh.rx || 0) * s, ...paint }, g); }
-    else if (sh.type === "circle") { const [x, y] = T(sh.c); el("circle", { cx: x, cy: y, r: sh.r * s, ...paint }, g); }
-    else if (sh.type === "ellipse") { const [x, y] = T(sh.c); el("ellipse", { cx: x, cy: y, rx: sh.rx * s, ry: sh.ry * s, ...paint }, g); }
-    else if (sh.type === "line") { const [x1, y1] = T(sh.from), [x2, y2] = T(sh.to); el("line", { x1, y1, x2, y2, ...paint }, g); }
+    if (sh.type === "polygon") el("polygon", { points: ptsAttr(sh.points.map(Tp)), ...paint }, g);
+    else if (sh.type === "rect") { const [x, y] = Tp([sh.x, sh.y]); el("rect", { x, y, width: sh.w * s, height: sh.h * s, rx: (sh.rx || 0) * s, ...paint }, g); }
+    else if (sh.type === "circle") { const [x, y] = Tp(sh.c); el("circle", { cx: x, cy: y, r: sh.r * s, ...paint }, g); }
+    else if (sh.type === "ellipse") { const [x, y] = Tp(sh.c); el("ellipse", { cx: x, cy: y, rx: sh.rx * s, ry: sh.ry * s, ...paint }, g); }
+    else if (sh.type === "line") { const [x1, y1] = Tp(sh.from), [x2, y2] = Tp(sh.to); el("line", { x1, y1, x2, y2, ...paint }, g); }
     else if (sh.type === "path") {
-      const d = sh.d.replace(/(-?\d*\.?\d+),(-?\d*\.?\d+)/g, (m, a, b2) => T([+a, +b2]).map(v => v.toFixed(2)).join(","));
+      const d = sh.d.replace(/(-?\d*\.?\d+),(-?\d*\.?\d+)/g, (m, a, b2) => Tp([+a, +b2]).map(v => v.toFixed(3)).join(","));
       el("path", { d, ...paint }, g);
     }
   }
@@ -442,57 +481,54 @@ function setTurn(pc, k) { const d = k - pc.k; pc.k = ((k % 8) + 8) % 8; pc.ang +
 function fmt(sec) { sec = Math.round(sec); const m = Math.floor(sec / 60), s = sec % 60; return m >= 60 ? Math.floor(m / 60) + " h " + (m % 60) + " min" : m + ":" + String(s).padStart(2, "0"); }
 function updateChrome() {
   const pr = prog(), solved = pr.status === "solved";
-  byId("pTitle").textContent = P.title;
-  byId("pSub").innerHTML = `<span class="dots">${"●".repeat(P.difficulty)}${"○".repeat(5 - P.difficulty)}</span> · ${idx + 1} / ${PUZZLES.length}` +
-    (solved ? " · solved ✓" : pr.status === "progress" ? " · in progress" : "");
+  byId("pTitle").textContent = title(P);
+  byId("pSub").innerHTML = `<span class="dots">${"●".repeat(P.difficulty)}${"○".repeat(5 - P.difficulty)}</span> · <span class="num">${idx + 1} / ${PUZZLES.length}</span>` +
+    (solved ? " · " + T.solved : pr.status === "progress" ? " · " + T.inProgress : "");
   const b = L.board;
   const rb = byId("restartBtn"); rb.hidden = solved || !(pr.status === "progress" || pieces.some(p => p.st === "board"));
   Object.assign(rb.style, { left: (b.x + 10) + "px", top: (b.y + 10) + "px" });
-  const showT = !solved && (settings.timer === "on" || (settings.timer === "auto" && settings.diff === "hard"));
+  const showT = !solved && settings.timer === "on";
   const tm = byId("timer"); tm.hidden = !showT; tm.textContent = "⏱ " + fmt(pr.time);
   Object.assign(tm.style, { right: (L.W - b.x - b.w + 14) + "px", top: (b.y + 14) + "px" });
   const db = byId("devBtn"); db.hidden = solved; db.classList.toggle("on", devHint);
   Object.assign(db.style, { left: (b.x + 10) + "px", top: (b.y + b.h - 38) + "px" });
   const sb = byId("solvedBar"); sb.hidden = !solved;
   Object.assign(sb.style, { left: L.trayX + "px", width: L.trayW + "px", top: L.trayY + "px", height: L.trayH + "px" });
-  byId("bestTime").innerHTML = solved ? `best time<br><b style="font-size:20px;color:var(--ink)">${pr.best != null ? fmt(pr.best) : "–"}</b>` : "";
+  byId("bestTime").innerHTML = solved ? `${T.bestTime}<br><b style="font-size:20px;color:var(--ink)">${pr.best != null ? fmt(pr.best) : "–"}</b>` : "";
   updateFlip();
 }
 
-// ---------------- locking (Study/06-snapping-by-anchors.md) ----------------
+// ---------------- locking (Study/06-snapping-by-anchors.md, TYPE-004) ----------------
 function anchors(except) {
   const out = anchorsStatic.slice();
   for (const p of pieces) if (p.st === "board" && p !== except) out.push(...verts(p.type, p.k, p.f, p.x, p.y));
   return out;
 }
-function validAt(V, except) {
+function insideSilhouette(V) {
   const want = Math.abs(polyArea(V));
   let inside = 0; for (const S of P.silPolys) inside += interArea(V, S);
-  if (inside < want - 1e-6) return false;
+  return inside >= want - 1e-6;
+}
+function validAt(V, except) {
+  if (!insideSilhouette(V)) return false;
   for (const p of pieces) if (p.st === "board" && p !== except && interArea(V, verts(p.type, p.k, p.f, p.x, p.y)) > 1e-6) return false;
   return true;
 }
-function findLock(pc, cx, cy, exact) {
-  const c = cfg(), R = Math.max(c.R, 30 / L.bs), A = anchors(pc);
-  const variants = [[pc.k, pc.f, 0]];
-  if (exact) {} else if (c.turnForgive) variants.push([pc.k + 1, pc.f, .25], [pc.k - 1, pc.f, .25]);
-  if (!exact && c.autoFlip && pc.type === "PG") variants.slice().forEach(([k, f, pen]) => variants.push([k, !f, pen + .1]));
-  const cands = [];
-  for (const [k, f, pen] of variants) {
-    const V = verts(pc.type, k, f, cx, cy);
-    for (const v of V) for (const a of A) {
-      const tx = a[0] - v[0], ty = a[1] - v[1], d = Math.hypot(tx, ty);
-      if (d <= R) cands.push({ k, f, x: cx + tx, y: cy + ty, base: d + pen });
-    }
+function findLock(pc, cx, cy) {
+  const R = Math.max(LOCK.R, LOCK.minDp / L.bs), A = anchors(pc);
+  const cands = [], V0 = verts(pc.type, pc.k, pc.f, cx, cy);
+  for (const v of V0) for (const a of A) {
+    const tx = a[0] - v[0], ty = a[1] - v[1], d = Math.hypot(tx, ty);
+    if (d <= R) cands.push({ k: pc.k, f: pc.f, x: cx + tx, y: cy + ty, base: d });
   }
   cands.sort((p, q) => p.base - q.base);
   let best = null;
   for (const cd of cands) {
-    if (best && cd.base - .16 > best.score) break;
+    if (best && cd.base - LOCK.window > best.score) break;
     const V = verts(pc.type, cd.k, cd.f, cd.x, cd.y);
     if (!validAt(V, pc)) continue;
     const snug = V.filter(v => A.some(a => Math.abs(a[0]-v[0]) < 1e-6 && Math.abs(a[1]-v[1]) < 1e-6)).length;
-    const score = cd.base - .04 * snug;
+    const score = cd.base - LOCK.snugBonus * snug;
     if (!best || score < best.score) best = { ...cd, score };
   }
   return best;
@@ -505,7 +541,16 @@ function lockTo(pc, r) {
   if (pieces.every(p => p.st === "board")) setTimeout(solve, 250);
   persistPieces(); updateChrome();
 }
-function sendHome(pc) { pc.st = "tray"; setTurn(pc, pc.k); render(pc); sfx.home(); persistPieces(); updateChrome(); }
+function sendHome(pc, missedOnBoard) {
+  pc.st = "tray"; setTurn(pc, pc.k); render(pc); sfx.home(); persistPieces(); updateChrome();
+  if (missedOnBoard && P.kind === "mini") pulseCorners();
+}
+// REQ-051: in a mini puzzle, a drop that goes home makes the outline corners pulse once (no solution is shown)
+function pulseCorners() {
+  const g = el("g", { class: "pulse", "pointer-events": "none" }, layers.top);
+  for (const a of anchorsStatic) { const [x, y] = toScreen(a[0], a[1]); el("circle", { cx: x, cy: y, r: 9, fill: "var(--accent)", stroke: "#fff", "stroke-width": 2.5 }, g); }
+  setTimeout(() => g.remove(), 650);
+}
 
 // ---------------- input ----------------
 function pointerPos(e) { const r = stage.getBoundingClientRect(); return [(e.clientX - r.left) * L.W / r.width, (e.clientY - r.top) * L.H / r.height]; }
@@ -546,9 +591,9 @@ function onMove(e) {
 }
 let previewQueued = false;
 function schedulePreview() { if (previewQueued) return; previewQueued = true; requestAnimationFrame(() => { previewQueued = false; showPreview(); }); }
-function showPreview() {
+function showPreview() {   // REQ-021: always on, the same search as the drop
   layers.preview.replaceChildren();
-  if (!drag || !drag.moved || !cfg().preview) return;
+  if (!drag || !drag.moved) return;
   const [ux, uy] = toUnits(drag.x, drag.y);
   if (drag.y > L.trayY) return;
   const r = findLock(drag.pc, ux, uy); if (!r) return;
@@ -565,15 +610,14 @@ function onUp(e) {
   const inBoard = d.y < L.trayY - 4 && d.y > L.board.y - 20 && d.x > L.board.x - 20 && d.x < L.board.x + L.board.w + 20;
   const [ux, uy] = toUnits(d.x, d.y);
   const r = inBoard ? findLock(pc, ux, uy) : null;
-  if (r) lockTo(pc, r); else sendHome(pc);
+  if (r) lockTo(pc, r); else sendHome(pc, inBoard);
 }
-function tapPiece(pc) {
+function tapPiece(pc) {   // REQ-016: a tap turns 45°, in the tray or (if it still fits) on the board
   selected = pc;
   if (pc.st === "tray") { setTurn(pc, pc.k + 1); render(pc); sfx.turn(); updateChrome(); return; }
-  // on the board: turn in place, keep it only if it still fits near here
   const was = { k: pc.k, ang: pc.ang, x: pc.x, y: pc.y, f: pc.f };
   setTurn(pc, pc.k + 1); pc.st = "board";
-  const r = findLock(pc, pc.x, pc.y, true);
+  const r = findLock(pc, pc.x, pc.y);
   if (r) { pc.x = r.x; pc.y = r.y; render(pc); sfx.turn(); persistPieces(); }
   else { pc.k = was.k; pc.ang = was.ang + 45; render(pc); setTimeout(() => { pc.ang = was.ang; render(pc); shake(pc); sfx.nope(); }, 140); }
   updateChrome();
@@ -599,21 +643,22 @@ window.addEventListener("keydown", e => {
   const pc = drag ? drag.pc : null;
   if (e.key === "ArrowRight" && !drag && overlaysClosed()) loadPuzzle(idx + 1);
   if (e.key === "ArrowLeft" && !drag && overlaysClosed()) loadPuzzle(idx - 1);
+  if (e.key === "Escape") { byId("gridDlg").hidden = true; byId("settings").hidden = true; }
   if (!pc || !drag.moved) return;
   if (e.key === "r" || e.key === "R") { setTurn(pc, pc.k + (e.shiftKey ? -1 : 1)); render(pc); sfx.turn(); schedulePreview(); }
   if ((e.key === "f" || e.key === "F") && pc.type === "PG") { pc.f = !pc.f; render(pc); sfx.turn(); schedulePreview(); }
 });
 
-// flip badge (Hard mode, parallelogram)
+// flip badge (REQ-018): always shown next to the parallelogram, in the tray and on the board
 let flipBtn = null;
 function updateFlip() {
   if (flipBtn) { flipBtn.remove(); flipBtn = null; }
   const pc = pieces.find(p => p.type === "PG");
-  if (!pc || cfg().autoFlip || prog().status === "solved" || pc.st === "drag") return;
+  if (!pc || prog().status === "solved" || pc.st === "drag") return;
   let x, y;
   if (pc.st === "tray") { const c = L.cells[pc.id]; x = c.x + c.w - 4; y = c.y + 4; }
   else { const vs = verts(pc.type, pc.k, pc.f, pc.x, pc.y).map(p => toScreen(p[0], p[1])); x = Math.max(...vs.map(v => v[0])) + 22; y = Math.min(...vs.map(v => v[1])) - 4; }
-  flipBtn = el("g", { style: "cursor:pointer", role: "button", "aria-label": "Flip the parallelogram" }, layers.top);
+  flipBtn = el("g", { style: "cursor:pointer", role: "button", "aria-label": T.flip }, layers.top);
   el("circle", { cx: x, cy: y, r: 30, fill: "transparent" }, flipBtn);
   el("circle", { cx: x, cy: y, r: 19, fill: "#fff", stroke: "var(--accent)", "stroke-width": 2.5 }, flipBtn);
   el("path", { d: `M${x},${y-10} L${x},${y+10}`, stroke: "var(--accent)", "stroke-width": 1.8, "stroke-dasharray": "3 3" }, flipBtn);
@@ -623,7 +668,7 @@ function updateFlip() {
     e.stopPropagation(); e.preventDefault(); lastTouch = performance.now();
     if (pc.st === "tray") { pc.f = !pc.f; render(pc); sfx.turn(); return; }
     const was = pc.f; pc.f = !pc.f;
-    const r = findLock(pc, pc.x, pc.y, true);
+    const r = findLock(pc, pc.x, pc.y);
     if (r) { pc.x = r.x; pc.y = r.y; render(pc); sfx.turn(); persistPieces(); updateChrome(); }
     else { pc.f = was; shake(pc); sfx.nope(); }
   });
@@ -634,8 +679,8 @@ function solve() {
   const pr = prog();
   pr.status = "solved"; pr.solves = (pr.solves || 0) + 1; if (!pr.cheated) pr.best = pr.best == null ? pr.time : Math.min(pr.best, pr.time); delete pr.cheated; pr.lastTime = pr.time; pr.pieces = null;
   saveAll(); sfx.win(); selected = null; updateFlip();
-  layers.pieces.classList.remove("pop"); void layers.pieces.getBBox(); layers.pieces.classList.add("pop");
-  confetti();
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduced) { layers.pieces.classList.remove("pop"); void layers.pieces.getBBox(); layers.pieces.classList.add("pop"); confetti(); }
   setTimeout(() => { layers.art.setAttribute("opacity", 1); pieces.forEach(p => p.g && (p.g.style.opacity = 0)); }, 650);
   setTimeout(() => { build(); }, 1500);
 }
@@ -643,7 +688,6 @@ function restart() {
   const pr = prog(); pr.status = "new"; pr.pieces = null; pr.time = 0; delete pr.cheated; saveAll(); P = null; loadPuzzle(idx);
 }
 function confetti() {
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const cv = byId("confetti"), ctx = cv.getContext("2d"), dpr = devicePixelRatio || 1;
   cv.width = L.W * dpr; cv.height = L.H * dpr; cv.style.width = L.W + "px"; cv.style.height = L.H + "px"; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const cols = Object.values(COLORS), parts = Array.from({ length: 110 }, () => ({ x: L.W / 2 + (Math.random() - .5) * 80, y: L.board.y + L.board.h * .5,
@@ -656,8 +700,8 @@ function confetti() {
   })(t0);
 }
 
-// ---------------- active play time (Study/07) ----------------
-const overlaysClosed = () => byId("settings").hidden && byId("devDlg").hidden;
+// ---------------- active play time (Study/07, TYPE-005, TYPE-006) ----------------
+const overlaysClosed = () => byId("settings").hidden && byId("devDlg").hidden && byId("gridDlg").hidden;
 setInterval(() => {
   if (document.visibilityState !== "visible" || !P) return;
   if (performance.now() - lastTouch > 60000) return;            // idle: not active
@@ -668,21 +712,65 @@ setInterval(() => {
   if (!byId("timer").hidden) byId("timer").textContent = "⏱ " + fmt(pr.time);
   if (stats.total % 5 === 0) saveAll();
 }, 1000);
+
+// ---------------- finding a puzzle among many (REQ-050) ----------------
+function nextUnsolved() {
+  for (let s = 1; s <= PUZZLES.length; s++) { const j = (idx + s) % PUZZLES.length; if (progOf(PUZZLES[j]).status !== "solved") return j; }
+  return idx + 1;   // everything solved: behave like a normal press
+}
+function thumb(pz, state, uid) {
+  const xs = pz.slots.flatMap(q => q.poly.map(p => p[0])), ys = pz.slots.flatMap(q => q.poly.map(p => p[1]));
+  const minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys), pad = .35;
+  const svg = el("svg", { viewBox: `${minx - pad} ${miny - pad} ${maxx - minx + 2 * pad} ${maxy - miny + 2 * pad}`, "aria-hidden": "true" });
+  if (state === "solved") {
+    const cp = el("clipPath", { id: "tc" + uid }, el("defs", {}, svg));
+    pz.slots.forEach(s => el("polygon", { points: ptsAttr(s.poly), stroke: "#000", "stroke-width": .06, "stroke-linejoin": "round" }, cp));
+    const g = el("g", { "clip-path": `url(#tc${uid})` }, svg);
+    drawArt(g, pz, (u, v) => [u, v], 1);
+    pz.slots.forEach(s => el("polygon", { points: ptsAttr(s.poly), fill: "none", stroke: "var(--shadow)", "stroke-width": .05, "stroke-linejoin": "round", opacity: .5 }, svg));
+  } else {
+    pz.slots.forEach(s => el("polygon", { points: ptsAttr(s.poly), fill: "var(--shadow)", stroke: "var(--shadow)", "stroke-width": .08, "stroke-linejoin": "round" }, svg));
+  }
+  return svg;
+}
+function openGrid() {
+  const grid = byId("grid"); grid.replaceChildren();
+  PUZZLES.forEach((pz, i) => {
+    const st = progOf(pz).status;
+    const cell = document.createElement("button"); cell.type = "button"; cell.className = "gcell" + (st === "progress" ? " prog" : "") + (i === idx ? " cur" : "");
+    cell.setAttribute("aria-label", `${i + 1}. ${title(pz)}` + (st === "solved" ? " · " + T.solved : st === "progress" ? " · " + T.inProgress : ""));
+    cell.title = title(pz);
+    const n = document.createElement("span"); n.className = "n"; n.textContent = i + 1; cell.appendChild(n);
+    cell.appendChild(thumb(pz, st, i));
+    cell.onclick = () => { byId("gridDlg").hidden = true; if (i !== idx) loadPuzzle(i); };
+    grid.appendChild(cell);
+  });
+  byId("gridDlg").hidden = false;
+}
+byId("titleBtn").onclick = openGrid;
+byId("closeGrid").onclick = () => { byId("gridDlg").hidden = true; };
+byId("gridDlg").addEventListener("pointerdown", e => { if (e.target.id === "gridDlg") byId("gridDlg").hidden = true; });
+// long press on ›: jump to the next unsolved puzzle (500 ms)
+let lp = null, lpFired = false;
+const nextBtn = byId("nextBtn");
+nextBtn.addEventListener("pointerdown", e => { lastTouch = performance.now(); lpFired = false; nextBtn.classList.add("pressing"); clearTimeout(lp);
+  lp = setTimeout(() => { lpFired = true; nextBtn.classList.remove("pressing"); loadPuzzle(nextUnsolved()); }, 500); });
+const lpCancel = () => { clearTimeout(lp); nextBtn.classList.remove("pressing"); };
+nextBtn.addEventListener("pointerup", lpCancel); nextBtn.addEventListener("pointercancel", lpCancel); nextBtn.addEventListener("pointerleave", lpCancel);
+nextBtn.addEventListener("click", () => { if (lpFired) { lpFired = false; return; } loadPuzzle(idx + 1); });
+
 // ---------------- settings ----------------
 function openSettings() {
-  document.querySelectorAll("#diffSeg button").forEach(b => b.classList.toggle("on", b.dataset.d === settings.diff));
-  document.querySelectorAll("#timerSeg button").forEach(b => b.classList.toggle("on", b.dataset.t === settings.timer));
-  byId("diffHint").textContent = cfg().text;
-  byId("soundBtn").textContent = settings.sound ? "Sound on" : "Sound off";
+  byId("timerBtn").textContent = settings.timer === "on" ? T.on : T.off;
+  byId("soundBtn").textContent = settings.sound ? T.soundOn : T.soundOff;
   const solvedN = PUZZLES.filter(p => (progress[p.id] || {}).status === "solved").length;
-  let rows = `<tr><td>Active today</td><td>${fmt(stats.day === today() ? stats.today : 0)}</td></tr><tr><td>Active in total</td><td>${fmt(stats.total)}</td></tr><tr><td>Puzzles solved</td><td>${solvedN} / ${PUZZLES.length}</td></tr>`;
-  for (const p of PUZZLES) { const pr = progress[p.id]; if (pr && pr.best != null) rows += `<tr><td>Best · ${p.title}</td><td>${fmt(pr.best)}</td></tr>`; }
+  let rows = `<tr><td>${T.activeToday}</td><td>${fmt(stats.day === today() ? stats.today : 0)}</td></tr><tr><td>${T.activeTotal}</td><td>${fmt(stats.total)}</td></tr><tr><td>${T.puzzlesSolved}</td><td>${solvedN} / ${PUZZLES.length}</td></tr>`;
+  for (const p of PUZZLES) { const pr = progress[p.id]; if (pr && pr.best != null) rows += `<tr><td>${T.best} · ${title(p)}</td><td>${fmt(pr.best)}</td></tr>`; }
   byId("stats").innerHTML = rows;
   byId("resetConfirm").hidden = true; byId("resetBtn").hidden = false;
   byId("settings").hidden = false;
 }
-byId("diffSeg").onclick = e => { const d = e.target.closest("button"); if (!d) return; settings.diff = d.dataset.d; saveAll(); openSettings(); build(); };
-byId("timerSeg").onclick = e => { const d = e.target.closest("button"); if (!d) return; settings.timer = d.dataset.t; saveAll(); openSettings(); updateChrome(); };
+byId("timerBtn").onclick = () => { settings.timer = settings.timer === "on" ? "off" : "on"; saveAll(); openSettings(); updateChrome(); };
 byId("soundBtn").onclick = () => { settings.sound = !settings.sound; saveAll(); openSettings(); };
 byId("resetBtn").onclick = () => { byId("resetConfirm").hidden = false; byId("resetBtn").hidden = true; };
 byId("resetNo").onclick = () => { byId("resetConfirm").hidden = true; byId("resetBtn").hidden = false; };
@@ -691,11 +779,11 @@ byId("closeSettings").onclick = () => { byId("settings").hidden = true; };
 byId("settings").addEventListener("pointerdown", e => { if (e.target.id === "settings") byId("settings").hidden = true; });
 byId("gearBtn").onclick = openSettings;
 byId("prevBtn").onclick = () => loadPuzzle(idx - 1);
-byId("nextBtn").onclick = () => { loadPuzzle(idx + 1); };
 byId("nextBig").onclick = () => loadPuzzle(idx + 1);
 byId("retryBtn").onclick = restart;
 byId("restartBtn").onclick = restart;
 document.addEventListener("visibilitychange", () => { if (document.visibilityState !== "visible") persistPieces(); });
 let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (P && !drag) { persistPieces(); build(); } }, 120); });
+applyLang();
 loadPuzzle(idx);
 </script>

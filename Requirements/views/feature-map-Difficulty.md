@@ -7,12 +7,12 @@ Feature tree (from features.md) with attached REQs. Dashed red = inferred REQ; t
 ```mermaid
 flowchart LR
   subgraph sg_Difficulty ["#Difficulty — Easy, Medium, Hard"]
-    Difficulty["#Difficulty"]:::featAi
-    REQ-004["REQ-004 (BIZ)<br/>Three difficulty levels"]:::bizAi
-    DifficultyChoice["#DifficultyChoice"]:::featAi
-    REQ-027["REQ-027 (FUN)<br/>Choose the difficulty"]:::funAi
-    DifficultyRules["#DifficultyRules"]:::featAi
-    REQ-028["REQ-028 (FUN)<br/>A level changes the controls, not the puzzles"]:::funAi
+    Difficulty["#Difficulty"]:::featLock
+    REQ-004["REQ-004 (BIZ)<br/>Three difficulty levels"]:::withdrawn
+    DifficultyChoice["#DifficultyChoice"]:::featLock
+    REQ-027["REQ-027 (FUN)<br/>Choose the difficulty"]:::withdrawn
+    DifficultyRules["#DifficultyRules"]:::featLock
+    REQ-028["REQ-028 (FUN)<br/>A level changes the controls, not the puzzles"]:::withdrawn
   end
   Difficulty --> REQ-004
   Difficulty --> DifficultyChoice

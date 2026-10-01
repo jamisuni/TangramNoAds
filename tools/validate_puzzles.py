@@ -13,15 +13,21 @@ Checks (rule ids match the spec, section "Validation rules"):
   V4  no two pieces overlap (interior)
   V5  shape is connected through shared edges (point-only joins are errors)
   V6  total area equals sum of piece areas (implied by V3+V4, reported for info)
-  V7  (optional) assist.preplacedOrder lists only pieces in the puzzle, no repeats
-  V8  translations: 'en' title is mandatory
-  V9  all seven pieces are used; a puzzle marked "mini": true (a fast test puzzle) uses 1-6 of them
+  V7  (removed 2026-09-28; the id stays unused)
+  V8  translations: 'en' and 'fi' titles are mandatory (the game ships both languages)
+  V9  kind: "full" uses all seven pieces; "mini" (a fast first-success / test puzzle) uses 1-6;
+      "warmup" uses all seven
   V10 art (solved picture) is well formed: base colour + known shape types
-  V11 buildable edge-first: every piece can lock on an outline corner or on a corner of a piece
-      placed before it (no piece has to float in the middle without neighbours)
+  V11 build order (information only): the order in which every piece locks on an outline corner or
+      on a corner of a piece placed before it. Every valid tangram has one, because the uncovered
+      region always has a convex corner (an anchor) and the piece covering it has a vertex there;
+      the line is printed for authors and never fails a valid puzzle.
+  V12 a "warmup" puzzle exposes at least half of every piece's outline on the silhouette edge
+      (REQ-041), so each piece's shape can be seen in the silhouette
 Exit code 0 when all files pass, 1 otherwise.
 """
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -31,6 +37,12 @@ from tangram_geom import (Q2, PIECE_SET, PIECE_TYPES, piece_polygon, placement_f
                           to_float, area, overlap_depth, shared_edge_length, touches_at_point, build_order)
 
 FORMAT_TAG = "tangram-puzzle/1"
+KINDS = {"mini", "warmup", "full"}
+WARMUP_EXPOSURE = 0.5   # REQ-041: at least half of every piece's outline on the silhouette edge
+
+
+def perimeter(fp):
+    return sum(math.hypot(fp[i][0] - fp[i - 1][0], fp[i][1] - fp[i - 1][1]) for i in range(len(fp)))
 CATEGORIES = {"shapes", "animals", "people", "things", "vehicles", "nature", "letters", "numbers"}
 
 
@@ -80,8 +92,15 @@ def validate(puzzle):
     if not isinstance(puzzle.get("difficulty"), int) or not 1 <= puzzle.get("difficulty", 0) <= 5:
         errors.append("V1 difficulty must be an integer 1..5")
     # V8
-    if "en" not in puzzle.get("title", {}):
-        errors.append("V8 title.en is mandatory")
+    for lang in ("en", "fi"):
+        if lang not in puzzle.get("title", {}):
+            errors.append(f"V8 title.{lang} is mandatory")
+    # V9 (kind)
+    kind = puzzle.get("kind", "full")
+    if kind not in KINDS:
+        errors.append(f"V9 kind must be one of {sorted(KINDS)}")
+    if "mini" in puzzle:
+        errors.append("V9 the \"mini\" flag was replaced by \"kind\": \"mini\"")
     if errors:
         return errors, info
 
@@ -127,21 +146,26 @@ def validate(puzzle):
         errors.append(f"V6 area {total} != {expected}")
     info.append(f"pieces={len(ids)} area={total:g}")
 
-    # V7
-    order = puzzle.get("assist", {}).get("preplacedOrder", [])
-    if len(order) != len(set(order)) or any(p not in polys for p in order):
-        errors.append("V7 assist.preplacedOrder must list distinct pieces of this puzzle")
-
-    # V9
-    mini = puzzle.get("mini", False)
-    if not isinstance(mini, bool):
-        errors.append("V9 mini must be true or false")
-    elif mini:
+    # V9 (pieces per kind)
+    if kind == "mini":
         if len(ids) >= len(PIECE_SET):
-            errors.append("V9 a mini puzzle uses fewer than 7 pieces; drop the \"mini\" flag")
+            errors.append("V9 a mini puzzle uses fewer than 7 pieces; use kind \"full\"")
         info.append("mini")
     elif set(ids) != set(PIECE_SET):
-        errors.append(f"V9 puzzle must use all 7 pieces; missing {sorted(set(PIECE_SET) - set(ids))}")
+        errors.append(f"V9 a {kind} puzzle must use all 7 pieces; missing {sorted(set(PIECE_SET) - set(ids))}")
+    if kind == "warmup":
+        info.append("warmup")
+
+    # V12 warm-up measure: exposure = the share of a piece's outline that lies on the silhouette edge
+    if kind == "warmup":
+        low = []
+        for k, p in fp.items():
+            shared = sum(shared_edge_length(p, q) for kk, q in fp.items() if kk != k)
+            exposure = 1 - shared / perimeter(p)
+            if exposure < WARMUP_EXPOSURE - 1e-6:
+                low.append(f"{k} {exposure:.2f}")
+        if low:
+            errors.append(f"V12 a warm-up exposes at least half of every piece's outline; too hidden: {', '.join(low)}")
 
     # V10
     errors += validate_art(puzzle.get("art"))
@@ -149,8 +173,8 @@ def validate(puzzle):
     # V11
     if not errors:
         order, stuck = build_order(polys)
-        if stuck:
-            errors.append(f"V11 not buildable edge-first; these pieces can never lock: {stuck}")
+        if stuck:   # cannot happen for a valid tangram (see the docstring); kept as a sanity check of the tool
+            errors.append(f"V11 build order search failed (tool bug?): stuck {stuck}")
         else:
             info.append("build order " + " ".join(order))
     return errors, info

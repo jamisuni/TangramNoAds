@@ -1,6 +1,6 @@
 # Source Registry — TangramNoAds
 
-**Last updated:** 2026-09-27
+**Last updated:** 2026-09-28
 
 > Every REQ must cite at least one SRC below. When sources conflict, prefer
 > authoritative over secondary, and the later owner statement over the
@@ -110,6 +110,56 @@
 - **Status:** usable
 - **Notes:** Evidences: a question on whether the parallelogram needs a mirror button (answered, no decision); the tray turn buttons stay for now, possibly not in the long run; a development-time solution reveal behind the passcode 0417; the owner's expectation that this collection can feed a separate build framework.
 
+### SRC-011 — Owner conversation, round 6
+
+- **Kind:** conversation
+- **Origin:** chat with Jami, 2026-09-28 06:29, in reply to the agent's concept review of the whole project (requirements, spec, prototype 0.5, puzzles)
+- **Captured:** 2026-09-28 by Jami + AI
+- **Reliability:** authoritative
+- **Evidence file:** evidence/src-011-conversation-round6.md
+- **Status:** usable
+- **Notes:** Evidences, in the owner's own words: the tray ↺ ↻ turn buttons go (tapping turns a piece); the Easy / Medium / Hard levels go (no design for them at the moment; the puzzle rating is the difficulty); the flip badge shows always; the store name "Tangram, absolutely free". Everything else in the review is accepted by reference ("I agree with all your proposals.. plz do"); the evidence file lists those proposals (F1–F8, G1–G8, D4–D8, N1–N3, N6) so the acceptance is traceable. The agent's own detail choices inside the accepted proposals (numbers, defaults, wording) stay ASSUMPTION lines. The distribution-account question was not answered.
+
+### SRC-012 — Google Play User Data policy (privacy policy)
+
+- **Kind:** web page
+- **Origin:** Google Play Console Help, "User Data" policy (https://support.google.com/googleplay/android-developer/answer/10144311)
+- **Captured:** 2026-09-28 by AI
+- **Reliability:** secondary
+- **Evidence file:** evidence/src-012-play-user-data-policy-notes.md
+- **Status:** usable
+- **Notes:** A regulation the release must meet on Google Play. It evidences that every app needs a privacy policy, even one that collects nothing, linked in the Play Console and present as a link or text inside the app. It changes over time and must be re-checked before release.
+
+### SRC-013 — Google Play testing requirements for new personal developer accounts
+
+- **Kind:** web page
+- **Origin:** Google Play Console Help, "App testing requirements for new personal developer accounts" (https://support.google.com/googleplay/android-developer/answer/14151465) and the policy announcement of 15 July 2026 (https://support.google.com/googleplay/android-developer/answer/17134731)
+- **Captured:** 2026-09-28 by AI
+- **Reliability:** secondary
+- **Evidence file:** evidence/src-013-play-testing-requirements-notes.md
+- **Status:** usable
+- **Notes:** Evidences the closed-test obligation for personal accounts created after 13 November 2023 (12 testers, 14 days) and that an unrated app is not permitted on Play. It is planning evidence for the release, not a rule of the game; the index §5 carries the open question which account publishes.
+
+### SRC-014 — Owner sign-off: lock all approved requirements
+
+- **Kind:** conversation
+- **Origin:** chat with Jami, 2026-10-01 18:08
+- **Captured:** 2026-10-01 by Jami + AI
+- **Reliability:** authoritative
+- **Evidence file:** evidence/src-014-owner-signoff.md
+- **Status:** usable
+- **Notes:** The owner's sign-off. Evidences the lock of the 47 `ai-approved` REQs and, through it, his confirmation of the agent's inferred items, inferred rules and ASSUMPTIONs in them as written on 2026-10-01. It sets no priorities.
+
+### SRC-015 — Owner sign-off: lock the features
+
+- **Kind:** conversation
+- **Origin:** chat with Jami, 2026-10-01 18:20
+- **Captured:** 2026-10-01 by Jami + AI
+- **Reliability:** authoritative
+- **Evidence file:** evidence/src-015-owner-signoff-features.md
+- **Status:** usable
+- **Notes:** The owner's sign-off for the feature tree: 51 of 53 features locked; the two `idea` features were left as ideas (see the evidence notes).
+
 ---
 
 ## Change log
@@ -120,3 +170,6 @@
 | 2026-09-27 | SRC-008 owner conversation round 3 (puzzle folder, warm-ups, abstract shapes, future piece sets) |
 | 2026-09-27 | SRC-010 owner conversation round 5 (mirror question, turn buttons kept for now, developer solution reveal) |
 | 2026-09-27 | SRC-009 owner conversation round 4 (no resize confirmed, tray size marks, tray turn buttons, 3-piece mini puzzles) |
+| 2026-09-28 | SRC-011 owner conversation round 6 (concept review accepted: buttons and levels removed, flip badge always, store name, all review proposals); SRC-012 Play User Data policy; SRC-013 Play testing requirements |
+| 2026-10-01 | SRC-014 owner sign-off: lock of all 47 ai-approved REQs |
+| 2026-10-01 | SRC-015 owner sign-off: lock of the feature tree (51 of 53) |

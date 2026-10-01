@@ -7,69 +7,73 @@ Feature tree (from features.md) — features only. Dashed red = inferred REQ; th
 ```mermaid
 flowchart LR
   subgraph sg_Promise ["#Promise — Enjoy, it's absolutely free"]
-    Promise["#Promise"]:::featAi
-    NoMoney["#NoMoney"]:::featAi
-    DeviceOnly["#DeviceOnly"]:::featAi
+    Promise["#Promise"]:::featLock
+    NoMoney["#NoMoney"]:::featLock
+    DeviceOnly["#DeviceOnly"]:::featLock
   end
   subgraph sg_Solving ["#Solving — Solving a puzzle"]
-    Solving["#Solving"]:::featAi
-    Board["#Board"]:::featAi
-    Tray["#Tray"]:::featAi
-    SizeMarks["#SizeMarks"]:::featAi
-    Drag["#Drag"]:::featAi
-    Turning["#Turning"]:::featAi
-    TapTurn["#TapTurn"]:::featAi
-    TwistTurn["#TwistTurn"]:::featAi
-    TurnButtons["#TurnButtons"]:::featAi
-    Flip["#Flip"]:::featAi
-    Locking["#Locking"]:::featAi
-    AnchorLock["#AnchorLock"]:::featAi
-    GoHome["#GoHome"]:::featAi
-    LandingPreview["#LandingPreview"]:::featAi
-    SolvedCheck["#SolvedCheck"]:::featAi
-    SolvedPicture["#SolvedPicture"]:::featAi
+    Solving["#Solving"]:::featLock
+    Board["#Board"]:::featLock
+    Tray["#Tray"]:::featLock
+    SizeMarks["#SizeMarks"]:::featLock
+    Drag["#Drag"]:::featLock
+    Turning["#Turning"]:::featLock
+    TapTurn["#TapTurn"]:::featLock
+    TwistTurn["#TwistTurn"]:::featLock
+    TurnButtons["#TurnButtons"]:::featLock
+    Flip["#Flip"]:::featLock
+    Locking["#Locking"]:::featLock
+    AnchorLock["#AnchorLock"]:::featLock
+    GoHome["#GoHome"]:::featLock
+    LandingPreview["#LandingPreview"]:::featLock
+    CornerTeach["#CornerTeach"]:::featLock
+    SolvedCheck["#SolvedCheck"]:::featLock
+    SolvedPicture["#SolvedPicture"]:::featLock
   end
   subgraph sg_Browsing ["#Browsing — Moving between puzzles"]
-    Browsing["#Browsing"]:::featAi
-    PuzzleNav["#PuzzleNav"]:::featAi
-    ResumePuzzle["#ResumePuzzle"]:::featAi
-    SolvedView["#SolvedView"]:::featAi
+    Browsing["#Browsing"]:::featLock
+    PuzzleNav["#PuzzleNav"]:::featLock
+    ResumePuzzle["#ResumePuzzle"]:::featLock
+    SolvedView["#SolvedView"]:::featLock
+    PuzzleOverview["#PuzzleOverview"]:::featLock
   end
   subgraph sg_Difficulty ["#Difficulty — Easy, Medium, Hard"]
-    Difficulty["#Difficulty"]:::featAi
-    DifficultyChoice["#DifficultyChoice"]:::featAi
-    DifficultyRules["#DifficultyRules"]:::featAi
+    Difficulty["#Difficulty"]:::featLock
+    DifficultyChoice["#DifficultyChoice"]:::featLock
+    DifficultyRules["#DifficultyRules"]:::featLock
   end
   subgraph sg_PlayTime ["#PlayTime — Play time"]
-    PlayTime["#PlayTime"]:::featAi
-    ActiveTime["#ActiveTime"]:::featAi
-    PuzzleTime["#PuzzleTime"]:::featAi
-    TimerDisplay["#TimerDisplay"]:::featAi
+    PlayTime["#PlayTime"]:::featLock
+    ActiveTime["#ActiveTime"]:::featLock
+    PuzzleTime["#PuzzleTime"]:::featLock
+    TimerDisplay["#TimerDisplay"]:::featLock
   end
   subgraph sg_Settings ["#Settings — Settings"]
-    Settings["#Settings"]:::featAi
-    SettingsMenu["#SettingsMenu"]:::featAi
-    SoundToggle["#SoundToggle"]:::featAi
-    ResetProgress["#ResetProgress"]:::featAi
+    Settings["#Settings"]:::featLock
+    SettingsMenu["#SettingsMenu"]:::featLock
+    SoundToggle["#SoundToggle"]:::featLock
+    ResetProgress["#ResetProgress"]:::featLock
+    Language["#Language"]:::featLock
   end
   subgraph sg_Layout ["#Layout — Phone and tablet"]
-    Layout["#Layout"]:::featAi
-    PhoneLayout["#PhoneLayout"]:::featAi
-    TabletLayout["#TabletLayout"]:::featAi
-    TouchTargets["#TouchTargets"]:::featAi
+    Layout["#Layout"]:::featLock
+    PhoneLayout["#PhoneLayout"]:::featLock
+    TabletLayout["#TabletLayout"]:::featLock
+    TouchTargets["#TouchTargets"]:::featLock
   end
   subgraph sg_Content ["#Content — Puzzle content"]
-    Content["#Content"]:::feat
-    PuzzleShapes["#PuzzleShapes"]:::featAi
-    PuzzleMini["#PuzzleMini"]:::featAi
-    PuzzleWarmups["#PuzzleWarmups"]:::featAi
-    PuzzleArt["#PuzzleArt"]:::featAi
-    PuzzleOrder["#PuzzleOrder"]:::featAi
-    PuzzleVolume["#PuzzleVolume"]:::feat
+    Content["#Content"]:::featLock
+    PuzzleShapes["#PuzzleShapes"]:::featLock
+    PuzzleMini["#PuzzleMini"]:::featLock
+    PuzzleWarmups["#PuzzleWarmups"]:::featLock
+    PuzzleArt["#PuzzleArt"]:::featLock
+    PuzzleOrder["#PuzzleOrder"]:::featLock
+    PuzzleVolume["#PuzzleVolume"]:::featLock
   end
+  Release["#Release"]:::featLock
   subgraph sg_DevTools ["#DevTools — Developer aids"]
-    DevTools["#DevTools"]:::featAi
-    SolutionReveal["#SolutionReveal"]:::featAi
+    DevTools["#DevTools"]:::featLock
+    SolutionReveal["#SolutionReveal"]:::featLock
   end
   PieceSets["#PieceSets"]:::featIdea
   Accessibility["#Accessibility"]:::featIdea
@@ -88,11 +92,13 @@ flowchart LR
   Locking --> AnchorLock
   Locking --> GoHome
   Locking --> LandingPreview
+  Locking --> CornerTeach
   Solving --> SolvedCheck
   Solving --> SolvedPicture
   Browsing --> PuzzleNav
   Browsing --> ResumePuzzle
   Browsing --> SolvedView
+  Browsing --> PuzzleOverview
   Difficulty --> DifficultyChoice
   Difficulty --> DifficultyRules
   PlayTime --> ActiveTime
@@ -101,6 +107,7 @@ flowchart LR
   Settings --> SettingsMenu
   Settings --> SoundToggle
   Settings --> ResetProgress
+  Settings --> Language
   Layout --> PhoneLayout
   Layout --> TabletLayout
   Layout --> TouchTargets

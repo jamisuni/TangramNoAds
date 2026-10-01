@@ -1,6 +1,6 @@
 # Requirements — Shared Types & Limits — TangramNoAds
 
-**Status:** Draft  ·  **Version:** 0.1  ·  **Last updated:** 2026-09-27
+**Status:** Draft  ·  **Version:** 0.2  ·  **Last updated:** 2026-09-28
 **Approved by:** —  ·  **Approved on:** —
 
 > Values used by two or more REQs, defined once. In this ai-led collection,
@@ -27,11 +27,13 @@
 
 ### TYPE-002 — Difficulty level
 
-- **Definition:** The player-selectable difficulty setting.
+> **Withdrawn 2026-09-28 (SRC-011).** The owner removed the Easy / Medium / Hard levels. The puzzle rating (REQ-040) is the only difficulty. Kept for its id.
+
+- **Definition:** The player-selectable difficulty setting (withdrawn).
 - **Confidence:** Stated
-- **Sources:** SRC-002 ("some easy/medium/hard levels")
+- **Sources:** SRC-002, SRC-011
 - **Rules:**
-  - Exactly three values, ordered: Easy < Medium < Hard.
+  - none (withdrawn)
 - **Open questions:** none
 
 ### TYPE-003 — Turn step
@@ -45,17 +47,17 @@
   - Only the parallelogram has a mirror image that differs from itself; mirroring the other pieces has no visible effect.
 - **Open questions:** none
 
-### TYPE-004 — Difficulty parameters
+### TYPE-004 — Lock parameters
 
-- **Definition:** What each difficulty level changes in the controls. The puzzles are the same at every level.
-- **Confidence:** Inferred (agent proposal, SRC-004)
-- **Sources:** SRC-004
+- **Definition:** The numbers that decide where a dropped piece locks (REQ-019) and what the landing preview shows (REQ-021). One set for everyone; the former per-level sets went with the levels (TYPE-002 withdrawn).
+- **Confidence:** Inferred (agent proposal, SRC-004; the owner accepted that these numbers are written here so a build locks like the prototype, SRC-011 F5/F6)
+- **Sources:** SRC-004, SRC-011
 - **Rules:**
-  - ASSUMPTION: lock distance is Easy 0.9, Medium 0.65 and Hard 0.45 units (TYPE-001 unit), and never below 30 dp on screen.
-  - ASSUMPTION: turn forgiveness: on Easy a drop may also lock with the turn one step (45°) away; on Medium and Hard the turn must match.
-  - ASSUMPTION: parallelogram mirror: automatic on Easy and Medium; on Hard the player mirrors it.
-  - ASSUMPTION: landing preview shown on Easy and Medium, not on Hard.
-  - ASSUMPTION: default level on first start is Medium.
+  - ASSUMPTION: lock distance R = 0.65 units (TYPE-001 unit), and never below 30 dp on screen.
+  - The turn must match: a piece one 45° step off does not lock. The mirror must match: the search never tries the other mirror image (REQ-018).
+  - Candidates: for every corner v of the piece and every anchor a, the translation t = a − v with |t| ≤ R. A candidate is valid when the moved piece lies completely inside the silhouette and overlaps no placed piece.
+  - ASSUMPTION: choice among valid candidates: score = |t| − 0.04 × (number of piece corners that land exactly on anchors); the lowest score wins; only candidates with |t| ≤ (best |t|) + 0.16 are considered.
+  - ASSUMPTION: geometry tolerance: "inside" and "overlaps" are decided with a tolerance of at most 1e-6 units; the locked position is the anchor's exact position minus the piece corner's exact offset, so a locked piece sits exactly on its anchor and later locks against it are exact too.
 - **Open questions:** none
 
 ### TYPE-005 — Active second
@@ -71,10 +73,13 @@
 ### TYPE-006 — Puzzle state
 
 - **Definition:** The progress state every puzzle keeps.
-- **Confidence:** Stated (SRC-002 names solved, half-way and restart; the three names are the agent's)
-- **Sources:** SRC-002, SRC-004
+- **Confidence:** Stated (SRC-002 names solved, half-way and restart; the three names and the transitions are the agent's, accepted in SRC-011 F8)
+- **Sources:** SRC-002, SRC-004, SRC-011
 - **Rules:**
-  - Exactly three values: New (nothing placed, no time counted), In progress (at least one piece placed or time counted, not solved), Solved.
+  - Exactly three values: New, In progress, Solved.
+  - New → In progress when a piece first leaves the tray (a drag starts on a tray piece). Turning a piece in the tray, browsing past the puzzle or opening the settings does not start it.
+  - In progress → Solved when the last piece locks (REQ-022). Restart returns In progress → New; Retry returns Solved → New (the best time is kept).
+  - Time is counted only In progress (REQ-030).
 - **Open questions:** none
 
 ### TYPE-007 — Layout class
@@ -93,3 +98,4 @@
 | Version | Date | Change | Reason | Approved by |
 |---|---|---|---|---|
 | 0.1 | 2026-09-27 | initial draft, TYPE-001..007 | first ai-led capture from SRC-001..004 | — |
+| 0.2 | 2026-09-28 | TYPE-002 withdrawn; TYPE-004 rewritten as the single lock parameter set with the scoring and tolerance rules; TYPE-006 transitions defined | owner round 6 (SRC-011): levels removed, review accepted | — |

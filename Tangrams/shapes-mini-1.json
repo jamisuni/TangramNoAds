@@ -4,7 +4,7 @@
   "title": {"en": "Mini: Pyramid", "fi": "Mini: Pyramidi"},
   "category": "shapes",
   "difficulty": 1,
-  "mini": true,
+  "kind": "mini",
   "solution": [
     {"piece": "SQ", "polygon": [[2, 2], [3, 1], [2, 0], [1, 1]]},
     {"piece": "ST1", "polygon": [[0, 2], [2, 2], [1, 1]]},

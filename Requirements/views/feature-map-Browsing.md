@@ -7,14 +7,16 @@ Feature tree (from features.md) with attached REQs. Dashed red = inferred REQ; t
 ```mermaid
 flowchart LR
   subgraph sg_Browsing ["#Browsing — Moving between puzzles"]
-    Browsing["#Browsing"]:::featAi
-    REQ-003["REQ-003 (BIZ)<br/>Free movement between puzzles"]:::bizAi
-    PuzzleNav["#PuzzleNav"]:::featAi
-    REQ-024["REQ-024 (FUN)<br/>Previous and next puzzle"]:::funAi
-    ResumePuzzle["#ResumePuzzle"]:::featAi
-    REQ-025["REQ-025 (FUN)<br/>Continue or restart a half-done puzzle"]:::funAi
-    SolvedView["#SolvedView"]:::featAi
-    REQ-026["REQ-026 (FUN)<br/>Solved puzzle shows its picture, with Retry"]:::funAi
+    Browsing["#Browsing"]:::featLock
+    REQ-003["REQ-003 (BIZ)<br/>Free movement between puzzles"]:::biz
+    PuzzleNav["#PuzzleNav"]:::featLock
+    REQ-024["REQ-024 (FUN)<br/>Previous and next puzzle"]:::fun
+    ResumePuzzle["#ResumePuzzle"]:::featLock
+    REQ-025["REQ-025 (FUN)<br/>Continue or restart a half-done puzzle"]:::fun
+    SolvedView["#SolvedView"]:::featLock
+    REQ-026["REQ-026 (FUN)<br/>Solved puzzle shows its picture, with Retry"]:::fun
+    PuzzleOverview["#PuzzleOverview"]:::featLock
+    REQ-050["REQ-050 (FUN)<br/>Finding a puzzle among many"]:::fun
   end
   Browsing --> REQ-003
   Browsing --> PuzzleNav
@@ -23,9 +25,12 @@ flowchart LR
   ResumePuzzle --> REQ-025
   Browsing --> SolvedView
   SolvedView --> REQ-026
+  Browsing --> PuzzleOverview
+  PuzzleOverview --> REQ-050
   REQ-024 -.->|realizes| REQ-003
   REQ-025 -.->|realizes| REQ-003
   REQ-026 -.->|realizes| REQ-003
+  REQ-050 -.->|realizes| REQ-003
   classDef feat fill:#1f6feb,color:#fff,stroke:#1f6feb
   classDef featIdea fill:#dbe4f3,color:#24292f,stroke:#1f6feb,stroke-dasharray: 4 3
   classDef featSpec fill:#0d5c2f,color:#fff,stroke:#0d5c2f

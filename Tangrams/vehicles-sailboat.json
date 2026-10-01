@@ -7,6 +7,7 @@
   },
   "category": "vehicles",
   "difficulty": 3,
+  "kind": "full",
   "solution": [
     {"piece": "LT1", "polygon": [[0, 0], [0, [0, 2]], [[0, -2], [0, 2]]]},
     {"piece": "LT2", "polygon": [[0, 0], [0, [0, 2]], [[0, 2], [0, 2]]]},

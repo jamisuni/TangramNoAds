@@ -7,20 +7,20 @@ Feature tree (from features.md) with attached REQs. Dashed red = inferred REQ; t
 ```mermaid
 flowchart LR
   subgraph sg_Content ["#Content — Puzzle content"]
-    Content["#Content"]:::feat
-    REQ-007["REQ-007 (BIZ)<br/>Puzzle library"]:::bizAi
-    PuzzleShapes["#PuzzleShapes"]:::featAi
-    REQ-038["REQ-038 (FUN)<br/>Full-set, edge-first puzzles of any shape"]:::funAi
-    PuzzleMini["#PuzzleMini"]:::featAi
-    REQ-045["REQ-045 (FUN)<br/>Mini 3-piece puzzles"]:::funAi
-    PuzzleWarmups["#PuzzleWarmups"]:::featAi
-    REQ-041["REQ-041 (FUN)<br/>Warm-up puzzles first"]:::funAi
-    PuzzleArt["#PuzzleArt"]:::featAi
-    REQ-039["REQ-039 (FUN)<br/>A picture for every puzzle"]:::funAi
-    PuzzleOrder["#PuzzleOrder"]:::featAi
-    REQ-040["REQ-040 (FUN)<br/>Puzzle difficulty and order"]:::funAi
-    PuzzleVolume["#PuzzleVolume"]:::feat
-    REQ-042["REQ-042 (FUN)<br/>First-release puzzle count"]:::funInf
+    Content["#Content"]:::featLock
+    REQ-007["REQ-007 (BIZ)<br/>Puzzle library"]:::biz
+    PuzzleShapes["#PuzzleShapes"]:::featLock
+    REQ-038["REQ-038 (FUN)<br/>Full-set puzzles of any shape"]:::fun
+    PuzzleMini["#PuzzleMini"]:::featLock
+    REQ-045["REQ-045 (FUN)<br/>Mini 3-piece puzzles"]:::fun
+    PuzzleWarmups["#PuzzleWarmups"]:::featLock
+    REQ-041["REQ-041 (FUN)<br/>Warm-up puzzles first"]:::fun
+    PuzzleArt["#PuzzleArt"]:::featLock
+    REQ-039["REQ-039 (FUN)<br/>A picture for every puzzle"]:::fun
+    PuzzleOrder["#PuzzleOrder"]:::featLock
+    REQ-040["REQ-040 (FUN)<br/>Puzzle difficulty and order"]:::fun
+    PuzzleVolume["#PuzzleVolume"]:::featLock
+    REQ-042["REQ-042 (FUN)<br/>First-release puzzle count"]:::fun
   end
   Content --> REQ-007
   Content --> PuzzleShapes

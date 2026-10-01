@@ -2,22 +2,29 @@
 """
 Automated checks for the generated prototype (Spec/prototype/tangram-prototype.html).
 
-    python tools/tests/test_prototype.py          # full run, about 3-4 minutes
+    python tools/tests/test_prototype.py          # full run, about 2-3 minutes
     python tools/tests/test_prototype.py --fast   # only the first 3 puzzles in the solve test
 
 Needs Playwright with Chromium. Rebuild first: python tools/build_prototype.py
 Exit code 0 when every check passes, 1 otherwise.
 
-Checks
-  solve    every puzzle is solved by dragging each piece (in edge-first order) onto its place,
-           at Medium/phone 390x844, Hard/tablet 1280x800 (flip badge) and Easy/tablet 800x1280
-  anchors  a piece that touches no outline corner (mountain square, dropped first) goes home
-  tray     size marks L L M S S; the ↻ / ↺ buttons turn a tray piece +45° / -45° and sit inside
-           the cell; a mini puzzle shows only its own pieces at the same tray scale
+Checks (prototype 0.6, round 6)
+  solve    every puzzle is solved by dragging each piece (in edge-first order) onto its place, on a
+           phone 390x844, a tablet 1280x800 and a tablet 800x1280; the parallelogram is mirrored with
+           the ⇋ badge (always shown, REQ-018)
+  anchors  a piece that touches no outline corner (mountain square, dropped first) goes home (REQ-019/020)
+  tray     size marks L L M S S; no turn buttons (REQ-044 withdrawn); a tap turns a tray piece +45°
+           (REQ-016); a mini puzzle shows only its own pieces at the same tray scale (REQ-013)
   tap      a tap on a board piece turns it in place
   twist    a second pointer twisting during a drag turns in 45° steps; a drop far away goes home
+  nav      the list wraps (REQ-024); a long press on › jumps to the next unsolved puzzle and the
+           counter opens a grid of every puzzle (REQ-050); the order is kind, rating, id (REQ-040)
+  lang     with a Finnish locale the title, buttons and settings are Finnish; otherwise English (REQ-047)
+  load     a saved piece that no longer fits the silhouette returns to the tray on load (REQ-025)
+  mini     in a mini puzzle a missed drop pulses the outline corners once; a warm-up does not (REQ-051)
+  settings no difficulty control; timer off by default; privacy text below the free note (REQ-031/032/049)
   dev      the DEV button asks for the passcode; a wrong one is refused; the right one shows the
-           solution overlay and "Solve now" solves the puzzle without setting a best time
+           solution overlay and "Solve now" solves the puzzle without setting a best time (REQ-046)
 """
 import sys
 from pathlib import Path
@@ -63,7 +70,12 @@ def drop(pg, pid, dx=0.15, dy=-0.1):
     pg.wait_for_timeout(220)
 
 
-def orient(pg, pid, flip_badge):
+def flip_badge_pos(pg):
+    return pg.evaluate("(()=>{const c=document.querySelector('#layerTop [role=button] circle').getBoundingClientRect(); return [c.x+c.width/2, c.y+c.height/2]})()")
+
+
+def orient(pg, pid):
+    """Turn (taps) and, for the parallelogram, mirror (⇋ badge) a tray piece until it matches its slot."""
     for _ in range(2):
         for _ in range(8):
             if pg.evaluate(MATCH, pid):
@@ -71,17 +83,15 @@ def orient(pg, pid, flip_badge):
             c = pg.evaluate(f"L.cells['{pid}']")
             pg.mouse.click(c["cx"], c["cy"])
             pg.wait_for_timeout(30)
-        if flip_badge:
-            box = pg.evaluate("(()=>{const c=document.querySelector('#layerTop [aria-label^=Flip] circle').getBoundingClientRect(); return [c.x+c.width/2, c.y+c.height/2]})()")
-            pg.mouse.click(*box)
+        if pid == "PG":
+            pg.mouse.click(*flip_badge_pos(pg))
             pg.wait_for_timeout(30)
-        else:
-            pg.evaluate(f"(()=>{{const pc=pieces.find(p=>p.id==='{pid}'); pc.f=!pc.f; render(pc,true)}})()")
     return pg.evaluate(MATCH, pid)
 
 
-def new_page(browser, w, h):
-    pg = browser.new_page(viewport={"width": w, "height": h})
+def new_page(browser, w, h, locale="en-US"):
+    ctx = browser.new_context(viewport={"width": w, "height": h}, locale=locale)
+    pg = ctx.new_page()
     errs = []
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto(URL)
@@ -90,9 +100,8 @@ def new_page(browser, w, h):
 
 
 def test_solve(browser):
-    for (w, h), diff, badge in [((390, 844), "medium", False), ((1280, 800), "hard", True), ((800, 1280), "easy", False)]:
+    for w, h in [(390, 844), (1280, 800), (800, 1280)]:
         pg, errs = new_page(browser, w, h)
-        pg.evaluate(f"settings.diff='{diff}'")
         n = pg.evaluate("PUZZLES.length")
         unsolved = []
         for i in range(3 if FAST else n):
@@ -101,14 +110,14 @@ def test_solve(browser):
                 pid = pg.evaluate(NEXT)
                 if not pid:
                     break
-                orient(pg, pid, badge)
+                orient(pg, pid)
                 drop(pg, pid)
             pg.wait_for_timeout(1700)
             if pg.evaluate("prog().status") != "solved":
                 unsolved.append(pg.evaluate("P.id"))
-        check(f"solve {diff} {w}x{h}", not unsolved and not errs, f"unsolved {unsolved} errors {errs}" if unsolved or errs else f"{3 if FAST else n} puzzles")
+        check(f"solve {w}x{h}", not unsolved and not errs, f"unsolved {unsolved} errors {errs}" if unsolved or errs else f"{3 if FAST else n} puzzles")
         load(pg, by_id("nature-mountain"))
-        orient(pg, "SQ", badge)
+        orient(pg, "SQ")
         drop(pg, "SQ", 0, 0)
         check(f"anchors {w}x{h}: square with no corner goes home", pg.evaluate("pieces.find(p=>p.id==='SQ').st") == "tray")
         pg.close()
@@ -120,17 +129,18 @@ def test_tray(browser):
         load(pg, by_id("shapes-warmup-1"))
         marks = pg.evaluate("[...document.querySelectorAll('#layerTop text')].map(t=>t.textContent).join('')")
         check(f"tray {w}x{h}: size marks", marks == "LLMSS", marks)
+        spins = pg.evaluate("document.querySelectorAll('#layerTop .spin').length")
+        check(f"tray {w}x{h}: no turn buttons", spins == 0, f"{spins} buttons")
         for pid in ["LT1", "PG", "ST2"]:
             k0 = pg.evaluate(f"pieces.find(p=>p.id==='{pid}').k")
-            btn = pg.evaluate(f"""[...pieces.find(p=>p.id==='{pid}').trayUi.querySelectorAll('.spin')].map(g=>{{
-                 const c=g.querySelector('circle+circle').getBoundingClientRect(); return [c.x+c.width/2,c.y+c.height/2,c.width]}})""")
-            pg.mouse.click(btn[1][0], btn[1][1]); pg.wait_for_timeout(40)
+            c = pg.evaluate(f"L.cells['{pid}']")
+            pg.mouse.click(c["cx"], c["cy"]); pg.wait_for_timeout(40)
             k1 = pg.evaluate(f"pieces.find(p=>p.id==='{pid}').k")
-            pg.mouse.click(btn[0][0], btn[0][1]); pg.wait_for_timeout(40)
-            k2 = pg.evaluate(f"pieces.find(p=>p.id==='{pid}').k")
-            cell = pg.evaluate(f"L.cells['{pid}']")
-            inside = all(cell["x"] <= x - d / 2 and x + d / 2 <= cell["x"] + cell["w"] and cell["y"] <= y - d / 2 and y + d / 2 <= cell["y"] + cell["h"] for x, y, d in btn)
-            check(f"tray {w}x{h}: {pid} ↻ ↺ buttons", k1 == (k0 + 1) % 8 and k2 == k0 and inside, f"k {k0}->{k1}->{k2}, inside {inside}")
+            check(f"tray {w}x{h}: tap turns {pid} +45°", k1 == (k0 + 1) % 8, f"k {k0}->{k1}")
+        badge = pg.evaluate("!!document.querySelector('#layerTop [role=button]')")
+        check(f"tray {w}x{h}: flip badge shown", badge)
+        smallest = pg.evaluate("Math.min(...Object.values(L.cells).flatMap(c=>[c.w,c.h]))")
+        check(f"tray {w}x{h}: smallest cell ≥ 56 dp", smallest >= 56, f"{smallest:.0f} dp")
         ts_full = pg.evaluate("L.ts")
         load(pg, "PUZZLES.findIndex(p=>p.slots.length<7)")
         cells, ts_mini, npieces = pg.evaluate("[Object.keys(L.cells).length, L.ts, pieces.length]")
@@ -169,6 +179,93 @@ def test_tap_and_twist(browser):
     pg.close()
 
 
+def test_nav(browser):
+    pg, errs = new_page(browser, 390, 844)
+    kinds = pg.evaluate("PUZZLES.map(p=>p.kind)")
+    order = {"mini": 0, "warmup": 1, "full": 2}
+    keys = pg.evaluate("PUZZLES.map(p=>[p.kind,p.difficulty,p.id])")
+    ranked = [(order[a], b, c) for a, b, c in keys]
+    check("nav: order is kind, rating, id", ranked == sorted(ranked), str(kinds))
+    load(pg, "PUZZLES.length-1")
+    pg.click("#nextBtn"); pg.wait_for_timeout(150)
+    check("nav: › on the last puzzle wraps to the first", pg.evaluate("idx") == 0)
+    pg.click("#prevBtn"); pg.wait_for_timeout(150)
+    check("nav: ‹ on the first puzzle wraps to the last", pg.evaluate("idx") == pg.evaluate("PUZZLES.length-1"))
+    # long press: puzzles 0..4 solved except 3 → from 0 a long press lands on 3
+    pg.evaluate("for (const k in progress) delete progress[k]; [0,1,2,4].forEach(i=>progress[PUZZLES[i].id]={status:'solved',pieces:null,time:5,best:5,solves:1}); P=null; loadPuzzle(0)")
+    pg.wait_for_timeout(100)
+    b = pg.evaluate("(()=>{const r=byId('nextBtn').getBoundingClientRect(); return [r.x+r.width/2, r.y+r.height/2]})()")
+    pg.mouse.move(*b); pg.mouse.down(); pg.wait_for_timeout(700); pg.mouse.up(); pg.wait_for_timeout(150)
+    check("nav: long press on › jumps to the next unsolved", pg.evaluate("idx") == 3, f"idx {pg.evaluate('idx')}")
+    pg.mouse.move(*b); pg.mouse.down(); pg.wait_for_timeout(100); pg.mouse.up(); pg.wait_for_timeout(150)
+    check("nav: short press on › moves one step", pg.evaluate("idx") == 4)
+    pg.click("#titleBtn"); pg.wait_for_timeout(150)
+    n_cells, n_solved, n_prog, visible = pg.evaluate("[grid.children.length, [...grid.children].filter(c=>c.querySelector('clipPath')).length, grid.querySelectorAll('.prog').length, !byId('gridDlg').hidden]")
+    check("nav: the counter opens a grid of every puzzle, solved ones with their picture", visible and n_cells == pg.evaluate("PUZZLES.length") and n_solved == 4, f"{n_cells} cells, {n_solved} pictures, {n_prog} in progress")
+    pg.click("#grid .gcell:nth-child(6)"); pg.wait_for_timeout(150)
+    check("nav: choosing a grid cell opens that puzzle", pg.evaluate("idx") == 5 and pg.evaluate("byId('gridDlg').hidden") and not errs, str(errs))
+    pg.close()
+
+
+def test_lang(browser):
+    pg, errs = new_page(browser, 390, 844, locale="fi-FI")
+    load(pg, by_id("animals-cat"))
+    t, restart, done, lang = pg.evaluate("[byId('pTitle').textContent, byId('restartBtn').textContent.trim(), byId('closeSettings').textContent, document.documentElement.lang]")
+    check("lang: Finnish device → Finnish title and buttons", t == "Kissa" and restart == "Aloita alusta" and done == "Valmis" and lang == "fi", f"{t}, {restart}, {done}, {lang}")
+    pg.close()
+    pg, errs = new_page(browser, 390, 844, locale="sv-SE")
+    load(pg, by_id("animals-cat"))
+    t, done = pg.evaluate("[byId('pTitle').textContent, byId('closeSettings').textContent]")
+    check("lang: other device language → English", t == "Cat" and done == "Done" and not errs, f"{t}, {done}")
+    pg.close()
+
+
+def test_load_check(browser):
+    pg, errs = new_page(browser, 390, 844)
+    load(pg, by_id("things-house"))
+    # place LT1 correctly, then save a bogus ST1 far outside the silhouette; reload the puzzle
+    pg.evaluate("""(()=>{const pc=pieces.find(p=>p.id==='LT1'); const s=P.slots.find(s=>s.piece==='LT1'); const c=avg(s.poly);
+       pc.st='board'; pc.x=c[0]; pc.y=c[1]; setTurn(pc, s.rot); pc.f=s.flip; render(pc,true);
+       const st=pieces.find(p=>p.id==='ST1'); st.st='board'; st.x=c[0]+40; st.y=c[1]+40; persistPieces(); P=null; loadPuzzle(idx);})()""")
+    pg.wait_for_timeout(100)
+    lt, st = pg.evaluate("[pieces.find(p=>p.id==='LT1').st, pieces.find(p=>p.id==='ST1').st]")
+    check("load: a saved piece outside the silhouette returns to the tray, valid ones stay", lt == "board" and st == "tray" and not errs, f"LT1 {lt}, ST1 {st}")
+    pg.close()
+
+
+def test_mini_pulse(browser):
+    pg, errs = new_page(browser, 390, 844)
+    load(pg, by_id("shapes-mini-1"))
+    c = pg.evaluate("L.cells['ST1']")
+    ctr = pg.evaluate("(()=>{const b=L.board; return [b.x+b.w/2, b.y+18]})()")   # inside the board, away from any anchor
+    pg.mouse.move(c["cx"], c["cy"]); pg.mouse.down(); pg.mouse.move(ctr[0], ctr[1], steps=8); pg.mouse.up(); pg.wait_for_timeout(60)
+    n = pg.evaluate("document.querySelectorAll('#layerTop .pulse circle').length")
+    home = pg.evaluate("pieces.find(p=>p.id==='ST1').st")
+    check("mini: a missed drop goes home and the outline corners pulse once", home == "tray" and n == pg.evaluate("anchorsStatic.length") and n > 0, f"{n} corners, {home}")
+    pg.wait_for_timeout(700)
+    check("mini: the pulse is gone after 650 ms", pg.evaluate("document.querySelectorAll('#layerTop .pulse').length") == 0)
+    load(pg, by_id("shapes-warmup-1"))
+    c = pg.evaluate("L.cells['ST1']")
+    pg.mouse.move(c["cx"], c["cy"]); pg.mouse.down(); pg.mouse.move(ctr[0], ctr[1], steps=8); pg.mouse.up(); pg.wait_for_timeout(60)
+    check("mini: a warm-up shows no pulse", pg.evaluate("document.querySelectorAll('#layerTop .pulse').length") == 0 and not errs, str(errs))
+    pg.close()
+
+
+def test_settings(browser):
+    pg, errs = new_page(browser, 390, 844)
+    load(pg, by_id("animals-cat"))
+    pg.click("#gearBtn"); pg.wait_for_timeout(100)
+    no_diff = pg.evaluate("!document.querySelector('#diffSeg') && !byId('settings').textContent.match(/Easy|Medium|Hard/)")
+    timer_off = pg.evaluate("settings.timer === 'off' && byId('timer').hidden")
+    order_ok = pg.evaluate("(()=>{const f=byId('freeNote'), p=byId('privacyNote'); return f.nextElementSibling === p && p.textContent.startsWith('Privacy:')})()")
+    check("settings: no difficulty control", no_diff)
+    check("settings: timer off by default", timer_off)
+    check("settings: privacy text right below the free note", order_ok)
+    pg.click("#timerBtn"); pg.wait_for_timeout(50)
+    check("settings: timer switch shows the timer", pg.evaluate("settings.timer === 'on' && !byId('timer').hidden") and not errs, str(errs))
+    pg.close()
+
+
 def test_dev(browser):
     pg, errs = new_page(browser, 390, 844)
     load(pg, by_id("things-house"))
@@ -191,6 +288,11 @@ if __name__ == "__main__":
         b = p.chromium.launch()
         test_tray(b)
         test_tap_and_twist(b)
+        test_nav(b)
+        test_lang(b)
+        test_load_check(b)
+        test_mini_pulse(b)
+        test_settings(b)
         test_dev(b)
         test_solve(b)
         b.close()

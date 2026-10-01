@@ -4,51 +4,7 @@
 
 ## AI-approved — released for a prototype, awaiting a human verdict
 
-- **REQ-001** — The game costs nothing and earns nothing: no ads, no purchases, no money asks. (0 assumption(s))
-- **REQ-002** — A traditional 7-piece tangram game for players aged 8 and up, simple to control. (0 assumption(s))
-- **REQ-003** — Players move freely between puzzles; nothing is locked and no progress is lost. (0 assumption(s))
-- **REQ-004** — The game offers Easy, Medium and Hard. (0 assumption(s))
-- **REQ-005** — The game tracks each puzzle's solve time and the total active play time. (0 assumption(s))
-- **REQ-006** — The game runs on Android phones in portrait and on Android tablets. (0 assumption(s))
-- **REQ-007** — A library of full-set, edge-first puzzles of any shape, each with a solved picture, starting with warm-ups. (0 assumption(s))
-- **REQ-008** — No screen shows an ad, a price or a request for money. (0 assumption(s))
-- **REQ-009** — Settings shows the note "Enjoy, it's absolutely free." (1 assumption(s))
-- **REQ-010** — No network use; progress, settings and play time are stored locally only. (1 assumption(s))
-- **REQ-011** — The target is one flat silhouette; drop places are never shown. (0 assumption(s))
-- **REQ-012** — The puzzle's pieces wait as miniatures below the board, always in the same order, colours and turn. (1 assumption(s))
-- **REQ-013** — Tray cells are sized per piece so that all miniatures share one, as-large-as-possible scale. (1 assumption(s))
-- **REQ-014** — Pieces are dragged from the tray or board; on the board they have their true size; no resizing. (1 assumption(s))
-- **REQ-015** — A touch that moves under 12 dp is a tap whatever its length; touch areas are larger than the drawn pieces. (1 assumption(s))
-- **REQ-016** — A tap turns a piece one 45° step; on the board only if it still fits. (1 assumption(s))
-- **REQ-017** — While dragging, a second finger twists the piece in fixed 45° steps. (1 assumption(s))
-- **REQ-018** — On Hard a flip button mirrors the parallelogram; on Easy and Medium it mirrors itself when it locks. (1 assumption(s))
-- **REQ-019** — A dropped piece locks at the nearest spot where a corner meets an outline corner or a placed piece's corner. (0 assumption(s))
-- **REQ-020** — A drop with no valid position sends the piece back to its tray cell; nothing lies loose. (0 assumption(s))
-- **REQ-021** — On Easy and Medium a dashed outline shows where the dragged piece would lock. (1 assumption(s))
-- **REQ-022** — The puzzle is solved when all its pieces are locked, whatever arrangement was used. (0 assumption(s))
-- **REQ-023** — On solving, the pieces turn into the puzzle's stylised picture with exactly the same outline. (0 assumption(s))
-- **REQ-024** — ‹ and › at the top move to the previous and next puzzle at any time, which is also how to skip. (1 assumption(s))
-- **REQ-025** — An unsolved puzzle keeps its placed pieces; the player continues it or restarts it. (0 assumption(s))
-- **REQ-026** — Browsing to a solved puzzle shows only its picture and best time, with Retry and Next. (0 assumption(s))
-- **REQ-027** — The player picks Easy, Medium or Hard in the settings; the choice applies at once. (0 assumption(s))
-- **REQ-028** — Easy, Medium and Hard differ in lock distance, turn forgiveness, auto-mirror, preview and timer; the puzzles are the same. (1 assumption(s))
-- **REQ-029** — Today's and all-time active play time are counted and shown in the settings. (0 assumption(s))
-- **REQ-030** — Each puzzle counts its own active time; the fastest solve is kept as its best time. (0 assumption(s))
-- **REQ-031** — An optional running timer on the board; by default only on Hard. (1 assumption(s))
-- **REQ-032** — A gear in the top bar opens one settings screen: difficulty, timer, sound, play time, reset, how to play. (0 assumption(s))
-- **REQ-033** — Short sounds for pick-up, turn, lock, return and solve; can be switched off. (1 assumption(s))
-- **REQ-034** — Settings can erase all puzzle states and times after a confirmation step. (0 assumption(s))
-- **REQ-035** — Phone layout: portrait only, top bar, board, and the tray at the bottom in two rows. (0 assumption(s))
-- **REQ-036** — Tablet layout: both orientations, top bar, board, and one wide tray row. (0 assumption(s))
-- **REQ-037** — Every control is at least 48 dp; the navigation buttons at least 52 dp. (1 assumption(s))
-- **REQ-038** — Each puzzle uses all seven pieces and can be built edge-first; the shape may be abstract. (0 assumption(s))
-- **REQ-039** — Each puzzle carries a stylised picture clipped to its outline, reviewed by a person before release. (0 assumption(s))
-- **REQ-040** — Each puzzle is rated 1–5; ‹ › lists them from the lowest rating. (0 assumption(s))
-- **REQ-041** — After the mini puzzles, the library opens with at least four warm-ups where every piece's shape shows in the silhouette. (1 assumption(s))
-- **REQ-043** — Each triangle in the tray shows S, M or L, the size it has on the board. (2 assumption(s))
-- **REQ-044** — Each tray cell has ↺ and ↻ buttons that turn its piece 45° before it is dragged. (1 assumption(s))
-- **REQ-045** — A few tiny puzzles use only some pieces, for a fast first success and for testing the solved state. (1 assumption(s))
-- **REQ-046** — In prototype and test builds, a DEV button behind the passcode 0417 shows the solution or solves the puzzle; release builds leave it out. (1 assumption(s))
+- none
 
 ## Decisions the agent took instead of asking — check these first
 
@@ -58,62 +14,31 @@
 - **REQ-013** — 12 dp cell padding and the 16 %-of-height row limit (prototype 0.3).
 - **REQ-014** — the floating offset puts the piece's lowest point 30 dp (phone) or 40 dp (tablet) above the finger.
 - **REQ-015** — the 12 dp threshold and the 12 dp touch-area margin.
-- **REQ-016** — tap-to-turn exists alongside the two-finger twist (the owner only named the twist).
 - **REQ-017** — the twist works only while a piece is being dragged.
-- **REQ-018** — mirroring is part of the game, automatic on Easy and Medium and by button on Hard. The owner asked whether a mirror button is needed (SRC-010, a question); the agent explained this split and the owner raised no objection.
-- **REQ-021** — a white dashed outline, 2.5 dp wide, over the silhouette.
-- **REQ-024** — the list does not wrap; at the ends ‹ or › does nothing.
-- **REQ-028** — difficulty changes the controls only (open question Q1 in ../Spec/05-open-questions.md).
-- **REQ-031** — the default is Hard only.
+- **REQ-018** — 60 dp touch area and the ⇋ symbol (prototype 0.3).
+- **REQ-021** — a white dashed outline, 2.5 dp wide, over the silhouette. If the phone playtest shows children reading it as "the game says it goes here", the fix is a fainter, greyer outline, not removal.
+- **REQ-031** — the default is off.
 - **REQ-033** — sound is on by default.
 - **REQ-037** — 48 dp minimum (SRC-006 suggests 2 cm, about 80 dp, for under-9s; our players are 8+).
 - **REQ-041** — four warm-ups (the owner said "few").
-- **REQ-043** — letters S, M, L are understood by players aged 8+; SRC-009 names small, medium and big.
-- **REQ-043** — the marks stay after testing; the owner called the tray aids "at least temporary".
-- **REQ-044** — the buttons show on every device, touch screens included, until the owner's phone playtest decides. SRC-009: "at least temporary"; SRC-010: "maybe those ↺ ↻ are not long run not need as pressing does same... but we keep them now".
+- **REQ-043** — letters S, M, L are understood by players aged 8+; SRC-009 names small, medium and big. The marks stay (SRC-011, G1).
+- **REQ-043** — the letters S, M, L are used in both languages (REQ-047); Finnish size labels use the same letters.
 - **REQ-045** — two mini puzzles ship in the prototype (a triangle and a square) and they stay in the game as a first-run introduction; the owner asked for one, for testing.
 - **REQ-046** — the DEV button sits in the bottom-left corner of the board, small and dashed, so it is not mistaken for part of the game.
+- **REQ-047** — no in-game language switch.
+- **REQ-048** — the Finnish store title is "Tangram, ihan ilmainen"; the owner confirms the wording.
+- **REQ-048** — the hosted privacy policy is a page in the project's repository.
+- **REQ-049** — the wording above, and its Finnish translation in the prototype.
+- **REQ-050** — solved cells show the picture at thumbnail size, not the piece layout (REQ-026 hides piece positions).
+- **REQ-051** — 600 ms; the corner marker is a small circle in the accent colour.
 
 ## Inferred items (never lock silently)
 
-- **REQ-010** — No network use; progress, settings and play time are stored locally only.
-- **REQ-012** — The puzzle's pieces wait as miniatures below the board, always in the same order, colours and turn.
-- **REQ-013** — Tray cells are sized per piece so that all miniatures share one, as-large-as-possible scale.
-- **REQ-015** — A touch that moves under 12 dp is a tap whatever its length; touch areas are larger than the drawn pieces.
-- **REQ-016** — A tap turns a piece one 45° step; on the board only if it still fits.
-- **REQ-017** — While dragging, a second finger twists the piece in fixed 45° steps.
-- **REQ-018** — On Hard a flip button mirrors the parallelogram; on Easy and Medium it mirrors itself when it locks.
-- **REQ-021** — On Easy and Medium a dashed outline shows where the dragged piece would lock.
-- **REQ-022** — The puzzle is solved when all its pieces are locked, whatever arrangement was used.
-- **REQ-028** — Easy, Medium and Hard differ in lock distance, turn forgiveness, auto-mirror, preview and timer; the puzzles are the same.
-- **REQ-031** — An optional running timer on the board; by default only on Hard.
-- **REQ-032** — A gear in the top bar opens one settings screen: difficulty, timer, sound, play time, reset, how to play.
-- **REQ-033** — Short sounds for pick-up, turn, lock, return and solve; can be switched off.
-- **REQ-034** — Settings can erase all puzzle states and times after a confirmation step.
-- **REQ-037** — Every control is at least 48 dp; the navigation buttons at least 52 dp.
-- **REQ-040** — Each puzzle is rated 1–5; ‹ › lists them from the lowest rating.
-- **REQ-042** — How many puzzles the first release ships with is not decided yet.
-- **REQ-043** — Each triangle in the tray shows S, M or L, the size it has on the board.
-- **REQ-044** — Each tray cell has ↺ and ↻ buttons that turn its piece 45° before it is dragged.
+- none
 
 ## Inferred rules inside observed/stated items
 
-- **REQ-008** — Rules: - The game SHALL NOT ask for a store rating either. *(Inferred from the "absolute free" theme, SRC-003)*
-- **REQ-009** — Rules: - The note appears in the settings screen only, never over a puzzle. *(Inferred from SRC-004: placement is the agent's)*
-- **REQ-019** — Rules: - Among valid positions, the nearest wins; a position where more corners meet anchors wins a tie. *(Inferred from SRC-004)*
-- **REQ-019** — Rules: - The lock animation lasts 180 ms. *(Inferred from SRC-004)*
-- **REQ-023** — Rules: - The picture fades in over 800 ms, starting 600 ms after the last piece locks. *(Inferred from SRC-004)*
-- **REQ-023** — Rules: - A short celebration (a 4-note chime and confetti lasting 2.4 s) plays with it. *(Inferred from SRC-004)*
-- **REQ-025** — Rules: - The state survives closing the app. *(Inferred from SRC-004)*
-- **REQ-027** — Rules: - The choice is in the settings screen. *(Inferred from SRC-002 "maybe settings menu on top")*
-- **REQ-030** — Rules: - The best time is shown on the solved view (REQ-026) and in the settings list. *(Inferred from SRC-004)*
-- **REQ-035** — Rules: - Tray row 1 holds the large and medium triangles; row 2 holds the square, parallelogram and small triangles. *(Inferred from SRC-004)*
-- **REQ-035** — Rules: - The board takes all the height left, and the silhouette is fitted with about 10 % padding. *(Inferred from SRC-004)*
-- **REQ-036** — Rules: - Turning the tablet re-lays the screen and keeps every piece's state. *(Inferred from SRC-004)*
-- **REQ-038** — Rules: - Every puzzle uses all seven pieces, except a puzzle marked mini. *(Inferred from SRC-004)*
-- **REQ-039** — Rules: - The picture uses flat shapes, 3–8 colours and no text. *(Inferred from SRC-004)*
-- **REQ-041** — Rules: - "At least half of every piece's outline on the silhouette edge" is the warm-up measure. *(Inferred from SRC-004: it is the agent's measure)*
-- **REQ-042** — Rules: - Candidate from the agent: 40 puzzles over 6 themes. *(Inferred from SRC-004)*
+- none
 
 ## Orphans
 
@@ -121,32 +46,15 @@
 
 ## Leaf features awaiting REQ drill-down
 
+- **#TurnButtons** — Turn buttons in the tray
+- **#DifficultyChoice** — Choose the difficulty
+- **#DifficultyRules** — What a level changes
 - **#PieceSets** — Other piece sets
 - **#Accessibility** — Colour-blind support
 
 ## Evidence — thin or weak
 
-- **REQ-003** — single source SRC-002
-- **REQ-004** — single source SRC-002
-- **REQ-006** — single source SRC-001
-- **REQ-010** — only SRC-004, SRC-007 (no usable authoritative/firsthand source)
-- **REQ-011** — single source SRC-002
-- **REQ-015** — only SRC-004, SRC-005 (no usable authoritative/firsthand source)
-- **REQ-020** — single source SRC-002
-- **REQ-021** — only SRC-004 (no usable authoritative/firsthand source)
-- **REQ-022** — only SRC-004 (no usable authoritative/firsthand source)
-- **REQ-023** — single source SRC-002
-- **REQ-024** — single source SRC-002
-- **REQ-025** — single source SRC-002
-- **REQ-026** — single source SRC-002
-- **REQ-028** — only SRC-004 (no usable authoritative/firsthand source)
-- **REQ-031** — only SRC-004 (no usable authoritative/firsthand source)
-- **REQ-033** — only SRC-004 (no usable authoritative/firsthand source)
-- **REQ-034** — only SRC-004 (no usable authoritative/firsthand source)
-- **REQ-037** — only SRC-004, SRC-005, SRC-006 (no usable authoritative/firsthand source)
-- **REQ-042** — only SRC-004 (no usable authoritative/firsthand source)
-- **REQ-045** — single source SRC-009
-- **REQ-046** — single source SRC-010
+- none
 
 ## Unusable sources still cited
 
@@ -154,8 +62,7 @@
 
 ## Open questions
 
-- **REQ-042** — 1 open question(s)
-- **#PuzzleVolume** — 1 feature-level OQ
+- none
 
 ## Unfilled template placeholders
 
@@ -164,7 +71,7 @@
 ## Summary
 
 - capture mode: ai-led — ai-approved releases an item for a prototype; only a signed lock binds
-- 49 features (38 leaves = coding-agent work units), 46 REQs (45 ai-approved, 0 locked, 0 withdrawn)
-- feature status mix: idea: 2, captured: 2, specified: 0, ai-approved: 45, locked: 0
-- REQ status mix: draft: 1, observed-provisional: 0, ai-approved: 45, locked: 0, withdrawn: 0
-- next free ids: REQ-047 · TYPE-008 · SRC-011 · DEF-001
+- 53 features (42 leaves = coding-agent work units), 51 REQs (0 ai-approved, 47 locked, 4 withdrawn)
+- feature status mix: idea: 2, captured: 0, specified: 0, ai-approved: 0, locked: 51
+- REQ status mix: draft: 0, observed-provisional: 0, ai-approved: 0, locked: 47, withdrawn: 4
+- next free ids: REQ-052 · TYPE-008 · SRC-016 · DEF-002

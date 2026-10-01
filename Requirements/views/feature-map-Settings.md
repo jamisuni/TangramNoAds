@@ -7,13 +7,15 @@ Feature tree (from features.md) with attached REQs. Dashed red = inferred REQ; t
 ```mermaid
 flowchart LR
   subgraph sg_Settings ["#Settings — Settings"]
-    Settings["#Settings"]:::featAi
-    SettingsMenu["#SettingsMenu"]:::featAi
-    REQ-032["REQ-032 (UI)<br/>Settings from the top bar"]:::uiAi
-    SoundToggle["#SoundToggle"]:::featAi
-    REQ-033["REQ-033 (FUN)<br/>Sound effects with an off switch"]:::funAi
-    ResetProgress["#ResetProgress"]:::featAi
-    REQ-034["REQ-034 (FUN)<br/>Reset all progress"]:::funAi
+    Settings["#Settings"]:::featLock
+    SettingsMenu["#SettingsMenu"]:::featLock
+    REQ-032["REQ-032 (UI)<br/>Settings from the top bar"]:::ui
+    SoundToggle["#SoundToggle"]:::featLock
+    REQ-033["REQ-033 (FUN)<br/>Sound effects with an off switch"]:::fun
+    ResetProgress["#ResetProgress"]:::featLock
+    REQ-034["REQ-034 (FUN)<br/>Reset all progress"]:::fun
+    Language["#Language"]:::featLock
+    REQ-047["REQ-047 (FUN)<br/>Finnish and English"]:::fun
   end
   Settings --> SettingsMenu
   SettingsMenu --> REQ-032
@@ -21,6 +23,8 @@ flowchart LR
   SoundToggle --> REQ-033
   Settings --> ResetProgress
   ResetProgress --> REQ-034
+  Settings --> Language
+  Language --> REQ-047
   classDef feat fill:#1f6feb,color:#fff,stroke:#1f6feb
   classDef featIdea fill:#dbe4f3,color:#24292f,stroke:#1f6feb,stroke-dasharray: 4 3
   classDef featSpec fill:#0d5c2f,color:#fff,stroke:#0d5c2f

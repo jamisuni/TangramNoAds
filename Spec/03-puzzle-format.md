@@ -1,6 +1,6 @@
 # 03 · Puzzle file format `tangram-puzzle/1`
 
-**Status:** draft 0.3. Reference code: `tools/tangram_geom.py`. Validator: `tools/validate_puzzles.py`. JSON Schema: `../Tangrams/puzzle.schema.json`. Puzzles: `../Tangrams/*.json`. Review sheets: `../Tangrams/previews/`.
+**Status:** draft 0.4 (round 6: `kind` field, V12, V11 informational, V7 removed). Reference code: `tools/tangram_geom.py`. Validator: `tools/validate_puzzles.py`. JSON Schema: `../Tangrams/puzzle.schema.json`. Puzzles: `../Tangrams/*.json`. Review sheets: `../Tangrams/previews/`.
 
 The format is made for **safe AI authoring**. Coordinates are exact, shapes are readable polygons, every rule is machine-checked, and a human signs off on how the puzzle looks.
 
@@ -18,6 +18,7 @@ The format is made for **safe AI authoring**. Coordinates are exact, shapes are 
   "title": { "en": "Cat", "fi": "Kissa" },
   "category": "animals",
   "difficulty": 2,
+  "kind": "full",
   "solution": [
     {"piece": "LT1", "polygon": [[0, 6], [4, 6], [2, 4]]},
     {"piece": "LT2", "polygon": [[4, 6], [4, 2], [2, 4]]},
@@ -43,11 +44,11 @@ The format is made for **safe AI authoring**. Coordinates are exact, shapes are 
 |---|---|---|
 | `format` | yes | `"tangram-puzzle/1"` |
 | `id` | yes | Unique kebab-case `<category>-<name>`, equal to the file name. Never reused (saved progress is keyed on it). |
-| `title` | yes | Translations; `en` is mandatory, `fi` is expected. |
+| `title` | yes | Translations; `en` and `fi` are both mandatory (V8): the game speaks both (REQ-047). |
 | `category` | yes | `shapes`, `animals`, `people`, `things`, `vehicles`, `nature`, `letters`, `numbers` |
-| `difficulty` | yes | 1–5. Sets the ‹ › order (easy first) and the dots in the top bar. |
-| `mini` | no | `true` marks a **mini puzzle**: a small test / first-success puzzle that uses 1–6 of the pieces. The tray then shows only those pieces. |
-| `solution` | yes | **All 7 pieces** (1–6 when `mini` is `true`). Each entry: `piece` plus `polygon` (preferred) **or** `rot` 0–7 + `flip` + `at`. It is used to draw the silhouette and to find the outline corners (lock anchors). **It is not the only accepted answer:** any exact cover wins. |
+| `difficulty` | yes | 1–5. The dots in the top bar; the ‹ › order within a kind (easy first). |
+| `kind` | no (default `full`) | `mini`: a small first-success / test puzzle that uses 1–6 pieces; the tray shows only those. `warmup`: all seven pieces, and at least half of every piece's outline lies on the silhouette edge (V12). `full`: all seven pieces. The list order is kind (mini, warmup, full), then difficulty, then id (REQ-040). |
+| `solution` | yes | **All 7 pieces** (1–6 when `kind` is `mini`). Each entry: `piece` plus `polygon` (preferred) **or** `rot` 0–7 + `flip` + `at`. It is used to draw the silhouette and to find the outline corners (lock anchors). **It is not the only accepted answer:** any exact cover wins. |
 | `art` | yes | The solved picture: `base` colour plus `shapes` drawn in order, clipped to the silhouette. |
 | `provenance` | no | `author` = `human:<name>` or `ai:<model>`; `reviewedByHuman` must be `true` to ship. |
 
@@ -84,18 +85,19 @@ World vertex = R(rot·45°) · F(flip) · local + at, where F mirrors x.
 | V4 | No overlaps. |
 | V5 | Connected through shared edges (corner-only joins are errors). |
 | V6 | Area = the sum of the pieces (16). |
-| V7 | (optional) `assist.preplacedOrder` is consistent. Legacy from draft 0.1. |
-| V8 | `title.en` exists. |
-| V9 | All seven pieces are used, unless `mini` is `true` (then 1–6 distinct pieces). |
+| V7 | Removed in round 6 (it checked a draft-0.1 field). The id stays unused. |
+| V8 | `title.en` and `title.fi` exist. |
+| V9 | `kind` is `mini`, `warmup` or `full`; `full` and `warmup` use all seven pieces, `mini` 1–6 distinct pieces. |
 | V10 | `art` is present and well formed (base colour, known shape types, `#RRGGBB` colours, strokes on lines and paths). |
-| V11 | **Buildable edge-first:** there is an order in which every piece has a corner on an outline corner or on a corner of an earlier piece. Figures that need a piece floating in the middle are rejected. |
+| V11 | **Build order (information only):** the order in which every piece locks on an outline corner or on a corner of an earlier piece. Every valid tangram has one: the uncovered region always has a convex corner, that corner is always an anchor (an outline corner or a placed piece's vertex), and the piece covering it must have a vertex there. The line is printed for authors; it never fails a puzzle that passed V3–V6. (Round 2 believed it rejected the classic square; round 6 corrected that.) |
+| V12 | **Warm-up measure:** a `warmup` puzzle exposes at least half of every piece's outline on the silhouette edge (REQ-041). |
 
 ## 5. Authoring workflow (human or AI)
 1. Sketch the figure on the grid (whole numbers when pieces use 0/90/180/270° turns; `[a, b]` values when 45° turns are needed).
-2. Write the `solution` polygons, then run `python tools/validate_puzzles.py Tangrams` (it prints the edge-first build order, or the pieces that can never lock).
+2. Write the `solution` polygons and set `kind`, then run `python tools/validate_puzzles.py Tangrams` (it prints the build order; a warm-up also has to pass V12).
 3. Write the `art` layer (simple shapes inside the outline).
 4. Run `python tools/render_puzzle.py Tangrams Tangrams/previews` and **look at the sheet**: silhouette | pieces | picture. Is the silhouette recognisable without inner lines? Does the picture read well?
-5. Run `python tools/build_prototype.py` and solve it in the prototype on Easy, and at least one puzzle on Hard.
+5. Run `python tools/build_prototype.py` and solve it in the prototype (the DEV reveal, REQ-046, shows the stored solution).
 6. A human sets `reviewedByHuman: true`.
 
 AI agent rules: never set `reviewedByHuman` yourself; always re-run the validator and look at the preview after any change.

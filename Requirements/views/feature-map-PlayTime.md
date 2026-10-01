@@ -7,14 +7,14 @@ Feature tree (from features.md) with attached REQs. Dashed red = inferred REQ; t
 ```mermaid
 flowchart LR
   subgraph sg_PlayTime ["#PlayTime — Play time"]
-    PlayTime["#PlayTime"]:::featAi
-    REQ-005["REQ-005 (BIZ)<br/>Play-time tracking"]:::bizAi
-    ActiveTime["#ActiveTime"]:::featAi
-    REQ-029["REQ-029 (FUN)<br/>Active play time: today and total"]:::funAi
-    PuzzleTime["#PuzzleTime"]:::featAi
-    REQ-030["REQ-030 (FUN)<br/>Puzzle solve time and best time"]:::funAi
-    TimerDisplay["#TimerDisplay"]:::featAi
-    REQ-031["REQ-031 (UI)<br/>Timer on screen"]:::uiAi
+    PlayTime["#PlayTime"]:::featLock
+    REQ-005["REQ-005 (BIZ)<br/>Play-time tracking"]:::biz
+    ActiveTime["#ActiveTime"]:::featLock
+    REQ-029["REQ-029 (FUN)<br/>Active play time: today and total"]:::fun
+    PuzzleTime["#PuzzleTime"]:::featLock
+    REQ-030["REQ-030 (FUN)<br/>Puzzle solve time and best time"]:::fun
+    TimerDisplay["#TimerDisplay"]:::featLock
+    REQ-031["REQ-031 (UI)<br/>Timer on screen"]:::ui
   end
   PlayTime --> REQ-005
   PlayTime --> ActiveTime

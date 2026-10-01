@@ -160,7 +160,7 @@ def lock_rules_svg():
         (x1, y1) = T((5, 2))
         out.append(f'<path d="M{x1},{y1+14} C{x1},{y1+45} {x1+14},{y1+62} {x1+26},{y1+74}" fill="none" stroke="#E8505B" stroke-width="3" marker-end="url(#arr)"/>')
         out.append(f'<text x="{x1+14}" y="{y1+96}" font-size="14" font-weight="700" fill="#E8505B">back to tray</text>')
-    panel(760, 116, "3 · Nothing to hold on to", ["The square dropped first, in the", "middle: none of its corners is near", "an anchor, so it goes home.", "Not supported on purpose: puzzles", "are built edge-first (rule V11)."], d3)
+    panel(760, 116, "3 · Nothing to hold on to", ["The square dropped first, in the", "middle: none of its corners is near", "an anchor, so it goes home.", "No hidden anchors, on purpose. Start", "at a corner; every puzzle can be built", "corner by corner (see Tangrams/README)."], d3)
 
     def d4(T, poly):
         for pid in ("LT1", "LT2", "ST1"):
@@ -183,7 +183,7 @@ def main():
 
         # 1 phone play, mid-drag with landing preview
         def s1(pg):
-            pg.evaluate("settings.diff='easy'; __reset('animals-cat'); __place(['LT1','LT2','SQ'])")
+            pg.evaluate("__reset('animals-cat'); __place(['LT1','LT2','SQ'])")
             for _ in range(8):  # turn the medium triangle in the tray until it matches its place
                 if pg.evaluate("(()=>{const pc=pieces.find(p=>p.id==='MT'); const s=P.slots.find(q=>q.piece==='MT'); const c=avg(s.poly); return verts(pc.type,pc.k,pc.f,c[0],c[1]).every(v=>s.poly.some(q=>Math.abs(q[0]-v[0])<1e-6&&Math.abs(q[1]-v[1])<1e-6))})()"):
                     break
@@ -200,31 +200,31 @@ def main():
         fr = [{"img": img, "vp": vp, "x": 90, "y": 110, "scale": 0.95}]
         R = 90 + 390 * 0.95 + 40
         co = [(0, pts["prev"], (R + 20, 130), "‹ previous puzzle", "start"),
-              (0, pts["title"], (R + 20, 170), "Name, difficulty dots, number, state\n(in progress / solved ✓)", "start"),
-              (0, pts["next"], (R + 20, 230), "› next puzzle: also the way to skip", "start"),
-              (0, pts["gear"], (R + 20, 270), "⚙ settings: difficulty, timer, sound, stats", "start"),
+              (0, pts["title"], (R + 20, 170), "Name, difficulty dots, number, state\n(in progress / solved ✓). Press it: a grid\nof every puzzle (REQ-050)", "start"),
+              (0, pts["next"], (R + 20, 230), "› next puzzle: also the way to skip; the list wraps.\nHold it: jump to the next unsolved puzzle", "start"),
+              (0, pts["gear"], (R + 20, 270), "⚙ settings: timer, sound, play time, privacy", "start"),
               (0, pts["restart"], (R + 20, 330), "Restart (shown while a puzzle is in progress)", "start"),
-              (0, pts["slot"], (R + 20, 420), "Landing preview (Easy/Medium): where the piece\nwill lock if released now. It shows a VALID spot,\nnot the correct one; there are no hidden slots.", "start"),
+              (0, pts["slot"], (R + 20, 420), "Landing preview: where the piece will lock if\nreleased now. It shows a VALID spot, not the\ncorrect one; there are no hidden slots.", "start"),
               (0, pts["piece"], (R + 20, 520), "Dragged piece at full size, floating above the finger.\nTap = turn 45°. Hold it and twist a second finger\n= turn in 45° steps.", "start"),
-              (0, pts["lt"], (R + 20, 700), "Tray: same order (big → small), resting turn and colours\nin every puzzle; mini puzzles show only their pieces.\nS / M / L marks the triangle size; ↺ ↻ turn a piece\nbefore you drag it. Phone: 2 rows. Placed pieces\nleave a dashed ghost.", "start")]
+              (0, pts["lt"], (R + 20, 700), "Tray: same order (big → small), resting turn and colours\nin every puzzle; mini puzzles show only their pieces.\nS / M / L marks the triangle size; tap a piece to turn\nit before you drag it. Phone: 2 rows. Placed pieces\nleave a dashed ghost.", "start")]
         sheets.append(sheet("01-phone-play", 1100, 1000, "Phone · Play screen (portrait)",
-                            "Cat, Easy. Three pieces placed; the medium triangle is being dragged. Silhouette only, no inner lines.", fr, co))
+                            "Cat. Three pieces placed; the medium triangle is being dragged. Silhouette only, no inner lines.", fr, co))
 
         # 2 tablet landscape, hard, flip badge + timer
         def s2(pg):
-            pg.evaluate("settings.diff='hard'; __reset('things-arrow'); __place(['LT1','LT2','MT']); prog().time = 83; updateChrome()")
-            return {"flip": pg.evaluate("(()=>{const c=document.querySelector('#layerTop [aria-label^=Flip] circle').getBoundingClientRect(); return [c.x+c.width/2, c.y+c.height/2]})()"),
+            pg.evaluate("settings.timer='on'; __reset('things-arrow'); __place(['LT1','LT2','MT']); prog().time = 83; updateChrome()")
+            return {"flip": pg.evaluate("(()=>{const c=document.querySelector('#layerTop [role=button] circle').getBoundingClientRect(); return [c.x+c.width/2, c.y+c.height/2]})()"),
                     "timer": pg.evaluate("__rect('#timer')")[:2], "tray": pg.evaluate("__cell('SQ')")}
         img, pts, vp = shot(b, TB, s2)
         fr = [{"img": img, "vp": vp, "x": 60, "y": 150, "scale": 0.82}]
-        co = [(0, pts["timer"], (1150, 118), "Timer shown on Hard (setting: Hard only / Always / Never)", "end"),
-              (0, pts["flip"], (1150, 950), "Hard: flip the parallelogram yourself (⇋ badge, 60 dp touch area)", "end"),
+        co = [(0, pts["timer"], (1150, 118), "Timer on screen (setting: off by default / on)", "end"),
+              (0, pts["flip"], (1150, 950), "⇋ badge mirrors the parallelogram, always shown (60 dp touch area)", "end"),
               (0, pts["tray"], (60, 985), "Tablet: ONE wide tray row in the same fixed order; the board takes the full width", "start")]
-        sheets.append(sheet("02-tablet-play", 1180, 1010, "Tablet · Play screen (landscape)", "Arrow, Hard. Three pieces placed.", fr, co))
+        sheets.append(sheet("02-tablet-play", 1180, 1010, "Tablet · Play screen (landscape)", "Arrow, timer on. Three pieces placed.", fr, co))
 
         # 3 layouts: same state on three devices
         def s3(pg):
-            pg.evaluate("settings.diff='medium'; __reset('things-house'); __place(['LT1','PG','ST2'])")
+            pg.evaluate("__reset('things-house'); __place(['LT1','PG','ST2'])")
         frames, x = [], 60
         for vp_, sc, lab in ((PH, 0.72, "Phone portrait · 390×844"), (TP, 0.48, "Tablet portrait · 800×1280"), (TB, 0.48, "Tablet landscape · 1280×800")):
             img, _, vp = shot(b, vp_, s3)
@@ -240,7 +240,7 @@ def main():
                 ("__reset('vehicles-sailboat')", "New", "empty silhouette, full tray"),
                 ("__reset('vehicles-sailboat'); __place(['LT1','LT2','MT','PG']); prog().time=95", "In progress (came back later)", "pieces kept, Restart offered, time continues"),
                 ("__reset('vehicles-sailboat'); prog().status='solved'; prog().best=141; build()", "Solved", "only the picture: no piece lines; Retry / Next"))):
-            img, _, vp = shot(b, PH, lambda pg, s=setup: pg.evaluate("settings.diff='medium';" + s))
+            img, _, vp = shot(b, PH, lambda pg, s=setup: pg.evaluate(s))
             frames.append({"img": img, "vp": vp, "x": 60 + i * 420, "y": 110, "scale": 0.8, "label": lab, "sublabel": sub})
         sheets.append(sheet("04-browse-states", 1320, 900, "Browsing with ‹ ›: each puzzle remembers its state",
                             "Sailboat in its three states. Leaving a puzzle never loses work; › can always skip ahead.", frames, []))
@@ -249,9 +249,9 @@ def main():
         frames = []
         seq = (("__reset('things-house'); __place(['LT1','LT2','MT','ST1','ST2','PG','SQ'])", 0, "1 · Last piece locks", "colourful pieces, click, confetti"),
                ("__reset('things-house'); prog().status='solved'; prog().best=74; build()", 0, "2 · The picture appears", "same outline, stylised art (from the puzzle file)"),
-               ("__reset('things-house'); prog().status='solved'; prog().best=74; build(); stats.day=today(); stats.today=1260; stats.total=5400; openSettings()", 0, "3 · Settings: play time", "active time only, kept on the device; absolutely free"))
+               ("__reset('things-house'); prog().status='solved'; prog().best=74; build(); stats.day=today(); stats.today=1260; stats.total=5400; openSettings()", 0, "3 · Settings: play time", "active time only, kept on the device; free note and privacy text"))
         for i, (setup, _, lab, sub) in enumerate(seq):
-            img, _, vp = shot(b, PH, lambda pg, s=setup: pg.evaluate("settings.diff='medium';" + s))
+            img, _, vp = shot(b, PH, lambda pg, s=setup: pg.evaluate(s))
             frames.append({"img": img, "vp": vp, "x": 60 + i * 420, "y": 110, "scale": 0.8, "label": lab, "sublabel": sub})
         sheets.append(sheet("06-solve-and-playtime", 1320, 900, "Solving: pieces → picture, and play time",
                             "House. The picture is the puzzle's 'art' layer clipped to the silhouette. Play time is tracked on the device only.", frames, []))

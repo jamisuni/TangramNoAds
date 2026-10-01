@@ -7,38 +7,40 @@ Feature tree (from features.md) with attached REQs. Dashed red = inferred REQ; t
 ```mermaid
 flowchart LR
   subgraph sg_Solving ["#Solving — Solving a puzzle"]
-    Solving["#Solving"]:::featAi
-    REQ-002["REQ-002 (BIZ)<br/>Classic tangram for school-age players"]:::bizAi
-    Board["#Board"]:::featAi
-    REQ-011["REQ-011 (FUN)<br/>Empty silhouette board"]:::funAi
-    Tray["#Tray"]:::featAi
-    REQ-012["REQ-012 (FUN)<br/>The puzzle's pieces in a fixed tray"]:::funAi
-    REQ-013["REQ-013 (UI)<br/>Tray miniatures share one scale"]:::uiAi
-    SizeMarks["#SizeMarks"]:::featAi
-    REQ-043["REQ-043 (UI)<br/>Size marks on the tray triangles"]:::uiAi
-    Drag["#Drag"]:::featAi
-    REQ-014["REQ-014 (FUN)<br/>Drag and drop a piece"]:::funAi
-    REQ-015["REQ-015 (FUN)<br/>Tap or drag, and touch areas"]:::funAi
-    Turning["#Turning"]:::featAi
-    TapTurn["#TapTurn"]:::featAi
-    REQ-016["REQ-016 (FUN)<br/>Tap to turn 45°"]:::funAi
-    TwistTurn["#TwistTurn"]:::featAi
-    REQ-017["REQ-017 (FUN)<br/>Two-finger twist in 45° steps"]:::funAi
-    TurnButtons["#TurnButtons"]:::featAi
-    REQ-044["REQ-044 (UI)<br/>Turn buttons in the tray"]:::uiAi
-    Flip["#Flip"]:::featAi
-    REQ-018["REQ-018 (FUN)<br/>Mirror the parallelogram"]:::funAi
-    Locking["#Locking"]:::featAi
-    AnchorLock["#AnchorLock"]:::featAi
-    REQ-019["REQ-019 (FUN)<br/>Lock to corners and neighbours"]:::funAi
-    GoHome["#GoHome"]:::featAi
-    REQ-020["REQ-020 (FUN)<br/>Missed drop returns to the tray"]:::funAi
-    LandingPreview["#LandingPreview"]:::featAi
-    REQ-021["REQ-021 (UI)<br/>Landing preview"]:::uiAi
-    SolvedCheck["#SolvedCheck"]:::featAi
-    REQ-022["REQ-022 (FUN)<br/>Any exact cover solves the puzzle"]:::funAi
-    SolvedPicture["#SolvedPicture"]:::featAi
-    REQ-023["REQ-023 (FUN)<br/>Solved picture"]:::funAi
+    Solving["#Solving"]:::featLock
+    REQ-002["REQ-002 (BIZ)<br/>Classic tangram for school-age players"]:::biz
+    Board["#Board"]:::featLock
+    REQ-011["REQ-011 (FUN)<br/>Empty silhouette board"]:::fun
+    Tray["#Tray"]:::featLock
+    REQ-012["REQ-012 (FUN)<br/>The puzzle's pieces in a fixed tray"]:::fun
+    REQ-013["REQ-013 (UI)<br/>Tray miniatures share one scale"]:::ui
+    SizeMarks["#SizeMarks"]:::featLock
+    REQ-043["REQ-043 (UI)<br/>Size marks on the tray triangles"]:::ui
+    Drag["#Drag"]:::featLock
+    REQ-014["REQ-014 (FUN)<br/>Drag and drop a piece"]:::fun
+    REQ-015["REQ-015 (FUN)<br/>Tap or drag, and touch areas"]:::fun
+    Turning["#Turning"]:::featLock
+    TapTurn["#TapTurn"]:::featLock
+    REQ-016["REQ-016 (FUN)<br/>Tap to turn 45°"]:::fun
+    TwistTurn["#TwistTurn"]:::featLock
+    REQ-017["REQ-017 (FUN)<br/>Two-finger twist in 45° steps"]:::fun
+    TurnButtons["#TurnButtons"]:::featLock
+    REQ-044["REQ-044 (UI)<br/>Turn buttons in the tray"]:::withdrawn
+    Flip["#Flip"]:::featLock
+    REQ-018["REQ-018 (FUN)<br/>Mirror the parallelogram"]:::fun
+    Locking["#Locking"]:::featLock
+    AnchorLock["#AnchorLock"]:::featLock
+    REQ-019["REQ-019 (FUN)<br/>Lock to corners and neighbours"]:::fun
+    GoHome["#GoHome"]:::featLock
+    REQ-020["REQ-020 (FUN)<br/>Missed drop returns to the tray"]:::fun
+    LandingPreview["#LandingPreview"]:::featLock
+    REQ-021["REQ-021 (UI)<br/>Landing preview"]:::ui
+    CornerTeach["#CornerTeach"]:::featLock
+    REQ-051["REQ-051 (UI)<br/>The corners pulse once in a mini puzzle"]:::ui
+    SolvedCheck["#SolvedCheck"]:::featLock
+    REQ-022["REQ-022 (FUN)<br/>Any exact cover solves the puzzle"]:::fun
+    SolvedPicture["#SolvedPicture"]:::featLock
+    REQ-023["REQ-023 (FUN)<br/>Solved picture"]:::fun
   end
   Solving --> REQ-002
   Solving --> Board
@@ -67,6 +69,8 @@ flowchart LR
   GoHome --> REQ-020
   Locking --> LandingPreview
   LandingPreview --> REQ-021
+  Locking --> CornerTeach
+  CornerTeach --> REQ-051
   Solving --> SolvedCheck
   SolvedCheck --> REQ-022
   Solving --> SolvedPicture
@@ -86,6 +90,7 @@ flowchart LR
   REQ-023 -.->|realizes| REQ-002
   REQ-043 -.->|realizes| REQ-012
   REQ-044 -.->|realizes| REQ-002
+  REQ-051 -.->|realizes| REQ-020
   classDef feat fill:#1f6feb,color:#fff,stroke:#1f6feb
   classDef featIdea fill:#dbe4f3,color:#24292f,stroke:#1f6feb,stroke-dasharray: 4 3
   classDef featSpec fill:#0d5c2f,color:#fff,stroke:#0d5c2f

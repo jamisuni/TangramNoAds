@@ -1,15 +1,15 @@
 # TangramNoAds
 
-A classic 7-piece **Tangram for players aged 8 and up** on Android phones and tablets. The controls are easy and the puzzles are honestly challenging. **Enjoy, it's absolutely free:** no ads, no purchases, no donations, no network.
+A classic 7-piece **Tangram for players aged 8 and up** on Android phones and tablets, in Finnish and English. The controls are easy and the puzzles are honestly challenging. Store name: **"Tangram, absolutely free"**: no ads, no purchases, no donations, no network.
 
-> Status: study and prototype phase (prototype 0.5, 2026-09-27, round 5). Where things stand and what comes next: **`STATUS.md`**. The spec will later move into SwReqCollector. Technology choices are parked.
+> Status: requirements capture with a playable prototype (prototype 0.6, 2026-09-28, round 6). Where things stand and what comes next: **`STATUS.md`**. The requirements live in `Requirements/` (SwReqCollector format). Technology choices are parked.
 
 ## Try it
 Open **`Spec/prototype/tangram-prototype.html`** in a browser, ideally on a phone and a tablet.
 - Drag pieces onto the silhouette. A piece locks to the shape's corners or to pieces already placed, or goes back to the tray.
-- **Tap** to turn 45°, or use the **↺ ↻** buttons in a tray cell. S / M / L on the triangles tells their size. **Hold a piece and twist a second finger** to turn in 45° steps. On a computer, use the mouse wheel or **R** while dragging.
+- **Tap** a piece to turn it 45°, in the tray or on the board. S / M / L on the triangles tells their size. **Hold a piece and twist a second finger** to turn in 45° steps. The **⇋** badge mirrors the parallelogram. On a computer, use the mouse wheel or **R** while dragging.
 - Stuck, or checking that a puzzle works? The dashed **DEV** button on the board (passcode 0417) shows the solution. Testing aid only.
-- **‹ ›** to browse and skip. ⚙ for Easy / Medium / Hard, timer, sound and play-time stats.
+- **‹ ›** to browse and skip (the list wraps). **Hold ›** to jump to the next unsolved puzzle; press the **counter** in the top bar for a grid of all puzzles. ⚙ for the timer, sound, play-time stats, the free note and the privacy text. The page is in Finnish when the browser is.
 
 ## Folder map
 | Path | What |
@@ -22,7 +22,7 @@ Open **`Spec/prototype/tangram-prototype.html`** in a browser, ideally on a phon
 | `Study/archive/` | Draft 0.1 spec, drawings and tools; removed puzzles |
 | `Spec/00–05` | Vision, gameplay, UI layout, puzzle format, requirements, open questions |
 | `Spec/ui/` | Annotated screenshots of the prototype plus the locking diagram |
-| `Tangrams/` | The puzzle library: 12 puzzles (2 mini 3-piece, 4 warm-ups, 5 figures, 1 rectangle), JSON Schema, review sheets |
+| `Tangrams/` | The puzzle library: 13 puzzles (2 mini 3-piece, 4 warm-ups, 5 figures, the rectangle and the classic square), JSON Schema, review sheets |
 | `Requirements/` | The requirement collection in SwReqCollector format (ai-led capture) |
 | `Spec/prototype/` | The playable prototype (generated) |
 | `tools/` | Geometry reference, validator, preview renderer, prototype builder, UI sheet generator |
@@ -33,7 +33,7 @@ Open **`Spec/prototype/tangram-prototype.html`** in a browser, ideally on a phon
 
 ## Tools
 ```bash
-python tools/validate_puzzles.py Tangrams                      # rules V1–V11 + build order, exit 1 on failure (no dependencies)
+python tools/validate_puzzles.py Tangrams                      # rules V1–V6, V8–V10, V12 + the V11 build order, exit 1 on failure (no dependencies)
 python tools/render_puzzle.py Tangrams Tangrams/previews   # silhouette | pieces | picture sheets (SVG)
 python tools/build_prototype.py                                    # rebuild the HTML prototype
 python tools/make_ui_sheets.py                                     # Spec/ui/*.png from the prototype (needs Playwright + Chromium)

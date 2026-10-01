@@ -7,6 +7,7 @@
   },
   "category": "shapes",
   "difficulty": 1,
+  "kind": "warmup",
   "solution": [
     {"piece": "LT1", "polygon": [[0, 0], [4, 0], [2, 2]]},
     {"piece": "LT2", "polygon": [[5, 5], [1, 5], [3, 3]]},

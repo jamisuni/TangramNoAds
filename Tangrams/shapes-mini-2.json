@@ -4,7 +4,7 @@
   "title": {"en": "Mini: Window", "fi": "Mini: Ikkuna"},
   "category": "shapes",
   "difficulty": 1,
-  "mini": true,
+  "kind": "mini",
   "solution": [
     {"piece": "MT", "polygon": [[0, 0], [2, 0], [0, 2]]},
     {"piece": "ST1", "polygon": [[2, 0], [2, 2], [1, 1]]},

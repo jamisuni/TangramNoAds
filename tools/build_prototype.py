@@ -4,9 +4,10 @@ Build the clickable HTML prototype from the puzzle files.
 
     python tools/build_prototype.py   -> Spec/prototype/tangram-prototype.html
 
-The prototype embeds every puzzle in Tangrams (float coordinates + the exact
-rot/flip of each slot computed by tangram_geom.placement_from_polygon, and the
-silhouette's outline corners, which are the only fixed lock anchors).
+The prototype embeds every puzzle in Tangrams (both titles, the kind, float
+coordinates + the exact rot/flip of each slot computed by
+tangram_geom.placement_from_polygon, and the silhouette's outline corners,
+which are the only fixed lock anchors), sorted by kind, rating, id (REQ-040).
 """
 import json
 import sys
@@ -20,8 +21,12 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def main():
-    files = sorted((f for f in (ROOT / "Tangrams").glob("*.json") if not f.name.endswith(".schema.json")),
-                   key=lambda p: (json.loads(p.read_text(encoding="utf-8"))["difficulty"], p.stem))
+    KIND_ORDER = {"mini": 0, "warmup": 1, "full": 2}   # REQ-040: kind, then rating, then id
+
+    def sort_key(path):
+        pz = json.loads(path.read_text(encoding="utf-8"))
+        return (KIND_ORDER.get(pz.get("kind", "full"), 9), pz["difficulty"], path.stem)
+    files = sorted((f for f in (ROOT / "Tangrams").glob("*.json") if not f.name.endswith(".schema.json")), key=sort_key)
     data = []
     for f in files:
         pz = json.loads(f.read_text(encoding="utf-8"))
@@ -34,7 +39,7 @@ def main():
             slots.append({"piece": pid, "type": PIECE_SET[pid], "rot": rot, "flip": flip,
                           "poly": [[round(x, 10), round(y, 10)] for x, y in to_float(poly)]})
         corners = [[round(float(x), 10), round(float(y), 10)] for x, y in outline_corners(load_solution(pz, []))]
-        data.append({"id": pz["id"], "title": pz["title"]["en"], "slots": slots, "corners": corners,
+        data.append({"id": pz["id"], "title": pz["title"], "kind": pz.get("kind", "full"), "slots": slots, "corners": corners,
                      "difficulty": pz["difficulty"], "art": pz["art"]})
     tpl = (Path(__file__).parent / "prototype_template.html").read_text(encoding="utf-8")
     out = ROOT / "Spec" / "prototype" / "tangram-prototype.html"
