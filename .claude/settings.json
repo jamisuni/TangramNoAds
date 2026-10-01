@@ -1,0 +1,101 @@
+{
+  "_comment": "SWDev: place this file at <project>/.claude/settings.json (create the .claude folder; merge if one exists). Permission stance: the PROJECT tree is fully editable without prompts (acceptEdits + allow Edit/Write ./**), the FRAMEWORK is readable without prompts (additionalDirectories + allow Read) and mechanically NON-editable (deny beats everything; //c/... = C:\\...). Common build commands are pre-approved in 'allow' — extend that list for your stack rather than answering prompts one by one. Git is mechanically DENIED: version control is the human owner's job, done by hand if at all; agents never init/commit. Hooks wired: the PreToolUse guard (denies edits to locked-tier governed Contract files and hard-stop paths per .swdev/guard.json, logs contract-delta events for notify-tier edits — still blocks regardless of acceptEdits), the Bash auto-approver (silently allows safe project-local commands, incl. copies FROM the framework INTO the project, so they never prompt; anything else falls back to normal prompts), the telemetry hook (logs subagent launches / skill invocations / completions / session starts to .swdev/log/telemetry.jsonl — never blocks), and the Stop reminder (progress.md discipline). If the framework lives elsewhere than C:/GitHub/AI/SWDev, update ALL paths. Requires python on PATH.",
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [
+      "C:/GitHub/AI/SWDev"
+    ],
+    "allow": [
+      "Edit(./**)",
+      "Write(./**)",
+      "Read(//c/GitHub/AI/SWDev/**)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(dotnet:*)",
+      "Bash(dart:*)",
+      "Bash(flutter:*)",
+      "Bash(npm:*)",
+      "Bash(mkdir:*)",
+      "Bash(dir:*)",
+      "Bash(ls:*)",
+      "Bash(copy:*)",
+      "Bash(cp:*)"
+    ],
+    "deny": [
+      "Edit(//c/GitHub/AI/SWDev/**)",
+      "Write(//c/GitHub/AI/SWDev/**)",
+      "Bash(git:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/GitHub/AI/SWDev/adapters/claude/hooks/swdev_guard.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Task|Agent|Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/GitHub/AI/SWDev/adapters/claude/hooks/swdev_telemetry.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/GitHub/AI/SWDev/adapters/claude/hooks/swdev_bash_approve.py\""
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/GitHub/AI/SWDev/adapters/claude/hooks/swdev_telemetry.py\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/GitHub/AI/SWDev/adapters/claude/hooks/swdev_telemetry.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/GitHub/AI/SWDev/adapters/claude/hooks/swdev_session_end.py\""
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/GitHub/AI/SWDev/adapters/claude/hooks/swdev_telemetry.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

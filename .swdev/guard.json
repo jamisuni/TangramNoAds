@@ -1,0 +1,22 @@
+{
+  "_comment": "SWDev guard config for TangramNoAds (intake path C, SWDev v0.15). Read by the PreToolUse guard hook and by trace-check. The spec is the SwReqCollector collection in Requirements/ — every locked REQ of every level is Contract, so the locked REQ files, the feature tree and the types are denied to the build side from day one (a change is a DEF/CHG on the capture side). architecture.md and Contracts/** are added to 'locked' at G2 when they exist. Baseline: run trace_check.py --freeze at G1 acceptance (human action). Never govern Requirements/views/** (regenerated), sources.md, evidence/ or requirements.md (change-log and DEF rows grow on the capture side).",
+  "spec_dir": "Requirements",
+  "spec_format": "swreq-v2",
+  "swreq_tools": "C:/GitHub/AI/SwReqCollector/tools",
+  "contract_paths": {
+    "locked": [
+      "Requirements/reqs/*.md",
+      "Requirements/features.md",
+      "Requirements/req_types.md"
+    ],
+    "notify": [
+      "build-map.md"
+    ]
+  },
+  "_at_G2_add_to_locked": ["architecture.md", "Contracts/**", "Tangrams/puzzle.schema.json"],
+  "hard_stop_paths": [],
+  "_example_hard_stop_paths_for_this_project": ["**/AndroidManifest.xml", "**/network/**", "**/migrations/**"],
+  "unlocked": [],
+  "test_globs": ["src/**/tests/**", "src/**/*test*.*", "src/**/*Test*.*"],
+  "_comment_test_globs": "Product tests only. tools/tests/test_prototype.py are the PROTOTYPE's browser tests (design input DI-1), not acceptance tests — deliberately not scanned."
+}

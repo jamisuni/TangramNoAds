@@ -1,6 +1,6 @@
 # STATUS: where TangramNoAds stands
 
-**Updated:** 2026-10-01 (owner sign-off) · **Phase:** requirements **locked**; prototype playable; technology parked.
+**Updated:** 2026-10-01 (owner sign-off; adopted under SWDev) · **Phase:** requirements **locked**; prototype playable; technology parked; **build side scaffolded under SWDev v0.15** (intake path C — `AGENTS.md` § "Build under SWDev"), G1 acceptance pending.
 
 ## Snapshot
 | What | State |
@@ -35,8 +35,11 @@
 2. **One open question** in `Requirements/requirements.md` §5: which developer account publishes (a personal Play account created after 13 Nov 2023 needs a 12-tester, 14-day closed test; F-Droid has no such rule). The Finnish store title was settled by the lock.
 3. **Content toward 20 reviewed puzzles** (REQ-042): about seven more full puzzles over the four themes, warm-up pictures worth seeing (N6 in the review), and Jami's review of each (`reviewedByHuman`, with the DEV reveal).
 4. **Priorities:** the lock is done (2026-10-01); priorities are still `none`. Jami sets them if the build needs an order. The agent never does this.
-5. **Technology:** open the parked topic (Android stack, how the prototype's logic carries over, the store account and channel).
+5. **Technology:** ~~open the parked topic~~ **decided 2026-10-01: Kotlin + Jetpack Compose (native), the prototype's logic ported, conditional on building on Jami's computer** (`governance.md` §2). Still open: the store account and channel (§5 open question in `Requirements/requirements.md`).
 6. Republish the prototype artifact from 0.6 if the web link is still wanted.
+
+## Under SWDev (2026-10-01)
+Adopted via SWDev **intake path C**: `Requirements/` *is* the build spec (every locked level is Contract; SWDev reads the format natively, `trace_check.py`: 51 REQs, 47 locked, 37 build units). Build-side files beside the collection: `architecture.md` (placeholder), `build-map.md` (code homes per subtree, TBD until the stack is chosen), `design-inputs.md` (prototype, UI sheets, puzzle pipeline + Contract-delta), `tasks.md`, `progress.md`, `proposals.md`, `.swdev/guard.json`, `.claude/`. **Governance profile in force (ai-mastered, `governance.md` v0.2); stack decided: Kotlin + Jetpack Compose, native, if it builds on Jami's computer.** Next, in a Claude Code terminal session: **`KICKOFF.md`** (toolchain checklist + copy-paste prompt) → fresh-eyes review → "Accept collection v1.1 for TangramNoAds (G1)?" → freeze → P2 (architecture, ADR-001 = the stack, code homes) → WO-001 #Locking with the G3 toolchain proof first.
 
 ## Ready for a separate build framework?
 Closer than after round 5. A build agent pointed at this folder finds: the requirements with sources (now including language, store obligations and the overview), one lock parameter set with its scoring written down (TYPE-004), the puzzle format with a validator and exact geometry, 13 puzzles, the layout rules, a working reference prototype in two languages and its tests. What is **not** ready:
