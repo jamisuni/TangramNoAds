@@ -7,3 +7,6 @@
 {"ts": "2026-10-02T06:34:07", "hook": "guard", "event": "contract-delta", "path": "build-map.md", "pattern": "build-map.md", "tool": "Edit"}
 {"ts": "2026-10-02T06:34:09", "hook": "guard", "event": "contract-delta", "path": "build-map.md", "pattern": "build-map.md", "tool": "Edit"}
 {"ts": "2026-10-02T07:28:43", "hook": "guard", "event": "contract-delta", "path": "kernel\\src\\main\\kotlin\\io\\github\\jamisuni\\tangram\\kernel\\model\\PieceShapes.kt", "pattern": "kernel/src/main/kotlin/io/github/jamisuni/tangram/kernel/model/*", "tool": "Write"}
+{"ts": "2026-10-02T18:43:50", "hook": "guard", "event": "contract-delta", "path": "build-map.md", "pattern": "build-map.md", "tool": "Edit"}
+{"ts": "2026-10-02T18:43:51", "hook": "guard", "event": "contract-delta", "path": "build-map.md", "pattern": "build-map.md", "tool": "Edit"}
+{"ts": "2026-10-02T18:43:52", "hook": "guard", "event": "contract-delta", "path": "build-map.md", "pattern": "build-map.md", "tool": "Edit"}

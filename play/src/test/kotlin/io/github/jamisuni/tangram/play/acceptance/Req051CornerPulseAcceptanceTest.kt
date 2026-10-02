@@ -83,9 +83,9 @@ class Req051CornerPulseAcceptanceTest {
         assertEquals(Fixtures.MINI_2_OUTLINE_CORNERS, cornersOf(third))
     }
 
-    // REQ-051.A1 / DA-4 — only a missed drop over the board pulses; a drop on the tray or outside goes home silently.
+    // decision DA-4 (decisions.md), not mandated by REQ-051: only a missed drop over the board pulses; a drop on the tray or outside goes home silently.
     @Test
-    fun a1_aDropOnTheTrayOrOutsideTheBoardGoesHomeWithoutAPulse() {
+    fun decisionDa4_aDropOnTheTrayOrOutsideTheBoardGoesHomeWithoutAPulse() {
         // DA-4: "only when the missed drop was over the board (a drop on the tray or outside the board goes home
         // without a pulse)". Same release as the first test, but off the board.
         val resolver = DropResolver(Fixtures.MINI_2)

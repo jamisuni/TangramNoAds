@@ -18,10 +18,10 @@
 
 | #Tag | Code home | Build status | Cross-feature deps (via I*) | Notes |
 |---|---|---|---|---|
-| (kernel) | `kernel` | Planned | — | TYPE-001 piece set, TYPE-003 turns, exact geometry (ADR-003), TYPE-004 lock search, TYPE-005 active second, TYPE-006 transitions, TYPE-007 layout class — implemented once (D1, O-01, O-07) |
-| #Promise | — | Planned | — | REQ-001, 008, 009, 010: verified at app / release level (G-01, V-01); REQ-009's note is rendered by `settings`. WO-006 (REQ-009 in WO-007) |
+| (kernel) | `kernel` | Partly built (WO-001: exact geometry, TYPE-001/003 shapes, outline corners, TYPE-004 lock search; TYPE-005/006/007 later) | — | TYPE-001 piece set, TYPE-003 turns, exact geometry (ADR-003), TYPE-004 lock search, TYPE-005 active second, TYPE-006 transitions, TYPE-007 layout class — implemented once (D1, O-01, O-07) |
+| #Promise | — | Partly built (WO-001: release manifest without permissions or backup, V-01 blocking) | — | REQ-001, 008, 009, 010: verified at app / release level (G-01, V-01); REQ-009's note is rendered by `settings`. WO-006 (REQ-009 in WO-007) |
 | #Solving | `play` | Planned | #Content (IPuzzleLibrary), #Browsing (IProgressStore: saved pieces) | the play leaves inherit; REQ-002 verifies at slice level. WO-003 |
-| #Locking | `play` | Planned | — | REQ-019/020/021/051; the search itself is kernel (TYPE-004, O-01). **WO-001** |
+| #Locking | `play` | Built at engine/state level (WO-001, 2026-10-02); on-screen parts + REQ-020 A2 in WO-003 | — | REQ-019/020/021/051; the search itself is kernel (TYPE-004, O-01). **WO-001** |
 | #Turning | `play` | Planned | — | REQ-016/017/018 + TYPE-003; #TurnButtons is withdrawn-only. WO-003 |
 | #Browsing | `browse` | Planned | #Content (IPuzzleLibrary), #Solving (IProgressStore) | REQ-003, 024–026, 050; brings `store` (IProgressStore) with it. WO-004 |
 | #PlayTime | `time` | Planned | #Browsing (IProgressStore: puzzle and play times) | REQ-005, 029–031 + TYPE-005. WO-008 |

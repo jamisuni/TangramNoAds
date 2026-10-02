@@ -200,3 +200,37 @@
 {"ts": "2026-10-02T07:51:05", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
 {"ts": "2026-10-02T07:51:18", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
 {"ts": "2026-10-02T07:51:38", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:20:41", "hook": "telemetry", "event": "SessionStart", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:22:21", "hook": "telemetry", "event": "agent-launch", "session": "9c42d4d4-...", "agent": "slice-implementer", "model": "sonnet", "desc": "TASK-006 DropResolver", "prompt_chars": 3364}
+{"ts": "2026-10-02T18:22:53", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:23:04", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:23:55", "hook": "telemetry", "event": "agent-launch", "session": "9c42d4d4-...", "agent": "code-reviewer", "model": "inherit", "desc": "WO-001 independent code review", "prompt_chars": 5260}
+{"ts": "2026-10-02T18:24:26", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:24:57", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:25:28", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:25:59", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:26:31", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:27:02", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:27:33", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:28:04", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:28:35", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:29:24", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:30:19", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:30:31", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:30:43", "hook": "telemetry", "event": "agent-launch", "session": "9c42d4d4-...", "agent": "test-verify", "model": "inherit", "desc": "WO-001 Test & Verify (held-out)", "prompt_chars": 3734}
+{"ts": "2026-10-02T18:31:04", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:31:38", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:32:14", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:32:16", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:32:20", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:32:27", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:35:37", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:39:36", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:39:53", "hook": "telemetry", "event": "agent-launch", "session": "9c42d4d4-...", "agent": "traceability-auditor", "model": "inherit", "desc": "WO-001 traceability audit", "prompt_chars": 2441}
+{"ts": "2026-10-02T18:40:26", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:42:30", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:42:36", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:45:16", "hook": "telemetry", "event": "agent-launch", "session": "9c42d4d4-...", "agent": "design-author", "model": "inherit", "desc": "WO-002 design: puzzle library", "prompt_chars": 4758}
+{"ts": "2026-10-02T18:45:47", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:46:18", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}
+{"ts": "2026-10-02T18:47:49", "hook": "telemetry", "event": "SubagentStop", "session": "9c42d4d4-..."}

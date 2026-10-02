@@ -1,6 +1,6 @@
 # STATUS: where TangramNoAds stands
 
-**Updated:** 2026-10-01 (owner sign-off; adopted under SWDev) · **Phase:** requirements **locked**; prototype playable; technology parked; **build side scaffolded under SWDev v0.15** (intake path C — `AGENTS.md` § "Build under SWDev"), G1 acceptance pending.
+**Updated:** 2026-10-02 (WO-001 closed) · **Phase:** requirements **locked** and accepted for the build (G1, Jami 2026-10-02); architecture locked (G2, `architecture.md` v1.0); **Kotlin + Compose build under SWDev — WO-001 #Locking closed**, WO-002 #Content next (`build-map.md` §2).
 
 ## Snapshot
 | What | State |
@@ -11,6 +11,16 @@
 | Tests | `tools/tests/test_prototype.py`: all 13 puzzles solve on phone 390×844 and tablets 1280×800 / 800×1280; tray, tap, twist, wrap, long-press jump, grid, Finnish, load check, mini-puzzle pulse, settings, DEV aid. All pass (2026-09-28) |
 | Owner use so far | Web browser with a mouse (rounds 4–6). **No phone or tablet playtest yet** |
 | Review | The agent's concept review (2026-09-28) was accepted as a whole in round 6; its accepted proposals are listed in `Requirements/evidence/src-011-conversation-round6.md` |
+
+## Build progress (SWDev, 2026-10-02)
+| What | State |
+|---|---|
+| G1 | collection v1.1 incl. `req_types.md` v0.2 accepted by Jami; fresh-eyes review `req_review_01.md` (38 findings, all triaged; capture-side actions CA-1…CA-4 waiting) |
+| Toolchain | Android Studio JBR 25, SDK 37, Gradle 9.8.0, AGP 9.4.1, Kotlin 2.4.20 — `.\gradlew.bat assembleDebug test` green on Jami's computer |
+| Architecture | `architecture.md` v1.0 (G-01…G-10, ADR-001…006), modules per code home; `IPuzzleLibrary` locked, `IProgressStore` notify |
+| WO-001 #Locking | **closed**: exact geometry kernel + TYPE-004 lock search + drop resolution (engine/state level); 116 kernel tests, 46 acceptance tests (15 held-out, all passed on first run); release manifest has no permissions and no backup |
+| Reference fix | `tools/tangram_geom.outline_corners` now counts 180° pinch points as corners (DA-7): `shapes-warmup-4` gained the anchor (2,2); prototype rebuilt, its tests ALL PASS |
+| Nothing playable on a phone yet | the first playable debug APK is WO-003 |
 
 ## Round history
 | Round | When | What Jami said (evidence) | What changed |

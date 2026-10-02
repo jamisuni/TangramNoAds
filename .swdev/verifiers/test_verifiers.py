@@ -28,13 +28,11 @@ class TestV01ReleaseManifest(unittest.TestCase):
         """V-01 should fail when uses-permission is present."""
         manifest = self.fixtures_dir / "manifest_uses_permission.xml"
 
-        # Create a temporary resource directory with the extraction rules
         with tempfile.TemporaryDirectory() as tmpdir:
             res_dir = Path(tmpdir) / "res"
             xml_dir = res_dir / "xml"
             xml_dir.mkdir(parents=True)
 
-            # Import and test
             from v01_release_manifest import check_manifest
             result = check_manifest(str(manifest), str(res_dir))
             self.assertFalse(result, "V-01 should fail with uses-permission")
@@ -48,7 +46,6 @@ class TestV01ReleaseManifest(unittest.TestCase):
             xml_dir = res_dir / "xml"
             xml_dir.mkdir(parents=True)
 
-            # Use a dummy extraction rules file
             rules_file = xml_dir / "data_extraction_rules.xml"
             rules_file.write_text("""<?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
@@ -89,7 +86,6 @@ class TestV01ReleaseManifest(unittest.TestCase):
             xml_dir = res_dir / "xml"
             xml_dir.mkdir(parents=True)
 
-            # Create the extraction rules (will pass the rules check)
             rules_file = xml_dir / "data_extraction_rules.xml"
             rules_file.write_text("""<?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
@@ -141,7 +137,6 @@ class TestV01ReleaseManifest(unittest.TestCase):
             xml_dir = res_dir / "xml"
             xml_dir.mkdir(parents=True)
 
-            # Copy the incomplete extraction rules
             incomplete_rules = self.fixtures_dir / "data_extraction_rules_incomplete.xml"
             shutil.copy(incomplete_rules, xml_dir / "data_extraction_rules.xml")
 
@@ -158,7 +153,6 @@ class TestV01ReleaseManifest(unittest.TestCase):
             xml_dir = res_dir / "xml"
             xml_dir.mkdir(parents=True)
 
-            # Create valid extraction rules
             rules_file = xml_dir / "data_extraction_rules.xml"
             rules_file.write_text("""<?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
@@ -199,7 +193,6 @@ class TestV01ReleaseManifest(unittest.TestCase):
             xml_dir = res_dir / "xml"
             xml_dir.mkdir(parents=True)
 
-            # Create valid extraction rules
             rules_file = xml_dir / "data_extraction_rules.xml"
             rules_file.write_text("""<?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
@@ -244,7 +237,6 @@ class TestV05StringParity(unittest.TestCase):
 
     def test_v05_fails_with_missing_fi_key(self):
         """V-05 should fail when a key is missing in values-fi."""
-        # The test_module has key2 in values/ but not in values-fi/
         from v05_string_parity import check_module
 
         result = check_module(self.test_module)
@@ -265,7 +257,6 @@ class TestV05StringParity(unittest.TestCase):
             module_path = Path(tmpdir)
             res_path = module_path / "src" / "main" / "res"
 
-            # Create matching strings without translatable="false"
             for lang_dir in ["values", "values-fi"]:
                 (res_path / lang_dir).mkdir(parents=True)
                 strings_file = res_path / lang_dir / "strings.xml"
@@ -279,6 +270,13 @@ class TestV05StringParity(unittest.TestCase):
             result = check_module(module_path)
             self.assertTrue(result, "V-05 should ignore translatable=false strings")
 
+    def test_v05_fails_with_malformed_xml(self):
+        """V-05 should fail when an XML file is malformed."""
+        from v05_string_parity import check_module
+
+        result = check_module(self.test_module)
+        self.assertFalse(result, "V-05 should fail with malformed XML")
+
 
 class TestV06ModuleDeps(unittest.TestCase):
     """Tests for V-06 verifier."""
@@ -288,7 +286,6 @@ class TestV06ModuleDeps(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
 
-            # Create play module with invalid dependency
             play_dir = project_root / "play"
             play_dir.mkdir()
             (play_dir / "build.gradle.kts").write_text("""plugins {
@@ -313,7 +310,6 @@ dependencies {
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
 
-            # Create play (depends on kernel, contracts)
             play_dir = project_root / "play"
             play_dir.mkdir()
             (play_dir / "build.gradle.kts").write_text("""plugins {
@@ -337,7 +333,6 @@ dependencies {
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
 
-            # Create play with test-scope content dependency
             play_dir = project_root / "play"
             play_dir.mkdir()
             (play_dir / "build.gradle.kts").write_text("""plugins {
@@ -353,10 +348,81 @@ dependencies {
             from v06_module_deps import check_module_dependencies, ALLOWED_DEPS
 
             build_file = project_root / "play" / "build.gradle.kts"
-            # For test scope, we check main scope only, so testImplementation should be ignored
             result = check_module_dependencies("play", build_file, ALLOWED_DEPS)
 
             self.assertTrue(result, "V-06 should pass allowing test-scope content")
+
+    def test_v06_fails_with_projects_accessor(self):
+        """V-06 should fail on projects.x accessor in main scope."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+
+            play_dir = project_root / "play"
+            play_dir.mkdir()
+            (play_dir / "build.gradle.kts").write_text("""plugins {
+    id("com.android.library")
+}
+dependencies {
+    implementation(project(":kernel"))
+    implementation(project(":contracts"))
+    implementation(projects.browse)
+}
+""")
+
+            from v06_module_deps import check_module_dependencies, ALLOWED_DEPS
+
+            build_file = project_root / "play" / "build.gradle.kts"
+            result = check_module_dependencies("play", build_file, ALLOWED_DEPS)
+
+            self.assertFalse(result, "V-06 should fail with projects.x accessor")
+
+    def test_v06_fails_with_project_path_format(self):
+        """V-06 should fail on project(path = ':x') format in main scope."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+
+            play_dir = project_root / "play"
+            play_dir.mkdir()
+            (play_dir / "build.gradle.kts").write_text("""plugins {
+    id("com.android.library")
+}
+dependencies {
+    implementation(project(":kernel"))
+    implementation(project(":contracts"))
+    api(project(path = ":browse"))
+}
+""")
+
+            from v06_module_deps import check_module_dependencies, ALLOWED_DEPS
+
+            build_file = project_root / "play" / "build.gradle.kts"
+            result = check_module_dependencies("play", build_file, ALLOWED_DEPS)
+
+            self.assertFalse(result, "V-06 should fail with project(path = ':x') format")
+
+    def test_v06_allows_test_scope_projects_accessor(self):
+        """V-06 should allow testImplementation(projects.content) in test scope."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+
+            play_dir = project_root / "play"
+            play_dir.mkdir()
+            (play_dir / "build.gradle.kts").write_text("""plugins {
+    id("com.android.library")
+}
+dependencies {
+    implementation(project(":kernel"))
+    implementation(project(":contracts"))
+    testImplementation(projects.content)
+}
+""")
+
+            from v06_module_deps import check_module_dependencies, ALLOWED_DEPS
+
+            build_file = project_root / "play" / "build.gradle.kts"
+            result = check_module_dependencies("play", build_file, ALLOWED_DEPS)
+
+            self.assertTrue(result, "V-06 should allow testImplementation(projects.x) in test scope")
 
 
 if __name__ == "__main__":

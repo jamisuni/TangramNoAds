@@ -1,0 +1,44 @@
+> Task :contracts:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :kernel:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :kernel:processResources NO-SOURCE
+> Task :contracts:processResources NO-SOURCE
+> Task :play:preBuild UP-TO-DATE
+> Task :play:preDebugBuild UP-TO-DATE
+> Task :play:generateDebugResources
+> Task :play:packageDebugResources
+> Task :play:processDebugNavigationResources
+> Task :play:preDebugUnitTestBuild UP-TO-DATE
+> Task :play:javaPreCompileDebugUnitTest
+> Task :play:javaPreCompileDebug
+> Task :play:parseDebugLocalResources
+> Task :play:generateDebugRFile
+> Task :play:generateDebugUnitTestStubRFile
+> Task :kernel:compileKotlin
+> Task :kernel:compileJava NO-SOURCE
+> Task :kernel:classes UP-TO-DATE
+> Task :kernel:jar
+> Task :contracts:compileKotlin
+> Task :contracts:compileJava NO-SOURCE
+> Task :contracts:classes UP-TO-DATE
+> Task :contracts:jar
+> Task :play:compileDebugKotlin
+> Task :play:compileDebugJavaWithJavac NO-SOURCE
+> Task :play:bundleLibCompileToJarDebug
+> Task :play:bundleLibRuntimeToJarDebug
+> Task :play:processDebugJavaRes
+> Task :play:compileDebugUnitTestKotlin
+> Task :play:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :play:processDebugUnitTestJavaRes
+> Task :play:testDebugUnitTest
+
+[Incubating] Problems report is available at: file:///C:/GitHub/AI/TangramNoAds/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 3s
+19 actionable tasks: 19 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.0/userguide/configuration_cache_enabling.html

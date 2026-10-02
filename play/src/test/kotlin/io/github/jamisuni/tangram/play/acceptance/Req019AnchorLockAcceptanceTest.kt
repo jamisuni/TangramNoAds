@@ -170,9 +170,9 @@ class Req019AnchorLockAcceptanceTest {
         assertLockedExactly(square.release(towardsX, board, DP_PER_UNIT_R_1_5), towardsX, pt(1, 3), "distance decides")
     }
 
-    // REQ-019.A1 (decisions.md DA-1: equal score -> smaller |t| -> reading order of the position, y then x)
+    // decision DA-1 (decisions.md), not mandated by REQ-019: equal score -> smaller |t| -> reading order of the position, y then x
     @Test
-    fun a1_equalScoreAndDistanceAreBrokenByReadingOrderOfThePosition() {
+    fun decisionDa1_equalScoreAndDistanceAreBrokenByReadingOrderOfThePosition() {
         // Each release is exactly 1.0 (or 0.707) from two valid positions with the same number of anchored corners,
         // so score and |t| are equal; DA-1 picks the position that comes first in reading order (y, then x).
         // R = 1.5 so both positions are in reach. Empty 4x4 square unless noted.

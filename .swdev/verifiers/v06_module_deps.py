@@ -49,6 +49,7 @@ def parse_build_gradle(build_file):
     """
     Parse build.gradle.kts and extract project() dependencies in main scope.
     Returns a set of module names.
+    Raises exception if unparseable project references are found in main scope.
     """
     if not build_file.exists():
         return set()
@@ -91,18 +92,30 @@ def parse_build_gradle(build_file):
         if not config.startswith("test") and not config.startswith("androidTest"):
             dependencies.add(module)
 
-    # Also check for invalid patterns
-    # Look for project( with other accessor patterns
-    invalid_patterns = [
-        r'projects\.\w+',  # projects.x
-        r'project\s*\(\s*path\s*=',  # project(path = ...)
-    ]
+    # Check for unparseable project references: projects.x or project(path=...) in main scope
+    # Fail closed: if we see these patterns in main-scope configs, it's an error
+    main_scope_configs = r'(implementation|api|debugImplementation|releaseImplementation|runtimeOnly|compileOnly)'
 
-    for pattern in invalid_patterns:
-        if re.search(pattern, content):
-            # This is a malformed dependency declaration
-            # We'll let the detailed check handle it
-            pass
+    # Find all main-scope dependency blocks
+    main_dep_pattern = main_scope_configs + r'\s*\(\s*([^)]+)\s*\)'
+
+    for match in re.finditer(main_dep_pattern, content):
+        config = match.group(1)
+        dep_content = match.group(2)
+
+        # Skip test scope
+        if config.startswith("test") or config.startswith("androidTest"):
+            continue
+
+        # Check for projects.x accessor
+        if re.search(r'projects\s*\.\s*\w+', dep_content):
+            print(f"V-06 FAIL unparseable dependency format: {config}({dep_content.strip()}) - use project(\":module\") format")
+            return None  # Signal error
+
+        # Check for project(path = ":x") format
+        if re.search(r'project\s*\(\s*path\s*=', dep_content):
+            print(f"V-06 FAIL unparseable dependency format: {config}({dep_content.strip()}) - use project(\":module\") format")
+            return None  # Signal error
 
     return dependencies
 
@@ -113,6 +126,10 @@ def check_module_dependencies(module_name, build_file, allowed_deps):
     Returns True if valid, False otherwise.
     """
     deps = parse_build_gradle(build_file)
+
+    # None indicates a parsing error was already printed
+    if deps is None:
+        return False
 
     if module_name not in allowed_deps:
         print(f"V-06 FAIL unknown module: {module_name}")

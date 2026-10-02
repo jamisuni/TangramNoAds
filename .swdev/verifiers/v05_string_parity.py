@@ -13,8 +13,9 @@ from collections import defaultdict
 
 def collect_string_keys(res_dir, lang):
     """
-    Collect string/plurals/string-array keys from values*/ (lang="en") or values-fi/ (lang="fi").
+    Collect string/plurals/string-array keys from all XML files in values*/ (lang="en") or values-fi/ (lang="fi").
     Returns a set of (tag, name) tuples, skipping translatable="false".
+    Raises exception if any XML file cannot be parsed.
     """
     keys = set()
 
@@ -34,29 +35,31 @@ def collect_string_keys(res_dir, lang):
     values_dirs = [d for d in res_path.iterdir() if d.is_dir() and d.name == dir_pattern]
 
     for values_dir in values_dirs:
-        strings_file = values_dir / "strings.xml"
-        if not strings_file.exists():
-            continue
+        # Find all XML files in the directory
+        xml_files = sorted(values_dir.glob("*.xml"))
 
-        try:
-            tree = ET.parse(strings_file)
-            root = tree.getroot()
+        for xml_file in xml_files:
+            try:
+                tree = ET.parse(xml_file)
+                root = tree.getroot()
 
-            # Look for string, plurals, and string-array elements
-            for elem in root:
-                tag = elem.tag
-                if tag in ("string", "plurals", "string-array"):
-                    name = elem.get("name")
-                    translatable = elem.get("translatable", "true")
+                # Look for string, plurals, and string-array elements
+                for elem in root:
+                    tag = elem.tag
+                    if tag in ("string", "plurals", "string-array"):
+                        name = elem.get("name")
+                        translatable = elem.get("translatable", "true")
 
-                    # Skip if translatable="false"
-                    if translatable == "false":
-                        continue
+                        # Skip if translatable="false"
+                        if translatable == "false":
+                            continue
 
-                    if name:
-                        keys.add((tag, name))
-        except Exception:
-            pass
+                        if name:
+                            keys.add((tag, name))
+            except ET.ParseError as e:
+                raise ValueError(f"Parse error in {xml_file}: {e}")
+            except Exception as e:
+                raise ValueError(f"Error reading {xml_file}: {e}")
 
     return keys
 
@@ -64,7 +67,7 @@ def collect_string_keys(res_dir, lang):
 def check_module(module_path):
     """
     Check a module for string parity.
-    Returns True if all keys match, False if there's a mismatch.
+    Returns True if all keys match, False if there's a mismatch or parse error.
     """
     # Find all res directories in the module (e.g., src/main/res, src/debug/res, etc.)
     res_dirs = list(Path(module_path).glob("src/*/res"))
@@ -76,8 +79,13 @@ def check_module(module_path):
     has_error = False
 
     for res_dir in res_dirs:
-        en_keys = collect_string_keys(res_dir, "en")
-        fi_keys = collect_string_keys(res_dir, "fi")
+        try:
+            en_keys = collect_string_keys(res_dir, "en")
+            fi_keys = collect_string_keys(res_dir, "fi")
+        except ValueError as e:
+            print(f"V-05 FAIL {e}")
+            has_error = True
+            continue
 
         # Both empty is OK (no strings defined)
         if not en_keys and not fi_keys:

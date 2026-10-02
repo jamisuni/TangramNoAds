@@ -1,6 +1,6 @@
 # Tasks — TangramNoAds
 
-**Status:** Current (P3, WO-001 plan approved)  ·  **Version:** 0.5  ·  **Last updated:** 2026-10-02
+**Status:** Current (WO-001 closed)  ·  **Version:** 0.5  ·  **Last updated:** 2026-10-02
 
 > Each task links back to the requirement(s) it implements via REQ IDs, so the
 > traceability chain `REQ → task → code → test` stays intact. Do not invent
@@ -14,6 +14,8 @@
 
 ## WO-001 — #Locking  (REQ-019 A1–A4, REQ-020 A1, REQ-021 A1–A2, REQ-051 A1–A2 at engine/state level · design `designs/WO-001-design.md`)
 
+**WO-001 closed 2026-10-02** — all tasks done; held-out 15/15; trace GREEN for the WO scope (`workorders/WO-001.md`).
+
 | Task ID | Description (design §) | Serves | Depends on | Done-check (self-check run by the implementer) | Status |
 |---|---|---|---|---|---|
 | TASK-T | **Acceptance Test Author** (independent, fresh context): visible tests for 6 IDs in `play/src/test/kotlin/…/play/acceptance/`; held-out tests for 3 IDs in `.swdev/heldout/WO-001/` (outside every scanned tree until Test & Verify) | REQ-019 A1–A4, REQ-020 A1, REQ-021 A1–A2, REQ-051 A1–A2 | frozen design seams (design review spot-check: forward) | handoff lists IDs per file; never compiled before TASK-006 | done 2026-10-02 (visible 31 tests: REQ-019 A1, A3 · REQ-020 A1 · REQ-021 A2 · REQ-051 A1, A2; held-out 15 tests: REQ-019 A2, A4 · REQ-021 A1 — isolation checked by orchestrator) |
@@ -25,7 +27,7 @@
 | TASK-003b | Kotlin golden tests: the golden reader (test helper, owned here), freshness, shapes, the 80 transforms, per-file poses and areas (§8) | G-03 | TASK-002, TASK-003a | `:kernel:test` green | done 2026-10-02 (10 golden tests, Kotlin = Python everywhere; 73 kernel tests; re-run by orchestrator) |
 | TASK-004 | `Silhouette` with exact outline corners by the sector rule (incl. the mask predicate `isOutlineCornerMask` and its tests) + corner goldens on every puzzle file + `shapes-warmup-4` (2,2) pin test (§5) | enabler: anchor set, pulse corners | TASK-003b | `:kernel:test` green | done 2026-10-02 (18 tests; exact corners = golden on 13 files, (2,2) pinned; 91 kernel tests; re-run by orchestrator) |
 | TASK-005b | `LockSearch` / `Fit` (`lockDistance`, `find`: candidates by exact `at`, validity via `ConvexClip`, score, window stop, tie-break DA-1, own corners excluded) + kernel tests: margin test (board (iii) widened to one-piece boards at every valid non-solution position — design review spot-check Note), round trip on every puzzle file (§6, §8) | enabler: TYPE-004 (REQ-019's engine; its acceptance tests run at TASK-006) | TASK-004, TASK-005a | `:kernel:test` green | done 2026-10-02 (116 kernel tests; round trip on 13 files; margin: smallest nonzero area 1.2627e-3, nothing in (1e-9, 1e-4); re-run by orchestrator) |
-| TASK-006 | `DropResolver` in `play` (`preview`, `release`), `DragPose`, `DropOutcome`, `CornerPulse` (§7); make TASK-T's visible acceptance tests pass without editing them | REQ-019 A1–A4, REQ-020 A1, REQ-021 A1–A2, REQ-051 A1–A2 | TASK-005b, TASK-T (visible tests) | `.\gradlew.bat assembleDebug test` green (all modules) | todo |
+| TASK-006 | `DropResolver` in `play` (`preview`, `release`), `DragPose`, `DropOutcome`, `CornerPulse` (§7); make TASK-T's visible acceptance tests pass without editing them | REQ-019 A1–A4, REQ-020 A1, REQ-021 A1–A2, REQ-051 A1–A2 | TASK-005b, TASK-T (visible tests) | `.\gradlew.bat assembleDebug test` green (all modules) | done 2026-10-02 (31 visible acceptance tests pass unedited — 6 IDs: REQ-019 A1, A3 · REQ-020 A1 · REQ-021 A2 · REQ-051 A1, A2; the 3 held-out IDs run at Test & Verify; re-run by orchestrator) |
 | TASK-007 [P] | G-01 manifest hardening (`tools:node="remove"` stanzas, startup provider stanza, `allowBackup="false"`, `data_extraction_rules.xml` with all nine domains) + verifiers V-01 (`--manifest`, `--res-dir`), V-05, V-06 + `test_verifiers.py` self-test (§9, §10). Touches no build file | G-01 (the REQ-010 side of #Promise), G-05, G-06 | TASK-000 | `python -m unittest discover -s .swdev/verifiers -p test_verifiers.py` green; V-01, V-05, V-06 green on the real tree; `.\gradlew.bat :app:assembleDebug :app:lintRelease` green | done 2026-10-02 (haiku audition PASSED; 13 self-tests, V-01/05/06 PASS on the real tree, forced lintRelease green — re-run by orchestrator) |
 
 **Order.** 000 → 001 → 002 → 005a → 003b → 004 → 005b → 006 (the kernel tasks

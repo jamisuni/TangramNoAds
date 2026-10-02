@@ -127,13 +127,8 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
 
 ### Current phase
 
-`P3/P4 — WO-001 #Locking` (2026-10-02). Done: G1 accepted by Jami
-(collection v1.1 incl. `req_types.md` v0.2), G3 toolchain proof passed on
-Jami's computer, P2 locked (`architecture.md` v1.0, G2 under governance row 4,
-review `reviews/P2-architecture-review-01.md`), contract baseline frozen (68
-files). WO-001 in P4 (paused 2026-10-02 07:46 at Jami's request): tasks
-000–005a/007 done; TASK-005b + acceptance tests (TASK-T) were finishing; next
-TASK-006, then code review → Test & Verify → trace audit → close + checkpoint 1
-(`workorders/WO-001.md`, `tasks.md`, `progress.md` "Resume"). Then the WO
-sequence in `build-map.md` §2 without waiting, unless Jami says stop.
-Update this line as phases advance.
+`P3 — WO-002 #Content` (2026-10-02). Done: G1 (Jami), G3 toolchain proof, P2/G2
+(`architecture.md` v1.0), **WO-001 #Locking closed** (engine + drop resolution,
+116 kernel + 46 acceptance tests, held-out 15/15; checkpoint 1 surfaced). Next:
+WO-002 #Content (`build-map.md` §2), then the sequence without waiting, unless
+Jami says stop. Update this line as phases advance.

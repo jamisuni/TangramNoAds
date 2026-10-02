@@ -182,3 +182,27 @@ locked REQ, WO by WO in build-map order, without waiting (KICKOFF step 8).
   `.swdev/heldout/WO-001/`) and TASK-005b done (116 kernel tests green, round trip on all 13
   puzzles, margin 1.26e-3). All agents finished — **all quiet**. Next session starts with
   TASK-006 (`play.DropResolver`, must pass the visible acceptance tests unedited).
+
+## 2026-10-02 18:21 — resume after the shutdown
+
+**Human (verbatim):**
+
+> plz continue
+
+**What was done (summary):**
+
+- Session-start checks: SWDev v0.15 = AGENTS.md (no drift); the shell now sees JAVA_HOME /
+  ANDROID_HOME (new process); the session scratchpad (Playwright venv) survived;
+  `:kernel:test` 116 green.
+- WO-001 continues at TASK-006 (`play.DropResolver`), then code review, Test & Verify
+  (held-out), traceability audit, close + checkpoint 1.
+- TASK-006 done (DropResolver; 31 visible acceptance tests pass unedited). Code review
+  (fresh): 0 B / 2 S / 7 N, no product-code defect → V-06/V-05 fail-closed (17 self-tests),
+  two decision-asserting tests re-tagged (DA-1, DA-4). Test & Verify: held-out first run
+  15/15 PASS, 46 play + 116 kernel tests, rule-10 ALL PASS. Traceability audit GREEN for the
+  WO scope (orchestrator corrected the auditor's counts: 43 out-of-scope REQs).
+- **WO-001 closed** (`workorders/WO-001.md`: DoD 14/14, metrics, 2 notify deltas, 0 waivers,
+  0 held-out failures). STATUS.md, build-map.md status, tasks.md, AGENTS.md phase updated.
+  2 corrected-check entries filed in proposals.md.
+- **Checkpoint 1** surfaced to Jami (REQs satisfied, decisions.md, deltas, build state, VC
+  snapshot prompt). Continued without waiting: WO-002 #Content opened, Design Author running.

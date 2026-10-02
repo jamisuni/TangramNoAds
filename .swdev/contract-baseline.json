@@ -1,4 +1,8 @@
 {
+  "delta_refrozen": {
+    "build-map.md": "2026-10-02T18:43:52",
+    "kernel/src/main/kotlin/io/github/jamisuni/tangram/kernel/model/PieceShapes.kt": "2026-10-02T07:28:43"
+  },
   "files": {
     "Requirements/features.md": "fab60e5a4cd539a3f317415e457591bfe579cacc3d7ab6284981ad0ea32259b9",
     "Requirements/req_types.md": "7a4073563f7fa70dd41ba5a4067abd6f9aafaf37bbbe2dd65843241944e59ae3",
@@ -61,12 +65,13 @@
     "adr/ADR-005-saved-state-document.md": "76ccfbcc3315c6ce962909048c12f67b3c55dcffe83229936b3c5b8e17f36310",
     "adr/ADR-006-devtools-debug-only.md": "145a52873b1120c4206d90ee984689d54a5f5832abad519b0f2ba41ffb99640a",
     "architecture.md": "5ac89340a7dac55d7cc27d7e72d47a9ba1616575ecea892e8a3bba4b5d8b0731",
-    "build-map.md": "3b42fb3d27703516afe49d5fbab3ac487ec13cecd2a9d950892b09e7821806c9",
+    "build-map.md": "3bc39f1137d85a28c7e42db4b2f12613711396a5bbe9910a42fc6cfafebb2bfe",
     "contracts/src/main/kotlin/io/github/jamisuni/tangram/contracts/progress/IProgressStore.kt": "0353e36e00150418e0597c09e0129fb6f5248931c648198016f399c2391f742c",
     "contracts/src/main/kotlin/io/github/jamisuni/tangram/contracts/progress/SavedGame.kt": "cbc6e11e6861bf2dafb590a6f92eaf1fbc48141a8bd1a936e29c661a37be73f5",
     "contracts/src/main/kotlin/io/github/jamisuni/tangram/contracts/puzzle/IPuzzleLibrary.kt": "4c4f4f3a94eff00e5846dc05dcd356627681b5e977d546e8d9fd7267078d5ab2",
     "contracts/src/main/kotlin/io/github/jamisuni/tangram/contracts/puzzle/Puzzle.kt": "5c95522486847cc441b486975e2be6b0b50c7bc8718ed55b6474e1e398f75ef8",
     "kernel/src/main/kotlin/io/github/jamisuni/tangram/kernel/model/Exact.kt": "6f8df91b50ee1e83a45d79236c4f162bc50a7987fbde280376a99eb849173dfc",
+    "kernel/src/main/kotlin/io/github/jamisuni/tangram/kernel/model/PieceShapes.kt": "3e7c2b2e93b57f8e7a74179bea2305e4c68f741fc1a6c236fd72857723f45062",
     "kernel/src/main/kotlin/io/github/jamisuni/tangram/kernel/model/Pieces.kt": "5dcf22723406a626ea4412f9b46ffb9076b1e82444bb19c542457b67acb6ab74"
   },
   "frozen": "2026-10-02"

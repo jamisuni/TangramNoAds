@@ -72,3 +72,15 @@ from starvation.
 - **Context:** the orchestrator rewrote `build-map.md` (notify tier) with a Python script via Bash. The PreToolUse guard matches only Edit/Write/MultiEdit/NotebookEdit, so no `contract-delta` was logged and trace-check (correctly) reported drift; the fresh-eyes spot-check caught it. A locked-tier file could be changed the same way without a deny. Also: Windows Python writes CRLF in text mode, silently converting LF files.
 - **Proposal:** (a) the guard (or the Bash approver) flags Bash commands whose arguments name a `contract_paths` file, at least logging them; (b) trace-check's drift message could say "edited outside the guard? re-do the edit with Edit/Write or record the delta"; (c) adapter CLAUDE.md: "contract-path files are edited only with Edit/Write". Codified in this project as an AGENTS.md duty line.
 - **Severity:** medium
+
+## 2026-10-02 — Corrected check (WO-001): decision-asserting tests carried REQ tokens
+
+- **Context:** the Acceptance Test Author tagged two tests with `REQ-019.A1` / `REQ-051.A1` that assert AI design decisions (DA-1 tie-break, DA-4 pulse only over the board) — readings the REQs do not mandate. The code reviewer caught it (WO-001 code review F2); the tests were re-tagged `decisionDa1_…` / `decisionDa4_…` with a `// decision DA-n` comment. Miscalibration: "assert only what is mandated" was applied to assertions but not to the *token*, so traceability over-claimed REQ coverage.
+- **Proposal:** traceability-rules §2: a test that pins a logged AI decision (decisions.md) carries a decision reference (e.g. `DEC:DA-1`), never a `REQ-NNN.An` token; the Acceptance Test Author brief template says so; trace-check could list decision-tagged tests separately so the owner sees which behaviour rests on AI readings.
+- **Severity:** medium
+
+## 2026-10-02 — Corrected check (WO-001): a verifier that could not fail on alternate syntax
+
+- **Context:** V-06 (module-dependency guardrail) passed `implementation(projects.browse)` and `api(project(path = ":browse"))` — its self-test proved it could fail only on the `project(":x")` spelling. Found by the code reviewer (F1) with a scratch project; fixed fail-closed + 4 new self-tests. Same class in V-05 (XML parse errors swallowed).
+- **Proposal:** guardrail-authoring.md § Verifiers: a verifier's self-test must cover every syntax the checked language allows for the construct (or the verifier fails closed on anything it cannot parse); "fail closed on unparseable input" as a standing verifier rule.
+- **Severity:** medium

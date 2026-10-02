@@ -1,0 +1,128 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:processDebugNavigationResources
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:javaPreCompileDebug
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:parseDebugLocalResources
+> Task :app:generateDebugGlobalSynthetics
+> Task :app:generateDebugRFile
+> Task :app:checkDebugDuplicateClasses
+> Task :app:desugarDebugFileDependencies
+> Task :app:mergeLibDexDebug
+> Task :app:mapDebugSourceSetPaths
+> Task :app:checkDebugAarMetadata
+> Task :app:compileDebugNavigationResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:mergeDebugJniLibFolders
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:mergeDebugNativeLibs
+> Task :app:writeDebugSigningConfigVersions
+> Task :play:preBuild UP-TO-DATE
+> Task :play:preDebugBuild UP-TO-DATE
+> Task :play:checkDebugAarMetadata
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so. Run with --info option to learn more.
+
+> Task :play:mergeDebugJniLibFolders
+> Task :play:mergeDebugNativeLibs NO-SOURCE
+> Task :play:stripDebugDebugSymbols NO-SOURCE
+> Task :play:copyDebugJniLibsProjectAndLocalJars
+> Task :contracts:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :kernel:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:mergeDebugResources
+> Task :kernel:processResources NO-SOURCE
+> Task :contracts:processResources NO-SOURCE
+> Task :play:generateDebugResources
+> Task :play:packageDebugResources
+> Task :play:processDebugNavigationResources
+> Task :app:compileDebugKotlin
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :play:parseDebugLocalResources
+> Task :app:processDebugJavaRes
+> Task :play:extractDeepLinksForAarDebug
+> Task :play:generateDebugAssets UP-TO-DATE
+> Task :play:generateDebugRFile
+> Task :play:mergeDebugAssets
+> Task :play:prepareDebugArtProfile
+> Task :play:javaPreCompileDebug
+> Task :play:prepareLintJarForPublish
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :play:writeDebugAarMetadata
+> Task :contracts:processTestResources NO-SOURCE
+> Task :kernel:processTestResources NO-SOURCE
+> Task :play:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest
+> Task :play:processDebugManifest
+> Task :play:javaPreCompileDebugUnitTest
+> Task :app:processDebugManifestForPackage
+> Task :play:generateDebugUnitTestStubRFile
+> Task :app:mergeDebugJavaResource
+> Task :app:processDebugResources
+> Task :app:dexBuilderDebug
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:mergeProjectDexDebug
+> Task :kernel:compileKotlin
+> Task :kernel:compileJava NO-SOURCE
+> Task :kernel:classes UP-TO-DATE
+> Task :kernel:jar
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+> Task :contracts:compileKotlin
+> Task :app:testDebugUnitTest
+> Task :contracts:compileJava NO-SOURCE
+> Task :contracts:classes UP-TO-DATE
+> Task :contracts:jar
+> Task :app:test
+> Task :play:extractDebugAnnotations
+> Task :contracts:compileTestKotlin NO-SOURCE
+> Task :contracts:compileTestJava NO-SOURCE
+> Task :contracts:testClasses UP-TO-DATE
+> Task :contracts:test NO-SOURCE
+> Task :play:compileDebugKotlin
+> Task :play:compileDebugJavaWithJavac NO-SOURCE
+> Task :play:mergeDebugGeneratedProguardFiles
+> Task :play:mergeDebugConsumerProguardFiles
+> Task :play:processDebugJavaRes
+> Task :play:bundleLibRuntimeToJarDebug
+> Task :play:mergeDebugJavaResource
+> Task :play:bundleLibCompileToJarDebug
+> Task :play:syncDebugLibJars
+> Task :play:bundleDebugAar
+> Task :play:assembleDebug
+> Task :app:mergeExtDexDebug
+> Task :kernel:compileTestKotlin
+> Task :kernel:compileTestJava NO-SOURCE
+> Task :kernel:testClasses UP-TO-DATE
+> Task :play:compileDebugUnitTestKotlin
+> Task :kernel:test
+> Task :play:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :play:processDebugUnitTestJavaRes
+> Task :play:testDebugUnitTest
+> Task :play:test
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+
+[Incubating] Problems report is available at: file:///C:/GitHub/AI/TangramNoAds/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 24s
+78 actionable tasks: 78 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.0/userguide/configuration_cache_enabling.html
