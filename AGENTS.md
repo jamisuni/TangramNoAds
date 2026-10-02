@@ -115,10 +115,21 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
   guard hook cannot see shell or script writes, so they show up as drift in
   trace-check. Scripts that write project text files use LF line endings
   (`open(path, "w", newline="\n")` in Python on Windows); the repo is LF.
+- **Test tokens are coverage claims** *(lesson, WO-001 + WO-002)*: trace-check
+  counts any `REQ-NNN.An` text in a test file — comments included — as
+  coverage. Put a token only on a test whose assertion is that criterion's
+  meaning; a test that pins an AI decision or a guardrail carries
+  `// decision DA-n` / `// guardrail G-nn` instead, and prose that merely
+  mentions an ID writes it without the dot (`REQ-039 A2`). Every acceptance-
+  test-author and code-review brief says so; the orchestrator greps the new
+  test files for tokens before Test & Verify.
 - **Gradle on this machine:** set `JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'`
   and `ANDROID_HOME='C:\Users\Jami\AppData\Local\Android\Sdk'` in the command
   if the shell predates them, and call `.\gradlew.bat` (cmd will not run a
   bare `gradlew.bat`). DoD build: `.\gradlew.bat assembleDebug test`.
+  In bash, write file paths with forward slashes (`/c/Users/…`): a
+  `> C:\Users\…\file` redirect loses its backslashes and lands as a junk
+  file named `C:Users…` in the current folder (happened 2026-10-02).
 - **Governance:** once `governance.md` is `in force`, a control point it
   assigns to `ai` is exercised, not asked, and every such decision is
   appended to `decisions.md` (what, why, how to reverse); `ai+inform` rows
@@ -127,8 +138,9 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
 
 ### Current phase
 
-`P3 — WO-002 #Content` (2026-10-02). Done: G1 (Jami), G3 toolchain proof, P2/G2
-(`architecture.md` v1.0), **WO-001 #Locking closed** (engine + drop resolution,
-116 kernel + 46 acceptance tests, held-out 15/15; checkpoint 1 surfaced). Next:
-WO-002 #Content (`build-map.md` §2), then the sequence without waiting, unless
-Jami says stop. Update this line as phases advance.
+`P3 — WO-003 rest of #Solving` (2026-10-02). Done: G1, G3 toolchain, G2
+(`architecture.md` v1.0), WO-001 #Locking and WO-002 #Content closed
+(checkpoints 1–2 surfaced). **In progress: WO-003 — the first playable APK**
+(paused 2026-10-02 ~21:45 after TASK-018a/018b; resume from `STATUS.md`
+"▶ Resume here" and the `tasks.md` WO-003 status column), then the sequence
+without waiting, unless Jami says stop. Update this line as phases advance.

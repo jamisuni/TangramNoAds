@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flip_badge">Flip the parallelogram</string>
+    <string name="size_large_description">Big triangle</string>
+    <string name="size_medium_description">Medium triangle</string>
+    <string name="size_small_description">Small triangle</string>
+    <string name="size_mark_large">L</string>
+    <string name="size_mark_medium">M</string>
+    <string name="size_mark_small">S</string>
+    <string name="board_description">Puzzle board</string>
+    <string name="tray_description">Piece tray</string>
+</resources>

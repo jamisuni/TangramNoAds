@@ -2,6 +2,7 @@ package io.github.jamisuni.tangram.play
 
 import io.github.jamisuni.tangram.contracts.puzzle.Puzzle
 import io.github.jamisuni.tangram.contracts.puzzle.PuzzleKind
+import io.github.jamisuni.tangram.kernel.geometry.PieceGeometry
 import io.github.jamisuni.tangram.kernel.geometry.PlacedPiece
 import io.github.jamisuni.tangram.kernel.geometry.Silhouette
 import io.github.jamisuni.tangram.kernel.geometry.Vec2
@@ -38,19 +39,38 @@ sealed interface DropOutcome {
 /** The outline corners of the silhouette, nothing else (REQ-051). */
 data class CornerPulse(val corners: List<ExactPoint>)
 
-class DropResolver(private val puzzle: Puzzle) {
+open class DropResolver(private val puzzle: Puzzle) {
     private val silhouette = Silhouette(puzzle.solution.map { it.polygon })
 
     /** REQ-021: where a release would lock now; null = draw nothing. */
-    fun preview(pose: DragPose, placed: List<PlacedPiece>, dpPerUnit: Double): PlacedPiece? =
+    open fun preview(pose: DragPose, placed: List<PlacedPiece>, dpPerUnit: Double): PlacedPiece? =
         search(pose, placed, dpPerUnit)?.let { placedAt(pose, it) }
 
     /** REQ-019 / REQ-020 / REQ-051. */
-    fun release(pose: DragPose, placed: List<PlacedPiece>, dpPerUnit: Double): DropOutcome {
+    open fun release(pose: DragPose, placed: List<PlacedPiece>, dpPerUnit: Double): DropOutcome {
         val lock = search(pose, placed, dpPerUnit)
         if (lock != null) return DropOutcome.Locked(placedAt(pose, lock))
         val pulse = if (puzzle.kind == PuzzleKind.MINI && pose.overBoard) CornerPulse(silhouette.outlineCorners) else null
         return DropOutcome.Home(pose.piece, pose.turn, pose.mirrored, pulse)
+    }
+
+    /**
+     * REQ-016 / REQ-018 (TYPE-003 "a turn keeps the centre"): the board piece [current] takes ([turn], [mirrored])
+     * about its centre and is kept only if the same lock search finds a spot; null = restore and shake.
+     * The piece is filtered by its own id inside the search (F31), so it never blocks itself.
+     */
+    open fun refit(
+        current: PlacedPiece,
+        turn: Turn,
+        mirrored: Boolean,
+        placed: List<PlacedPiece>,
+        dpPerUnit: Double,
+    ): PlacedPiece? {
+        val origin = PieceGeometry.originKeepingCentre(current, turn, mirrored)
+        val lock = LockSearch.find(
+            silhouette, placed, current.piece, turn, mirrored, origin, LockSearch.lockDistance(dpPerUnit),
+        ) ?: return null
+        return PlacedPiece(current.piece, turn, mirrored, lock.at)
     }
 
     // The one search behind preview and release: they can never disagree (REQ-021).

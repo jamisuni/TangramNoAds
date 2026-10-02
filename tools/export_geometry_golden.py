@@ -9,6 +9,10 @@ Reads every Tangrams/*.json (not the schema) with the validator's loader and wri
 mirrors x 8 turns at (0,0)), and per puzzle file its sha256 (CRLF normalized to LF), kind, solution
 polygons with their poses, outline corners, area and build order.
 
+Per puzzle it also records "difficulty" and "validator" {pass, errors, exposure}: the verdict of the unmodified
+validate_puzzles.validate (WO-002 design 4); "exposure" (warm-ups only) is each piece's share of outline on the
+silhouette edge, computed with the validator's own shared_edge_length/perimeter. Any validator error fails the export.
+
 Exact numbers are strings: R = "n" or "n/d"; Q = [R, R] is a + b*sqrt(2); P = [Q, Q] is a point
 (the JSON floats of the puzzle files are not exact for thirds).
 
@@ -31,7 +35,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from tangram_geom import (Q2, PIECE_SET, PIECE_TYPES, build_order, is_outline_corner_mask, outline_corners,  # noqa: E402
                           placement_from_polygon, to_float, transform)
-from validate_puzzles import load_solution  # noqa: E402
+from validate_puzzles import WARMUP_EXPOSURE, load_solution, perimeter, validate  # noqa: E402
+from tangram_geom import shared_edge_length  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "tools" / "golden" / "geometry.json"
@@ -179,6 +184,20 @@ def build_puzzle(path, errors):
                       f"(reference only: {only_ref}, oracle only: {only_oracle})")
         return None
 
+    verdict_errors, _info = validate(puzzle)
+    if verdict_errors:
+        errors.append(f"{path.name}: validator fails: {'; '.join(verdict_errors)}")
+        return None
+    exposure = {}
+    if puzzle.get("kind", "full") == "warmup":
+        fp = {k: to_float(v) for k, v in polys.items()}
+        for k, p in fp.items():
+            shared = sum(shared_edge_length(p, q) for kk, q in fp.items() if kk != k)
+            exposure[k] = round(1 - shared / perimeter(p), 12)
+        if any(v < WARMUP_EXPOSURE - 1e-6 for v in exposure.values()):
+            errors.append(f"{path.name}: validator passes but an exposure is below {WARMUP_EXPOSURE}: {exposure}")
+            return None
+
     solution, total = [], F(0)
     for pid, poly in polys.items():
         pose = placement_from_polygon(pid, poly)
@@ -200,6 +219,8 @@ def build_puzzle(path, errors):
         "outlineCorners": [P(c) for c in corners],
         "area": R(total),
         "buildOrder": order,
+        "difficulty": puzzle["difficulty"],
+        "validator": {"pass": True, "errors": [], "exposure": exposure},
     }, corners
 
 

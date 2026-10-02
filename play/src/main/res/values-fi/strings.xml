@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flip_badge">Peilaa suunnikas</string>
+    <string name="size_large_description">Iso kolmio</string>
+    <string name="size_medium_description">Keskikokoinen kolmio</string>
+    <string name="size_small_description">Pieni kolmio</string>
+    <string name="size_mark_large">L</string>
+    <string name="size_mark_medium">M</string>
+    <string name="size_mark_small">S</string>
+    <string name="board_description">Pelialue</string>
+    <string name="tray_description">Tarjotin</string>
+</resources>

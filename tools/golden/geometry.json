@@ -12,6 +12,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 3,
    "kind": "full",
    "outlineCorners": [
     [
@@ -500,7 +501,12 @@
       "turn": 0
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {},
+    "pass": true
+   }
   },
   "nature-mountain": {
    "area": "16",
@@ -513,6 +519,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 4,
    "kind": "full",
    "outlineCorners": [
     [
@@ -911,7 +918,12 @@
       "turn": 0
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {},
+    "pass": true
+   }
   },
   "shapes-mini-1": {
    "area": "4",
@@ -920,6 +932,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 1,
    "kind": "mini",
    "outlineCorners": [
     [
@@ -1112,7 +1125,12 @@
       "turn": 4
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {},
+    "pass": true
+   }
   },
   "shapes-mini-2": {
    "area": "4",
@@ -1121,6 +1139,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 1,
    "kind": "mini",
    "outlineCorners": [
     [
@@ -1313,7 +1332,12 @@
       "turn": 4
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {},
+    "pass": true
+   }
   },
   "shapes-rectangle": {
    "area": "16",
@@ -1326,6 +1350,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 3,
    "kind": "full",
    "outlineCorners": [
     [
@@ -1734,7 +1759,12 @@
       "turn": 3
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {},
+    "pass": true
+   }
   },
   "shapes-square": {
    "area": "16",
@@ -1747,6 +1777,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 4,
    "kind": "full",
    "outlineCorners": [
     [
@@ -2155,7 +2186,12 @@
       "turn": 0
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {},
+    "pass": true
+   }
   },
   "shapes-warmup-1": {
    "area": "16",
@@ -2168,6 +2204,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 1,
    "kind": "warmup",
    "outlineCorners": [
     [
@@ -2696,7 +2733,20 @@
       "turn": 4
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {
+     "LT1": 0.707106781187,
+     "LT2": 0.56066017178,
+     "MT": 0.792893218813,
+     "PG": 0.585786437627,
+     "SQ": 0.5,
+     "ST1": 0.707106781187,
+     "ST2": 0.707106781187
+    },
+    "pass": true
+   }
   },
   "shapes-warmup-2": {
    "area": "16",
@@ -2709,6 +2759,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 1,
    "kind": "warmup",
    "outlineCorners": [
     [
@@ -3197,7 +3248,20 @@
       "turn": 6
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {
+     "LT1": 0.853553390593,
+     "LT2": 0.56066017178,
+     "MT": 0.585786437627,
+     "PG": 0.585786437627,
+     "SQ": 0.5,
+     "ST1": 0.707106781187,
+     "ST2": 0.707106781187
+    },
+    "pass": true
+   }
   },
   "shapes-warmup-3": {
    "area": "16",
@@ -3210,6 +3274,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 1,
    "kind": "warmup",
    "outlineCorners": [
     [
@@ -3728,7 +3793,20 @@
       "turn": 4
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {
+     "LT1": 0.56066017178,
+     "LT2": 0.646446609407,
+     "MT": 0.5,
+     "PG": 0.585786437627,
+     "SQ": 0.75,
+     "ST1": 0.707106781187,
+     "ST2": 0.707106781187
+    },
+    "pass": true
+   }
   },
   "shapes-warmup-4": {
    "area": "16",
@@ -3741,6 +3819,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 1,
    "kind": "warmup",
    "outlineCorners": [
     [
@@ -4249,7 +4328,20 @@
       "turn": 2
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {
+     "LT1": 0.707106781187,
+     "LT2": 0.5,
+     "MT": 0.707106781187,
+     "PG": 0.585786437627,
+     "SQ": 0.5,
+     "ST1": 0.707106781187,
+     "ST2": 0.707106781187
+    },
+    "pass": true
+   }
   },
   "things-arrow": {
    "area": "16",
@@ -4262,6 +4354,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 2,
    "kind": "full",
    "outlineCorners": [
     [
@@ -4740,7 +4833,12 @@
       "turn": 2
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {},
+    "pass": true
+   }
   },
   "things-house": {
    "area": "16",
@@ -4753,6 +4851,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 2,
    "kind": "full",
    "outlineCorners": [
     [
@@ -5211,7 +5310,12 @@
       "turn": 1
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {},
+    "pass": true
+   }
   },
   "vehicles-sailboat": {
    "area": "16",
@@ -5224,6 +5328,7 @@
     "ST1",
     "ST2"
    ],
+   "difficulty": 3,
    "kind": "full",
    "outlineCorners": [
     [
@@ -5662,7 +5767,12 @@
       "turn": 3
      }
     }
-   ]
+   ],
+   "validator": {
+    "errors": [],
+    "exposure": {},
+    "pass": true
+   }
   }
  },
  "shapes": {

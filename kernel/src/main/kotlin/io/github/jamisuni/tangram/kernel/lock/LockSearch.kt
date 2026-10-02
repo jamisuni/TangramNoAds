@@ -152,15 +152,36 @@ internal fun LockSearch.fitAt(
     at: ExactPoint,
 ): Fit {
     val subject = PieceGeometry.corners(piece, turn, mirrored, at).map(::toVec2)
+    return misfit(
+        subject,
+        silhouette.polygons.map { polygon -> polygon.map(::toVec2) },
+        others.filter { it.piece != piece }.map { other -> other.corners.map(::toVec2) },
+        PieceGeometry.area(piece.shape).toDouble(),
+    )
+}
+
+/**
+ * The pure core of [fitAt] over float polygons (design WO-003 6.1, DA-25). [area] is the subject's own area.
+ * Fail-closed: when any coordinate of any input polygon or [area] is not finite, or a result is not finite,
+ * the answer is `Fit(+inf, +inf)`, invalid under both tests (ConvexClip alone would turn NaN into "no overlap").
+ */
+internal fun LockSearch.misfit(
+    subject: List<Vec2>,
+    silhouette: List<List<Vec2>>,
+    others: List<List<Vec2>>,
+    area: Double,
+): Fit {
+    val invalid = Fit(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)
+    if (!area.isFinite() || !finite(subject) || silhouette.any { !finite(it) } || others.any { !finite(it) }) return invalid
     var inside = 0.0
-    for (polygon in silhouette.polygons) inside += ConvexClip.intersectionArea(subject, polygon.map(::toVec2))
-    val insideDeficit = PieceGeometry.area(piece.shape).toDouble() - inside
+    for (polygon in silhouette) inside += ConvexClip.intersectionArea(subject, polygon)
     var maxOverlap = 0.0
-    for (other in others) {
-        if (other.piece == piece) continue
-        maxOverlap = maxOf(maxOverlap, ConvexClip.intersectionArea(subject, other.corners.map(::toVec2)))
-    }
+    for (other in others) maxOverlap = maxOf(maxOverlap, ConvexClip.intersectionArea(subject, other))
+    val insideDeficit = area - inside
+    if (!insideDeficit.isFinite() || !maxOverlap.isFinite()) return invalid
     return Fit(insideDeficit, maxOverlap)
 }
+
+private fun finite(polygon: List<Vec2>): Boolean = polygon.all { it.x.isFinite() && it.y.isFinite() }
 
 private fun toVec2(p: ExactPoint): Vec2 = Vec2(p.x.toDouble(), p.y.toDouble())

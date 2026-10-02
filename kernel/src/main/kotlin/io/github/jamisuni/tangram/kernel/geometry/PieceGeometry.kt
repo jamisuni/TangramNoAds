@@ -46,6 +46,22 @@ object PieceGeometry {
         }
     }
 
+    /**
+     * TYPE-003: the piece's centre (the average of its corners) relative to its local origin, as floats in
+     * units. A turn keeps the centre fixed, so the origin moves as the centre offset changes.
+     */
+    fun centroidOffset(shape: PieceShape, turn: Turn, mirrored: Boolean): Vec2 {
+        val offsets = offsets(shape, turn, mirrored)
+        return Vec2(offsets.sumOf { it.x.toDouble() } / offsets.size, offsets.sumOf { it.y.toDouble() } / offsets.size)
+    }
+
+    /** Where the local origin lies (float, units) when [placed] takes ([turn], [mirrored]) with its centre kept fixed. */
+    fun originKeepingCentre(placed: PlacedPiece, turn: Turn, mirrored: Boolean): Vec2 {
+        val now = centroidOffset(placed.piece.shape, placed.turn, placed.mirrored)
+        val next = centroidOffset(placed.piece.shape, turn, mirrored)
+        return Vec2(placed.at.x.toDouble() + now.x - next.x, placed.at.y.toDouble() + now.y - next.y)
+    }
+
     /** The world corners of [piece] with its local origin (vertex 0) at [at]: [offsets] + [at]. */
     fun corners(piece: PieceId, turn: Turn, mirrored: Boolean, at: ExactPoint): List<ExactPoint> =
         offsets(piece.shape, turn, mirrored).map { it + at }

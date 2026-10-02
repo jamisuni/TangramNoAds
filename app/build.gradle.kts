@@ -11,6 +11,7 @@ android {
         applicationId = "io.github.jamisuni.tangram"
         versionCode = 1
         versionName = "0.1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures {
@@ -27,5 +28,16 @@ dependencies {
     // resolved transitively; adds no code to the APK.
     implementation(libs.androidx.startup.runtime)
 
+    // The composition root may depend on every module (G-06).
+    implementation(project(":kernel"))
+    implementation(project(":contracts"))
+    implementation(project(":content"))
+    implementation(project(":play"))
+
     testImplementation(libs.junit)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

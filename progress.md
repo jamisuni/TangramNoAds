@@ -206,3 +206,74 @@ locked REQ, WO by WO in build-map order, without waiting (KICKOFF step 8).
   2 corrected-check entries filed in proposals.md.
 - **Checkpoint 1** surfaced to Jami (REQs satisfied, decisions.md, deltas, build state, VC
   snapshot prompt). Continued without waiting: WO-002 #Content opened, Design Author running.
+
+## 2026-10-02 ~19:45 — WO-002 closed (autonomous, after "plz continue")
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- WO-002 #Content: design (+ review: 0 B / 4 S / 7 N → revised → forward), plan (+ review:
+  2 B / 6 S / 5 N → tasks.md v0.7 → forward), TASK-008 (packaging), TASK-009 (validator verdicts
+  in the golden), TASK-010 (exact parser + library behind the locked IPuzzleLibrary), TASK-T2
+  (independent tests, 4 held-out). Code review forward (0 B / 1 S / 6 N). Test & Verify: held-out
+  15/15 on first execution (after a test-side import fix — corrected check). Trace GREEN for the
+  WO scope (orchestrator re-count: 39 FAIL = 2 carried + 37 later WOs).
+- Lesson codified: "Test tokens are coverage claims" (AGENTS.md duty + token audit). Two
+  corrected-check entries in proposals.md. Traceability auditor promoted to sonnet.
+- Checkpoint 2 surfaced to Jami; next WO-003 (first playable APK).
+
+## 2026-10-02 20:41 — WO-003 mid-point: logic done, acceptance move-in (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- WO-003 opened (first playable APK): design (+ review → revised → forward), plan tasks.md v0.9
+  (+ review → forward, G3 passed), API 26 launch waiver recorded (exit: Jami installs the image).
+- TASK-T3 (independent tests): 20 visible IDs staged in `.swdev/staged/WO-003/`, 12 held out.
+- TASK-011 build step (Compose, androidTest; channel proven on API 37), TASK-012 kernel
+  additions (123 → 127 kernel tests), TASK-013 PlayLayout, TASK-014 PathData/timeline/confetti,
+  TASK-015a/b PlaySession, TASK-016 strings (en+fi), TASK-017 GestureMachine + HitTest: 100 play tests green.
+- Staged JVM acceptance tests moved in: kernel 4/4 green; play stopped at one adapter compile
+  error — `badgeRect` is nullable by the plan but the design text said non-null (unlogged plan
+  amendment). DA-32 logged, design text amended, TASK-T3 resumed for a corrected check.
+- Next: green move-in → CR-1 (fresh code review of 012–017) → TASK-018a/b (Compose, device
+  tests) → TASK-019 (app shell) → TASK-020 → review, Test & Verify, trace, close, checkpoint 3.
+
+## 2026-10-02 ~21:20 — WO-003: CR-1 forward, Compose drawing started (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- JVM acceptance move-in finished: TASK-T3 corrected check (adapter-only, DA-32/34), TASK-017b
+  `PieceDrawing.scale` (DA-33); 16/16 moved-in acceptance tests green; token audit clean.
+- CR-1 (fresh code review of TASK-012…017b): revise 0 B / 5 S / 8 N → fixes by the owning
+  implementers → spot-check **forward**. DA-35 (badge/touch end at the solve), DA-36 (top-most
+  piece wins). Deferred: F4 validator half → TASK-020; N2 + size-change cancel → TASK-018b.
+- Held-out adapter pre-audit blocked by the permission check (read of `.swdev/heldout/` denied
+  to the resumed author); not routed around — moved into the Test & Verify brief (tasks.md).
+- Re-run: kernel 127, content 46, play 127, 0 failures. TASK-018a (Compose drawing) dispatched.
+
+## 2026-10-02 ~21:45 — pause requested (resume tomorrow)
+
+**Human (verbatim):** time to pause again work in 10mins... after current jobs run to finish.. and store info where going on to continue tomorrow
+
+**What was done (summary):**
+
+- Since the last entry: TASK-018a Compose drawing done after a rejected haiku attempt and a sonnet redo
+  (staffing row in decisions.md). DA-37 restored the tray-cell dashed outline: REQ-012 and REQ-043 A2
+  require it, and the orchestrator had misread REQ-013. The correction is logged next to the staffing row.
+- Verified by the orchestrator: kernel 127, play 130 tests, 0 failures; V-05 and V-06 PASS.
+- TASK-018b (PlayArea, pointer adapter, frame loop, tags, BoardTransform; sonnet) was running at the
+  pause and was asked to hand back within ~8 min. Its final state is recorded in tasks.md.
+- No new jobs started. The API 37 emulator was booted for 018b and is shut down at the pause.
+- STATUS.md has a "▶ Resume here" list with the exact next steps; tasks.md is current.
+- TASK-018b hand-back (at the pause): `PlayArea.kt` written, play JVM 130 green. Open items:
+  - the espresso-core 3.5.0 → 3.7.0 pin needed for device tests on API 37 (a build file);
+  - staged device-test pixel failures (BoardPixels 7/26, SolvedPicture 35/39) in a scratch copy, for TASK-018a;
+  - 3 staged androidTest adapter fixes for TASK-T3;
+  - a frame-loop deviation to rule on.
+
+  All are in `tasks.md` (TASK-018b row) and `STATUS.md` "▶ Resume here". The emulator is stopped and no jobs are running.

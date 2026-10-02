@@ -1,6 +1,6 @@
 # STATUS: where TangramNoAds stands
 
-**Updated:** 2026-10-02 (WO-001 closed) · **Phase:** requirements **locked** and accepted for the build (G1, Jami 2026-10-02); architecture locked (G2, `architecture.md` v1.0); **Kotlin + Compose build under SWDev — WO-001 #Locking closed**, WO-002 #Content next (`build-map.md` §2).
+**Updated:** 2026-10-02 ~21:45 (paused mid WO-003 at Jami's request) · **Phase:** requirements **locked** and accepted for the build (G1, Jami 2026-10-02); architecture locked (G2, `architecture.md` v1.0); **Kotlin + Compose build under SWDev — WO-001 #Locking and WO-002 #Content closed, WO-003 (rest of #Solving — first playable APK) in progress** (`build-map.md` §2, `tasks.md` WO-003).
 
 ## Snapshot
 | What | State |
@@ -20,7 +20,20 @@
 | Architecture | `architecture.md` v1.0 (G-01…G-10, ADR-001…006), modules per code home; `IPuzzleLibrary` locked, `IProgressStore` notify |
 | WO-001 #Locking | **closed**: exact geometry kernel + TYPE-004 lock search + drop resolution (engine/state level); 116 kernel tests, 46 acceptance tests (15 held-out, all passed on first run); release manifest has no permissions and no backup |
 | Reference fix | `tools/tangram_geom.outline_corners` now counts 180° pinch points as corners (DA-7): `shapes-warmup-4` gained the anchor (2,2); prototype rebuilt, its tests ALL PASS |
-| Nothing playable on a phone yet | the first playable debug APK is WO-003 |
+| WO-002 #Content | **closed**: `content` module — the 13 puzzles packaged from `Tangrams/` at build time, exact parser, ordered library behind the locked `IPuzzleLibrary`; validator verdicts in the golden; 31 content tests + 15 held-out (all passed) |
+| WO-003 #Solving (in progress) | design + plan done (G3), API 26 launch waiver recorded. **Done and verified:** TASK-011…017b (all game logic: layout, session, gestures, hit test, path data, timeline), CR-1 code review forward, TASK-018a Compose drawing (`play.draw`). JVM acceptance tests moved in and green: kernel 127, content 46, play 130 tests, 0 failures. **Running at pause:** TASK-018b (PlayArea, touch adapter, frame loop). Decisions DA-15…DA-37 + 2 staffing rows on the checkpoint-3 list |
+| Nothing playable on a phone yet | the first playable debug APK is WO-003 (after TASK-018b + TASK-019) |
+
+## ▶ Resume here (WO-003, paused 2026-10-02 ~21:45)
+1. Read `progress.md` (last entry) and the `tasks.md` WO-003 rows. The status column says what is done.
+2. **TASK-018b is partly done** (`PlayArea.kt` written, JVM green). Its `tasks.md` row lists four open items:
+   - (a) **Espresso blocker:** device tests die on API 37 with `InputManager.getInstance`. Fix: a build step pins `androidTestImplementation` espresso-core 3.7.0 in `play` and `app`; log a decision row.
+   - (b) **Pixel failures (TASK-018a drawing):** BoardPixels 7/26 (visible inner edges) and SolvedPicture 35/39. Seen in a scratch copy; route to a sonnet implementer.
+   - (c) **Staged device-test adapter fixes:** for TASK-T3, as a corrected check.
+   - (d) **Frame-loop deviation:** rule on it.
+3. Start the emulator (`emulator -avd Medium_Phone_API_37.0 -no-window`). Move `.swdev/staged/WO-003/play/src/androidTest/...` into `play/src/androidTest/` and run `:play:connectedDebugAndroidTest`. Route failures per `tasks.md` "Failure routing".
+4. TASK-019 app shell (sonnet), then move in the staged `app/src/androidTest`. TASK-020: APK check, V-07, the F4 validator half, the rule-10 chain.
+5. WO-003 code review → Test & Verify (held-out first run; brief it on the adapter classes in `tasks.md` "Held-out adapters") → trace audit → close → checkpoint 3 (owner review: the Finnish words "Pelialue"/"Tarjotin", DA-15…37, N8 badge strip).
 
 ## Round history
 | Round | When | What Jami said (evidence) | What changed |
