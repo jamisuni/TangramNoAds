@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key1">Arvo 1</string>
+    <!-- key2 is intentionally missing to test the verifier -->
+    <string name="key3" translatable="false">Untranslatable</string>
+</resources>

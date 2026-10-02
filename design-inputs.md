@@ -1,6 +1,6 @@
 # Design inputs — TangramNoAds
 
-**Status:** Current  ·  **Last updated:** 2026-10-01
+**Status:** Current  ·  **Last updated:** 2026-10-02
 **Contract:** `Requirements/` collection v1.1 — REQ-001..051 (47 locked, 4 withdrawn), TYPE-001..007, locked 2026-10-01 (SRC-014, SRC-015)
 
 > Inputs the pipeline must honor beside the requirements. Each is named in
@@ -54,6 +54,24 @@ product notes — never cited, never read by workers), `Study/archive/`.
    agent's choices (TYPE-001 colours are ASSUMPTIONs confirmed by the lock);
    they bind only where a REQ/TYPE names them.
 
+### Interpretation layer (G1, 2026-10-02)
+
+The fresh-eyes review (`req_review_01.md`) found contradictions and gaps in
+the locked collection; the owner accepted its ASSUMPTIONs at G1 ("(F2) OK
+good plan (F3) OK (F4) OK + rest OK .. YES"). Those readings are recorded as
+rows in `decisions.md` and **bind like the Contract** until a capture-side CHG
+replaces them (CA-3). Where the prototype disagrees with them, the decision
+wins. Known disagreements:
+
+5. DI-1 treats a cancelled touch (`pointercancel`) as a drop and resolves it
+   by the lock rule → **decisions F5**: an interrupted drag returns the piece
+   silently to where it was picked up.
+6. DI-1 picks phone vs tablet from the current window size → **decisions F3**:
+   the device's smallest screen width decides; phones stay portrait.
+7. DI-1 runs in a browser (no OS backup, no permissions) → **decisions F7/F8**
+   add Android-only rules: no backup or device transfer, zero
+   `<uses-permission>` in the release manifest (architecture.md G-01).
+
 ### Open forks (owner decision needed)
 
 - none as of 2026-10-01. *(Watch: the phone/tablet playtest — `STATUS.md`
@@ -73,3 +91,4 @@ product notes — never cited, never read by workers), `Study/archive/`.
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 0.1 | 2026-10-01 | initial register from `README.md`, `STATUS.md`, `Spec/`, `Requirements/sources.md` SRC-004 | project adopted under SWDev v0.15, intake path C |
+| 0.2 | 2026-10-02 | §2 interpretation layer: the G1 decisions bind over the prototype; three known disagreements (F5, F3, F7/F8) | G1 acceptance with req_review_01 triage |

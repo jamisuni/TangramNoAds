@@ -162,7 +162,7 @@ def main(argv):
     files = sorted(f for f in src.glob("*.json") if not f.name.endswith(".schema.json")) if src.is_dir() else [src]
     for p in files:
         puzzle = json.loads(p.read_text(encoding="utf-8"))
-        (out / f"{p.stem}.svg").write_text(sheet(puzzle), encoding="utf-8")
+        (out / f"{p.stem}.svg").write_text(sheet(puzzle), encoding="utf-8", newline="\n")
         print(f"rendered {out / (p.stem + '.svg')}")
 
 

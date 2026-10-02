@@ -44,7 +44,7 @@ def main():
     tpl = (Path(__file__).parent / "prototype_template.html").read_text(encoding="utf-8")
     out = ROOT / "Spec" / "prototype" / "tangram-prototype.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(tpl.replace("__PUZZLES__", json.dumps(data, separators=(",", ":"))), encoding="utf-8")
+    out.write_text(tpl.replace("__PUZZLES__", json.dumps(data, separators=(",", ":"))), encoding="utf-8", newline="\n")
     print(f"wrote {out} with {len(data)} puzzles")
 
 

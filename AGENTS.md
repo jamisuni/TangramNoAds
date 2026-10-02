@@ -110,6 +110,15 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
   subagents in `.claude/agents/`; inline station work is a logged exception.
 - **No version control** by agents: never `git init`, commit or tag; Jami does
   VC by hand (the orchestrator prompts for a close snapshot).
+- **Contract files through the guard** *(lesson, 2026-10-02)*: edit any path in
+  `.swdev/guard.json` `contract_paths` only with the Edit/Write tools — the
+  guard hook cannot see shell or script writes, so they show up as drift in
+  trace-check. Scripts that write project text files use LF line endings
+  (`open(path, "w", newline="\n")` in Python on Windows); the repo is LF.
+- **Gradle on this machine:** set `JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'`
+  and `ANDROID_HOME='C:\Users\Jami\AppData\Local\Android\Sdk'` in the command
+  if the shell predates them, and call `.\gradlew.bat` (cmd will not run a
+  bare `gradlew.bat`). DoD build: `.\gradlew.bat assembleDebug test`.
 - **Governance:** once `governance.md` is `in force`, a control point it
   assigns to `ai` is exercised, not asked, and every such decision is
   appended to `decisions.md` (what, why, how to reverse); `ai+inform` rows
@@ -118,11 +127,13 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
 
 ### Current phase
 
-`P1 — acceptance of the locked collection (intake path C)`: follow
-`KICKOFF.md` §1 — fresh-eyes review read-only on `Requirements/`, present
-`views/digest.md` + `views/trace.md` + the review's Blockers, ask
-**"Accept collection v1.1 for TangramNoAds (G1)?"**, on yes freeze the
-Contract baseline (`trace_check.py --freeze`). Then P2 under the
-ai-mastered profile (stack decided: Kotlin + Jetpack Compose, ADR-001),
-then WO-001 = #Locking with the G3 toolchain proof on Jami's computer
-first. Update this line as phases advance.
+`P3/P4 — WO-001 #Locking` (2026-10-02). Done: G1 accepted by Jami
+(collection v1.1 incl. `req_types.md` v0.2), G3 toolchain proof passed on
+Jami's computer, P2 locked (`architecture.md` v1.0, G2 under governance row 4,
+review `reviews/P2-architecture-review-01.md`), contract baseline frozen (68
+files). WO-001 in P4 (paused 2026-10-02 07:46 at Jami's request): tasks
+000–005a/007 done; TASK-005b + acceptance tests (TASK-T) were finishing; next
+TASK-006, then code review → Test & Verify → trace audit → close + checkpoint 1
+(`workorders/WO-001.md`, `tasks.md`, `progress.md` "Resume"). Then the WO
+sequence in `build-map.md` §2 without waiting, unless Jami says stop.
+Update this line as phases advance.

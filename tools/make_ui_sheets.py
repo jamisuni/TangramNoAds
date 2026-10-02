@@ -265,7 +265,7 @@ def main():
             pg.wait_for_timeout(300)
             pg.screenshot(path=str(OUT / f"{name}.png"), clip={"x": 0, "y": 0, "width": W, "height": H})
             if name == "05-lock-rules":
-                (OUT / f"{name}.svg").write_text(svg, encoding="utf-8")
+                (OUT / f"{name}.svg").write_text(svg, encoding="utf-8", newline="\n")
             print("wrote", OUT / f"{name}.png")
         b.close()
 

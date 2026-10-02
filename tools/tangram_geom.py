@@ -226,16 +226,6 @@ def placement_from_polygon(piece_id, target):
 # ---------------------------------------------------------------------------
 # Outline corners and build order (Study/06-snapping-by-anchors.md)
 # ---------------------------------------------------------------------------
-def _angle_at(poly, i):
-    """Interior angle (radians) of a convex float polygon at vertex i."""
-    ax, ay = poly[i - 1]
-    bx, by = poly[i]
-    cx, cy = poly[(i + 1) % len(poly)]
-    v1, v2 = (ax - bx, ay - by), (cx - bx, cy - by)
-    cos = (v1[0] * v2[0] + v1[1] * v2[1]) / (math.hypot(*v1) * math.hypot(*v2))
-    return math.acos(max(-1.0, min(1.0, cos)))
-
-
 def _on_segment(p, a, b, eps=1e-9):
     cross = (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])
     if abs(cross) > eps:
@@ -244,9 +234,63 @@ def _on_segment(p, a, b, eps=1e-9):
     return eps < dot < (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2 - eps
 
 
+def _octant(dx, dy):
+    """Direction of a vector as an octant 0..7: angle octant*45 degrees clockwise on screen from +x
+    (y down). Every edge of a tangram piece is a multiple of 45 degrees; anything else is a content
+    error (sanity check, within 1e-9 of a multiple)."""
+    ang = math.atan2(dy, dx) / (math.pi / 4)
+    k = round(ang)
+    if abs(ang - k) > 1e-9:
+        raise ValueError(f"direction ({dx}, {dy}) is not a multiple of 45 degrees")
+    return k % 8
+
+
+def is_outline_corner_mask(mask):
+    """DA-7. mask: 8 bits, bit k = the 45-degree wedge between direction k and direction k+1 is covered
+    by a piece. The outline does NOT turn at a point (not a corner) exactly when the covered wedges are
+    all 8 (inside the shape) or one contiguous run of 4 (a straight side). Anything else is a corner."""
+    mask &= 0xFF
+    if mask == 0xFF:
+        return False
+    return mask not in {_wedges(k, 4) for k in range(8)}
+
+
+def _wedges(start, count):
+    """Bit mask of `count` consecutive wedges starting at wedge `start` (mod 8)."""
+    m = 0
+    for j in range(count):
+        m |= 1 << ((start + j) % 8)
+    return m
+
+
+def _wedge_mask_at(fp, q):
+    """Wedges (bit mask) that the convex float polygon q covers around the float point fp. 0 if none."""
+    n = len(q)
+    for i, v in enumerate(q):
+        if abs(v[0] - fp[0]) < 1e-9 and abs(v[1] - fp[1]) < 1e-9:
+            # fp is vertex i: the interior sector is the short arc between the two edge directions
+            ou = _octant(q[i - 1][0] - v[0], q[i - 1][1] - v[1])
+            ow = _octant(q[(i + 1) % n][0] - v[0], q[(i + 1) % n][1] - v[1])
+            d = (ow - ou) % 8
+            if d <= 4:
+                return _wedges(ou, d)
+            return _wedges(ow, (ou - ow) % 8)
+    for i in range(n):
+        a, b = q[i], q[(i + 1) % n]
+        if _on_segment(fp, a, b):
+            # fp is inside an edge: the half-plane on the side of q's other vertices (4 wedges)
+            o = _octant(b[0] - a[0], b[1] - a[1])
+            cross = max(((b[0] - a[0]) * (u[1] - a[1]) - (b[1] - a[1]) * (u[0] - a[0]) for u in q), key=abs)
+            return _wedges(o if cross > 0 else o + 4, 4)
+    return 0
+
+
 def outline_corners(polys):
-    """Corners of the silhouette: solution vertices where the covered angle is neither 180° nor 360°.
-    polys: {piece_id: exact polygon}. Returns a list of exact points (Q2, Q2)."""
+    """Corners of the silhouette (DA-7, sector rule): solution vertices where the outline turns, i.e. the
+    directions covered by pieces around the point are NOT exactly one contiguous run of 4 wedges
+    (a straight side) or all 8 (inside). The old total-angle rule ("180 degrees = straight") missed a
+    point where 180 degrees are covered in separate runs (shapes-warmup-4 at (2,2)); this rule only adds
+    corners. polys: {piece_id: exact polygon}. Returns a list of exact points (Q2, Q2)."""
     fl = {k: to_float(v) for k, v in polys.items()}
     seen, corners = set(), []
     for poly in polys.values():
@@ -255,14 +299,10 @@ def outline_corners(polys):
                 continue
             seen.add(p)
             fp = (float(p[0]), float(p[1]))
-            total = 0.0
+            mask = 0
             for q in fl.values():
-                idx = [i for i, v in enumerate(q) if abs(v[0] - fp[0]) < 1e-9 and abs(v[1] - fp[1]) < 1e-9]
-                if idx:
-                    total += _angle_at(q, idx[0])
-                elif any(_on_segment(fp, q[i], q[(i + 1) % len(q)]) for i in range(len(q))):
-                    total += math.pi
-            if abs(total - math.pi) > 1e-6 and abs(total - 2 * math.pi) > 1e-6:
+                mask |= _wedge_mask_at(fp, q)
+            if is_outline_corner_mask(mask):
                 corners.append(p)
     return corners
 

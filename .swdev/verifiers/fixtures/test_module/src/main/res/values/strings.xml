@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key1">Value 1</string>
+    <string name="key2">Value 2</string>
+    <string name="key3" translatable="false">Untranslatable</string>
+</resources>
