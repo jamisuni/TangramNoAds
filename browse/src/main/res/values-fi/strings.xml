@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AI-written Finnish, owner list (DA-60): state_new, puzzle_counter_description, rating_description. The rest is the prototype's. -->
+    <string name="prev_puzzle">Edellinen tehtävä</string>
+    <string name="next_puzzle">Seuraava tehtävä (pidä pohjassa: seuraava ratkaisematon)</string>
+    <string name="all_puzzles">Kaikki tehtävät</string>
+    <string name="done">Valmis</string>
+    <string name="state_new">uusi</string>
+    <string name="state_in_progress">kesken</string>
+    <string name="state_solved">ratkaistu ✓</string>
+    <string name="restart">Aloita alusta</string>
+    <string name="retry">Uudestaan</string>
+    <string name="next">Seuraava</string>
+    <string name="best_time">paras aika</string>
+    <string name="best_time_none">–</string>
+    <string name="puzzle_counter">%1$d / %2$d</string>
+    <string name="puzzle_counter_description">Tehtävä %1$d, yhteensä %2$d. Näytä kaikki tehtävät</string>
+    <string name="rating_description">Vaikeus %1$d viidestä</string>
+    <string name="grid_cell_description">%1$d. %2$s · %3$s</string>
+    <string name="time_minutes_seconds">%1$d:%2$02d</string>
+</resources>

@@ -10,12 +10,12 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * HELD-OUT helper (Test & Verify only). An oracle for "inside the silhouette" and "overlaps no other piece",
+ * Visible oracle helper (WO-001; held-out at WO-001 time, now an ordinary suite file). An oracle for "inside the silhouette" and "overlaps no other piece",
  * written in plain doubles from the published pose convention (design sec. 3: world = R(turn * 45 deg) * F(mirror) *
  * local + at; F mirrors x before rotating; y down; positive turn clockwise on screen) and the stored polygons -
  * deliberately NOT sharing any code with `kernel`'s exact clipping.
  *
- * REQ-019.A2 reads: a locked piece never overlaps another piece and never sticks out of the silhouette.
+ * REQ-019 A2 reads: a locked piece never overlaps another piece and never sticks out of the silhouette.
  * TYPE-004: "inside" and "overlaps" are decided with a tolerance of at most 1e-6 units.
  */
 internal object HeldOutOracle {

@@ -8,7 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -39,7 +40,7 @@ class PlayAreaAdapterScaffoldingTest {
     private var show by mutableStateOf(true)
     private var width by mutableStateOf(360.0)
 
-    private fun start(session: PlaySession) {
+    private fun start(session: PlaySession, advance: Boolean = true) {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             if (show) {
@@ -48,7 +49,7 @@ class PlayAreaAdapterScaffoldingTest {
                 }
             }
         }
-        rule.mainClock.advanceTimeBy(100)
+        if (advance) rule.mainClock.advanceTimeBy(100)
     }
 
     private fun cellPoint(piece: PieceId): Offset {
@@ -83,30 +84,79 @@ class PlayAreaAdapterScaffoldingTest {
         assertNull("no pulse on a cancel", rule.runOnUiThread { session.pulse })
     }
 
-    @Test
-    fun gestureWhoseUpNeverArrivesDoesNotFreezeTheNextOne() {
-        val session = PlaySession(puzzle, reducedMotion = { true })
-        start(session)
-        dragInto(session)
-        // The pointer input is torn down mid-gesture (no up ever arrives): finally { machine.cancel() } must run.
-        rule.runOnUiThread { show = false }
-        rule.mainClock.advanceTimeBy(100)
-        assertNull("drag interrupted by the detach", rule.runOnUiThread { session.drag })
-        assertEquals(Where.Tray, where(session, PieceId.ST1))
-        rule.runOnUiThread { show = true }
-        rule.mainClock.advanceTimeBy(100)
-        // The test injector still thinks pointer 0 is down (its node vanished): reset it. On the new, idle machine
-        // this cancel is also an idle cancel() call (must be a no-op).
-        rule.onNodeWithTag("play-area").performTouchInput { cancel() }
-        rule.mainClock.advanceTimeBy(50)
-        val before = rule.runOnUiThread { session.pieces.first { it.piece == PieceId.ST1 }.turn }
-        val p = cellPoint(PieceId.ST1)
+    private fun tapCell(piece: PieceId) {
+        val p = cellPoint(piece)
         rule.onNodeWithTag("play-area").performTouchInput { down(p) }
         rule.mainClock.advanceTimeBy(30)
         rule.onNodeWithTag("play-area").performTouchInput { up() }
         rule.mainClock.advanceTimeBy(50)
-        val after = rule.runOnUiThread { session.pieces.first { it.piece == PieceId.ST1 }.turn }
-        assertEquals("the next gesture works: a tap turns", (before.steps + 1) % 8, after.steps)
+    }
+
+    private fun turnOf(session: PlaySession, piece: PieceId) =
+        rule.runOnUiThread { session.pieces.first { it.piece == piece }.turn.steps }
+
+    // CR-1 N2, same composition: a gesture ends without an unconsumed up (cancelled mid-press), and the next tap in
+    // the same PlayArea (same GestureMachine) must still work. A leaked Pressed state would turn it into an ignored touch.
+    @Test
+    fun cancelMidPressDoesNotFreezeTheNextGestureInTheSameComposition() {
+        val session = PlaySession(puzzle, reducedMotion = { true })
+        start(session)
+        val before = turnOf(session, PieceId.ST1)
+        val p = cellPoint(PieceId.ST1)
+        rule.onNodeWithTag("play-area").performTouchInput { down(p) }
+        rule.mainClock.advanceTimeBy(30)
+        rule.onNodeWithTag("play-area").performTouchInput { cancel() }
+        rule.mainClock.advanceTimeBy(50)
+        assertEquals("a cancel is not a tap", before, turnOf(session, PieceId.ST1))
+        tapCell(PieceId.ST1)
+        assertEquals("the next gesture works: a tap turns", (before + 1) % 8, turnOf(session, PieceId.ST1))
+    }
+
+    @Test
+    fun cancelMidDragDoesNotFreezeTheNextGestureInTheSameComposition() {
+        val session = PlaySession(puzzle, reducedMotion = { true })
+        start(session)
+        val before = turnOf(session, PieceId.ST1)
+        dragInto(session)
+        rule.onNodeWithTag("play-area").performTouchInput { cancel() }
+        rule.mainClock.advanceTimeBy(50)
+        assertNull(rule.runOnUiThread { session.drag })
+        tapCell(PieceId.ST1)
+        assertEquals((before + 1) % 8, turnOf(session, PieceId.ST1))
+    }
+
+    // The DisposableEffect half: leaving the composition cancels a live drag (the frame loop and queue die with it).
+    @Test
+    fun leavingTheCompositionCancelsTheDrag() {
+        val session = PlaySession(puzzle, reducedMotion = { true })
+        start(session)
+        dragInto(session)
+        rule.runOnUiThread { show = false }
+        rule.mainClock.advanceTimeBy(100)
+        assertNull("drag interrupted by the detach", rule.runOnUiThread { session.drag })
+        assertEquals(Where.Tray, where(session, PieceId.ST1))
+    }
+
+    // CR F1: a rebuilt composition for a surviving session must not restart the animation clock at 0.
+    @Test
+    fun recreatingTheCompositionOfASolvedSessionKeepsThePicture() {
+        val session = PlaySession(puzzle, reducedMotion = { true })
+        start(session)
+        for (sol in puzzle.solution) placePiece(session, sol.piece)
+        rule.mainClock.advanceTimeBy(3_000)
+        assertEquals(PuzzleState.SOLVED, session.state)
+        val c = rule.runOnUiThread { session.layout!!.toDp(centreUnits(PieceId.SQ)) }
+        val d = rule.density.density
+        fun sample() = rule.onNodeWithTag("play-area").captureToImage().asAndroidBitmap()
+            .getPixel((c.x * d).toInt(), (c.y * d).toInt())
+        val settled = sample()
+        rule.runOnUiThread { show = false }
+        rule.mainClock.advanceTimeBy(50)
+        rule.runOnUiThread { show = true }
+        // one frame: a solved session is not animating, so the frame loop sleeps and the seeded clock is all there is
+        rule.mainClock.advanceTimeBy(16)
+        assertEquals("first drawn frame after recreation still shows the picture", settled, sample())
+        assertTrue(rule.runOnUiThread { session.lastFrameMs } > 0L)
     }
 
     @Test
@@ -131,6 +181,74 @@ class PlayAreaAdapterScaffoldingTest {
         val t = cfg[BoardTransform]
         assertTrue(t.scalePx > 0f)
         assertTrue(t.trayCellsPx.keys.containsAll(listOf(PieceId.SQ, PieceId.ST1, PieceId.ST2)))
-        assertTrue(!cfg.contains(SemanticsProperties.Text) || true)
+    }
+
+    /** Locks SQ at its solution pose through the session API (UI thread); returns the px point of its centre. */
+    private fun centreUnits(piece: PieceId): io.github.jamisuni.tangram.kernel.geometry.Vec2 {
+        val sq = io.github.jamisuni.tangram.kernel.geometry.PieceGeometry.poseOf(
+            piece, puzzle.solution.first { it.piece == piece }.polygon,
+        )!!
+        val c = io.github.jamisuni.tangram.kernel.geometry.PieceGeometry.centroidOffset(piece.shape, sq.turn, sq.mirrored)
+        return io.github.jamisuni.tangram.kernel.geometry.Vec2(sq.at.x.toDouble() + c.x, sq.at.y.toDouble() + c.y)
+    }
+
+    private fun placePiece(session: PlaySession, piece: PieceId) = rule.runOnUiThread {
+        val lay = session.layout!!
+        val sq = io.github.jamisuni.tangram.kernel.geometry.PieceGeometry.poseOf(
+            piece, puzzle.solution.first { it.piece == piece }.polygon,
+        )!!
+        session.beginDrag(piece, lay.cell(piece).centre, 500)
+        session.setDragTurn(sq.turn)
+        val c = io.github.jamisuni.tangram.kernel.geometry.PieceGeometry.centroidOffset(piece.shape, sq.turn, sq.mirrored)
+        val centre = lay.toDp(io.github.jamisuni.tangram.kernel.geometry.Vec2(sq.at.x.toDouble() + c.x, sq.at.y.toDouble() + c.y))
+        session.dragTo(io.github.jamisuni.tangram.kernel.geometry.Vec2(centre.x, centre.y + session.drag!!.lift))
+        session.onFrame(1000)
+        assertTrue(session.release(1000) is DropOutcome.Locked)
+    }
+
+    private fun placeSq(session: PlaySession): Offset = rule.runOnUiThread {
+        val lay = session.layout!!
+        val sq = io.github.jamisuni.tangram.kernel.geometry.PieceGeometry.poseOf(
+            PieceId.SQ, puzzle.solution.first { it.piece == PieceId.SQ }.polygon,
+        )!!
+        session.beginDrag(PieceId.SQ, lay.cell(PieceId.SQ).centre, 0)
+        session.setDragTurn(sq.turn)
+        val c = io.github.jamisuni.tangram.kernel.geometry.PieceGeometry.centroidOffset(PieceId.SQ.shape, sq.turn, sq.mirrored)
+        val centre = lay.toDp(io.github.jamisuni.tangram.kernel.geometry.Vec2(sq.at.x.toDouble() + c.x, sq.at.y.toDouble() + c.y))
+        session.dragTo(io.github.jamisuni.tangram.kernel.geometry.Vec2(centre.x, centre.y + session.drag!!.lift))
+        session.onFrame(500)
+        assertTrue(session.release(500) is DropOutcome.Locked)
+        val d = rule.density.density
+        Offset((centre.x * d).toFloat(), (centre.y * d).toFloat())
+    }
+
+    @Test
+    fun boardTapAfterLongIdleShakesWithRealFrameTime() {
+        val session = PlaySession(puzzle, reducedMotion = { true })
+        start(session)
+        val at = placeSq(session)
+        rule.mainClock.advanceTimeBy(10_000) // long idle: the loop sleeps, nothing pending
+        // down and up arrive with no clock advance in between
+        rule.onNodeWithTag("play-area").performTouchInput { down(at); up() }
+        rule.mainClock.advanceTimeBy(16)
+        val shake = rule.runOnUiThread { session.shake }
+        assertNotNull("the refused turn shakes", shake)
+        assertTrue("stamped with a real frame time, not stale: ${shake!!.startMs}", shake.startMs >= 9_000)
+        rule.mainClock.advanceTimeBy(200)
+        assertNotNull("alive ~400 ms", rule.runOnUiThread { session.shake })
+        rule.mainClock.advanceTimeBy(300)
+        assertNull(rule.runOnUiThread { session.shake })
+    }
+
+    @Test
+    fun tapBeforeTheFirstFrameGetsARealFrameTime() {
+        val session = PlaySession(puzzle, reducedMotion = { true })
+        start(session, advance = false)
+        val at = placeSq(session)
+        rule.onNodeWithTag("play-area").performTouchInput { down(at); up() }
+        rule.mainClock.advanceTimeBy(16)
+        val shake = rule.runOnUiThread { session.shake }
+        assertNotNull("the refused turn shakes", shake)
+        assertTrue("frame time, not 0: ${shake!!.startMs}", shake.startMs > 0)
     }
 }

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "lastShown": "shapes-mini-2",
+  "puzzles": {
+    "shapes-mini-1": {"state": "solved", "pieces": {}, "puzzleSeconds": 47, "bestSeconds": 41},
+    "shapes-mini-2": {
+      "state": "in_progress",
+      "pieces": {
+        "MT":  {"where": "board", "turn": 0, "mirrored": false,
+                "at": {"x": {"a": "2", "b": "0"}, "y": {"a": "-1/2", "b": "1/2"}}},
+        "ST1": {"where": "tray", "turn": 7, "mirrored": false},
+        "ST2": {"where": "tray", "turn": 4, "mirrored": true}
+      },
+      "puzzleSeconds": 12,
+      "bestSeconds": null
+    },
+    "animals-cat": {
+      "state": "in_progress",
+      "pieces": {
+        "PG":  {"where": "board", "turn": 7, "mirrored": true,
+                "at": {"x": {"a": "3", "b": "-1"}, "y": {"a": "1", "b": "0"}}},
+        "LT1": {"where": "tray", "turn": 2, "mirrored": false}
+      },
+      "puzzleSeconds": 95,
+      "bestSeconds": 95
+    },
+    "things-arrow": {"state": "new", "pieces": {"SQ": {"where": "tray", "turn": 3, "mirrored": false}}, "puzzleSeconds": 0, "bestSeconds": null}
+  },
+  "playTime": {"day": "2026-10-03", "todaySeconds": 340, "totalSeconds": 5120},
+  "settings": {"timerShown": true, "soundOn": false}
+}

@@ -125,3 +125,46 @@ from starvation.
   - (b) handoff-contract.md: a hand-back must list every stub or empty body it leaves, and "complete" with a stub is a protocol violation.
   - (c) the orchestrator reads the diff of every implementer hand-back whose done-check cannot exercise the behaviour (device-only, visual).
 - **Severity:** medium
+
+## 2026-10-03 — Corrected checks (WO-003): device pixel fixtures and the held-out first run
+
+- **Context:** After the device move-in and the held-out first run, the independent tests needed these corrections. Every one kept its assertion's meaning; the orchestrator ruled on each against its REQ and re-derived the evidence itself.
+  - (1) Staged device adapters had the same seam bugs as the JVM ones: a nullable `badgeRect`, a missing type argument, a bad import, and silent skips.
+  - (2) **DA-40:** pixel samples taken as "inner edges" were really silhouette outline corners. All 15 were checked in Python against the reference geometry. The samples now move along the edge.
+  - (3) **DA-41:** a "picture distinguishable from the background" check failed on art that is white at its outline. It now compares with the reference render.
+  - (4) **Held-out first run 11/12.** It needed six adapter-class repairs: a missing constant, nullable `badgeRect`, a type argument, a silent `setLayout` lookup, an unfrozen value shape, and `setContent` called twice. Plus one scenario defect (**DA-45**): the test solved the puzzle, then dragged, which the solved-state rule forbids. 0 escaped product defects.
+  - (5) Separately, the held-out pre-audit after the seam lessons was blocked by the permission check, which denied a resumed author's read of `.swdev/heldout/`. It was not routed around; the adapter classes went into the Test & Verify brief instead.
+- **Proposal:**
+  - (a) test-author guidance: pixel fixtures must classify sample points against the outline geometry (corners), not only by the edge normal;
+  - (b) "different from the background" is not a picture-presence oracle; compare with a reference render;
+  - (c) a held-out compile and adapter dry-run (compile only, plus an adapter smoke run that executes no assertion) by the author after the API exists, before Test & Verify, so that first-run results measure the product, not the adapters;
+  - (d) say explicitly whether a resumed test author may re-read its own held-out files.
+- **Severity:** medium
+
+## 2026-10-03 — WO-004 close: what worked, and the friction left
+
+- **Context:**
+  - What worked. WO-004's held-out slice passed **6/6 on its first run with no corrections**, after WO-001…003 each needed test-side repairs. The difference came from four WO-003 lessons applied up front:
+    - every frozen seam names its delivering task;
+    - the test author compiles staged device tests as soon as the API exists;
+    - the held-out adapters were swept for known defect classes before the first run;
+    - the independent author, not the implementer, wrote the frozen format fixtures (DA-67).
+  - The friction left:
+    - (1) the orchestrator's own brief wording twice disagreed with the design (DA-69 "after the fade"; a 48 dp square slot for a ~130 dp text pill). An implementer and the orchestrator's diff read caught them.
+    - (2) The Compose UI-test import mistakes recurred, so the rule is now codified.
+    - (3) Agents' `git` calls and some heredoc writes are denied by the permission check, so Test & Verify could not diff amended tests against their originals. The orchestrator had diffed them at move-in.
+    - (4) Two device test failures that looked like product defects were fixture defects (DA-70). An implementer proved this with logging and pixel dumps instead of patching the product.
+- **Proposal:**
+  - (a) orchestration.md: before dispatch, the orchestrator checks its brief against the design's text for the seams it names. A brief that paraphrases a frozen seam is a defect source.
+  - (b) test-author guidance: device tests map coordinates through the product's public test seam (here `BoardTransform`), never by inferring geometry from pixels.
+  - (c) For Test & Verify: when git is not available to agents, the orchestrator hands over the before/after diff of every amended visible test.
+- **Severity:** low
+
+## 2026-10-03 — Governance row 12's "file a capture-side CHG" step was skipped for two WOs
+
+- **Context:** governance row 12 (ambiguous requirement, `ai`) says "decide, write the ASSUMPTION, **file a capture-side DEF/CHG proposal**". WO-003 and WO-004 logged about ten REQ readings as row-12 decisions but filed no capture-side proposals. WO-005's design review caught the gap (O1). The orchestrator first ruled "no CHG needed" for a small departure, then corrected itself after re-reading the row. The proposals are now backfilled as CA-5/CA-6 in `req_review_01.md`. The build side cannot write `Requirements/`, and SwReqCollector Phase D is not tooled, so a "capture-side proposal" has no natural home and is easy to forget.
+- **Proposal:**
+  - (a) Add the CHG step to the decision-logging template itself: a "capture-side action" column, with values filed / n/a and why.
+  - (b) trace-check, or a verifier, flags any row-12 decision without a CA/CHG reference.
+  - (c) Give "capture-side proposal" one defined location for path C projects whose spec dir is read-only to the build side.
+- **Severity:** medium

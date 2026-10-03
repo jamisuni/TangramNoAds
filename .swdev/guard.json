@@ -1,5 +1,5 @@
 {
-  "_comment": "SWDev guard config for TangramNoAds (intake path C, SWDev v0.15). Read by the PreToolUse guard hook and by trace-check. The spec is the SwReqCollector collection in Requirements/ — every locked REQ of every level is Contract, so the locked REQ files, the feature tree and the types are denied to the build side (a change is a DEF/CHG on the capture side). G2 (2026-10-02, architecture.md v1.0): architecture.md, the puzzle file format and the IPuzzleLibrary contract files are locked tier; build-map.md, the ADRs, the IProgressStore contract files and the contract-referenced kernel value types (kernel.model) are notify tier — edit them only with the Edit/Write tools so the guard logs the contract-delta (shell writes are invisible to it and show up as drift). Never govern Requirements/views/** (regenerated), sources.md, evidence/ or requirements.md.",
+  "_comment": "SWDev guard config for TangramNoAds (intake path C, SWDev v0.15). Read by the PreToolUse guard hook and by trace-check. The spec is the SwReqCollector collection in Requirements/ — every locked REQ of every level is Contract, so the locked REQ files, the feature tree and the types are denied to the build side (a change is a DEF/CHG on the capture side). G2 (2026-10-02, architecture.md v1.0): architecture.md, the puzzle file format and the IPuzzleLibrary contract files are locked tier; build-map.md, the ADRs, the IProgressStore contract files and the contract-referenced kernel value types (kernel.model) are notify tier — edit them only with the Edit/Write tools so the guard logs the contract-delta (shell writes are invisible to it and show up as drift). WO-004 LOCK-V1 (2026-10-03, after CR-2 forward): the frozen v1 save fixtures and their test are locked tier (G-09, DA-46, DA-67) — any change is a save-format migration, hard-stop 2 (governance row 11, a migration test loading these files is mandatory). Never govern Requirements/views/** (regenerated), sources.md, evidence/ or requirements.md.",
   "spec_dir": "Requirements",
   "spec_format": "swreq-v2",
   "swreq_tools": "C:/GitHub/AI/SwReqCollector/tools",
@@ -10,7 +10,10 @@
       "Requirements/req_types.md",
       "architecture.md",
       "Tangrams/puzzle.schema.json",
-      "contracts/src/main/kotlin/io/github/jamisuni/tangram/contracts/puzzle/*"
+      "contracts/src/main/kotlin/io/github/jamisuni/tangram/contracts/puzzle/*",
+      "store/src/test/resources/fixtures/progress-v1.json",
+      "store/src/test/resources/fixtures/progress-v1-fresh.json",
+      "store/src/test/kotlin/io/github/jamisuni/tangram/store/FrozenV1FixtureTest.kt"
     ],
     "notify": [
       "build-map.md",

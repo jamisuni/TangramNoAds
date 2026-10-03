@@ -277,3 +277,218 @@ locked REQ, WO by WO in build-map order, without waiting (KICKOFF step 8).
   - a frame-loop deviation to rule on.
 
   All are in `tasks.md` (TASK-018b row) and `STATUS.md` "▶ Resume here". The emulator is stopped and no jobs are running.
+
+## 2026-10-03 — resume WO-003
+
+**Human (verbatim):** plz continue
+
+**What was done (summary):** resumed from STATUS.md "▶ Resume here": the espresso pin, the staged
+device-test adapter fixes, the frame-loop ruling, then the play device run on the emulator (details in the
+entries below and in the tasks.md TASK-018b row).
+
+## 2026-10-03 ~08:00 — WO-003: device tests in, app shell and tools done (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- TASK-018b redone with queued pointer events dispatched in the frame loop (DA-38: the first cut
+  stamped taps with stale/0 time, so shakes and glides could vanish). Espresso-core 3.7.0 pinned
+  for device tests on API 37 (DA-39). 6 adapter device tests green in the real repo.
+- Play device move-in: 65/91 → drawing fix (picture scaled twice) and silhouette union in units →
+  76/91. 15 contested fixture samples upheld after the orchestrator re-derived them with the reference
+  geometry (DA-40 outline corners, DA-41 mini-2 white frame) → TASK-T3 corrected check → 89/91.
+  2 genuine req023_A2 interior points (cat, sailboat) are back with the drawing implementer.
+- TASK-019 app shell (sonnet) done. The release unit-test variant was enabled (build step), so the
+  release-stub proof runs. App device tests 4/4: the first puzzle is solved by real touch and shows its picture.
+- TASK-020 done: the APK puzzle check, V-07, the V13 path-data check in the validator, the rule-10 chain ALL PASS,
+  and the API 26 waiver stands. Orchestrator re-verified the cheap checks.
+- Owner note queued for checkpoint 3: shapes-mini-2's white frame vanishes on the white board.
+
+## 2026-10-03 ~09:15 — WO-003: reviews forward, held-out first run (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- Last 2 SolvedPicture failures: picture-internal edges drawn without anti-aliasing by the hardware canvas,
+  fixed by rendering the picture once in software (DA-42). Play device 91/91, app 4/4.
+- WO code review (TASK-018a…020 + build steps): revise 0 B / 4 S / 9 N. Fixes:
+  - F1 clock reseed after recreation;
+  - F2 spy-intent release proof (shown to fail);
+  - F3 same-composition cancel tests;
+  - N2, N6, N7, N8.
+
+  Re-check forward. DA-43 (API 26 waiver row), DA-44. Carried notes go to WO-004/005/006 and the playtest.
+- Re-run: JVM 307, device 98, 0 failures; rule-10 chain ALL PASS. The first-launch screenshot is kept in
+  `reviews/screens/` (landscape launch ends in portrait, no crash).
+- Test & Verify (sonnet, staffing row): visible baseline exact; held-out first run 11/12. The one failure is
+  a test-scenario defect: it solves the mini, then drags, which DA-35 forbids. Ruling DA-45: no escaped
+  product defect. Six adapter-class corrected checks. TASK-T3 is correcting the scenario.
+- Workorder WO-003 ledger and log brought up to date. Next: re-run, the traceability audit, close, checkpoint 3.
+
+## 2026-10-03 ~10:00 — WO-003 closed; checkpoint 3 (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- Held-out REQ-014 A1 scenario corrected (DA-45) → held-out 12/12. Play JVM 146, device 102.
+- Traceability audit (sonnet): 1 gap, REQ-002 A2 with no covering test under `play` (the design placed it in `app`
+  only) → TASK-T3 `NoModeAcceptanceTest` → trace-check re-run: 26 FAIL = exactly the later-WO set, 21/47 pass,
+  0 in-scope gaps, no drift. KDoc REQ references added to 3 plumbing files.
+- build-map v1.2 (status, notify tier). One slip: a `sed` write to its header, redone with the Edit tool.
+- AGENTS.md: 2 lessons codified (seams and test adapters; implementer staffing and hand-back diffs). 4 proposals.md
+  entries. workorders/WO-003.md closed (DoD 11/11 with waiver DA-43; metrics). STATUS.md has "▶ Next".
+- **WO-003 closed.** Checkpoint 3 surfaced to Jami. WO-004 (#Browsing + store) next, without waiting.
+
+## 2026-10-03 ~12:00 — WO-004 design forward, plan written (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- WO-004 opened (#Browsing + store). The design (sonnet) went through review: recirculate 0 B / 8 S / 9 N
+  → rev 1 → spot-check forward with E1–E6 → rev 2.
+  - E1: the reviewer emulated the kernel arithmetic and found that coprime denominators in a save could
+    overflow, so the v1 bound is now dyadic (DA-63).
+  - Followed the accepted decisions F4: tray turns are saved even for New puzzles.
+  - DA-58 withdrawn, so `IProgressStore` semantics are unchanged.
+- DA-46…66 logged. DA-64 is a governance row-13 guardrail conflict (overwrite only if both the move-aside
+  and the copy fail), ai+inform, for checkpoint 4. The v1 format is ai+inform (row 11).
+- tasks.md v1.1: TASK-T4, TASK-021…029 + the CR-2 checkpoint. Plan review dispatched.
+
+## 2026-10-03 ~15:00 — WO-004: logic done, v1 save format frozen (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- Plan v1.2 spot-check forward → G3 passed. TASK-T4a (test author) wrote the frozen v1 fixtures. TASK-021
+  added the store and browse modules. TASK-022 added the kernel functions plus the DA-63 safety proof (worst case
+  < 2^57). TASK-023 (store) ∥ TASK-024 (play hooks) ∥ TASK-025 (browse logic) all green, with the frozen
+  test passed unedited. TASK-T4 staged its tests (6 held-out IDs, no overlap). MOVE-JVM was green on the first
+  run (store 63, browse 44).
+- CR-2: revise 0 B / 2 S / 8 N → fixes:
+  - atomic-only rename;
+  - explicit serial names;
+  - never prune newer-version files;
+  - one never-run conditional test exposed and fixed;
+  - two more format meanings pinned before the lock.
+
+  Spot-check forward: "v1 format fit to freeze: yes".
+- **LOCK-V1:** the v1 fixtures + frozen test are locked tier; baseline re-frozen; any later change is a migration
+  hard-stop.
+- Now: TASK-026 (play: solved bar slot, thumbnails) ∥ TASK-027 (browse: top bar, grid, solved bar, strings).
+
+## 2026-10-03 ~18:00 — WO-004: built and green, closing reviews (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- TASK-026 (play: solved bar slot, thumbnails) ∥ TASK-027 (browse UI: top bar, long press, grid, solved bar,
+  17 strings en+fi). The independent browse device test needed imports-only and setContent-once corrected checks;
+  the import class recurred, so it is codified in AGENTS.md.
+- TASK-028 (app wiring: SessionHost never throws, onPause interrupt → persist, onStop sync, Back closes grid,
+  DA-23 retired) + TASK-028b (dead build stanza removed).
+- MOVE-APP: two failures diagnosed by the implementer with logging and pixel dumps. Both were fixture defects:
+  the board was inferred from pixels and swallowed the Restart pill; a probe sat on a picture edge.
+  DA-70 ruling (map via BoardTransform) → TASK-T4 fixed its visible and held-out kits → 15/15.
+- TASK-029: JVM 461 + device 140 all green; verifiers PASS; no drift. The WO close code review is running.
+
+## 2026-10-03 ~19:30 — WO-004: reviews closed, held-out 6/6 (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- WO code review revise 0 B / 4 S / 7 N, then fixes, then the spot-check was forward with O1, then O1 closed:
+  - F1: the fixed top-left Restart pill could overlap the silhouette and restart a puzzle silently. DA-71 adds a
+    free-corner slot in `play`, measured by size, with a sweep over 13 puzzles × 4 sizes × 3 widths. The first cut
+    used a 48 dp square; the orchestrator caught that the pill is a wide text pill.
+  - F2: `state` and `isDragging` now have their own snapshot state, so no recomposition per frame.
+  - F3: app lifecycle tests.
+  - F4: the SessionHost fallback is now null, never another puzzle's session.
+  - N1/N2/N4/N5/N7 fixed.
+  - O1: a device test with fail-then-pass shows the hidden pill takes no touch in Solved.
+- Full re-run: JVM 468–469, device 147–148, all green; V-01/05/06/07 PASS.
+- Test & Verify (sonnet): baseline exact. **Held-out first run 6/6, 0 escaped defects, no corrections** (the first
+  clean held-out first run in this project).
+- Traceability audit (sonnet) is running; then the WO-004 close and checkpoint 4.
+
+## 2026-10-03 ~20:00 — WO-004 closed; checkpoint 4 (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- Traceability audit GREEN: 26/47 locked REQs pass, 21 later-WO, 0 gaps in the WO-001…004 scope, no drift; the
+  frozen v1 files match the baseline.
+- **WO-004 closed:**
+  - `workorders/WO-004.md` DoD 11/11; contract deltas (LOCK-V1, `IProgressStore` behavioural notes DA-47/64,
+    build-map v1.3); metrics.
+  - STATUS.md "▶ Next (after WO-004)", AGENTS.md phase line, tasks.md v1.2/1.3.
+- proposals.md: the WO-004 close entry (what worked: held-out 6/6 first run; the friction left).
+- Checkpoint 4 surfaced to Jami. WO-005 (#DevTools) next, without waiting.
+
+## 2026-10-03 — pause requested (land the plane; continue later)
+
+**Human (verbatim):** thats good session.. hopefully.. but its time to land plane again for moment, as I need close computer.. plz finish current sessions (no rush). Save progress. Let me know when can shutdown... we continue bit later when Im back home
+
+**What was done (summary):**
+
+- WO-004 closed earlier this session: checkpoint 4 surfaced (v1 save format frozen, DA-46…71).
+- WO-005 (#DevTools) opened:
+  - the design is written (`designs/WO-005-design.md`, DA-72…84: a `DebugAids` source-set pair, a validated
+    `solveByAid`, the DEV pill in the DA-71 corner slot, V-04 with a real debug-APK positive control);
+  - the design review was running at the pause and was allowed to finish; nothing new was started.
+- STATUS.md "▶ Resume here (WO-005)" written. The emulator is stopped at the pause.
+- Design review hand-back (at the pause): `reviews/WO-005-design-review.md` = **recirculate 1 B / 5 S / 7 N**. The DEV pill must not
+  change the board layout: F1 measured animals-cat at 360×640 losing 12 % of its board in debug. Recorded in WO-005 and in STATUS
+  "▶ Resume here"; not yet sent back. The emulator is stopped. No jobs running.
+
+## 2026-10-03 (later) — resume WO-005
+
+**Human (verbatim):** plz continue
+
+**What was done (summary):** resumed from STATUS.md "▶ Resume here (WO-005)". The WO-005 design review (recirculate 1 B / 5 S / 7 N) goes back to a design author with orchestrator rulings, then a spot-check, the plan, G3 and the build (entries below).
+
+## 2026-10-03 ~21:30 — WO-005 build under way (autonomous)
+
+**Human (verbatim):** (no new input since "plz continue")
+
+**What was done (summary):**
+
+- WO-005 design rev 1 → spot-check forward (E1–E4) → rev 2. DA-72…89 logged. Governance row 12's capture-side step:
+  CA-5 filed (REQ-046), CA-6 backfills the WO-003/004 readings that had been missed (proposals.md entry).
+- Plan v1.5 after plan review (1 B / 8 S / 6 N; DA-89 exact build-file exemptions); spot-check forward → G3 passed.
+- TASK-030 (devtools module) ✔. TASK-035 (V-04: dex + resource scan, canary, positive control; 46 verifier tests;
+  real release APK PASS) ✔. TASK-032 devtools core: the haiku first cut was rejected at the diff read (frozen-seam
+  type drift, thin tests); TASK-030b added test-scope content; the sonnet rework ✔.
+- An orchestrator slip was found and fixed: a heredoc script had written a real newline + NUL byte into tasks.md
+  (the TASK-035 row). Repaired; all project docs scanned clean.
+- Running: TASK-031a (play slots + sweep + parity, emulator), TASK-033 (devtools UI), TASK-T5 (tests).
+
+## 2026-10-03 (night) — closing shop for tonight
+
+**Human (verbatim):** time to start closing shop for tonight. Not urgently rush but after current ones dont start new jobs before I tell continue
+
+**What was done (summary):**
+
+- WO-005 #DevTools build is done:
+  - TASK-030/030b/030c: the devtools module plus test-scope content.
+  - TASK-031a: the secondary slot and overlay, with board parity proven.
+  - TASK-031b: `solveByAid`. Trap tests shown to fail with the wrong order; drag interrupted per the design.
+  - TASK-032: core, reworked after the haiku cut was rejected.
+  - TASK-033: the UI.
+  - TASK-034: the `DebugAids` pair. G-04 grep shows only the 2 DA-89 lines; V-04 PASS on the release APK.
+  - TASK-035: V-04 (46 verifier tests).
+- TASK-T5: tests staged; held-out A1/A3.
+- MOVE-JVM is done. One rename, two rulings. The A4 cache proof passed both ways (re-run on edit, fail on a devtools word).
+- At close: the CR-3 release-surface code review was running and allowed to finish; no new jobs started. The emulator was stopped.
+- Next when Jami says continue: CR-3 findings → MOVE-DEV → TASK-036 checks (V-04 release exit 0 + positive control on a
+  fresh debug APK) → Test & Verify (held-out A1/A3) → trace audit → WO-005 close → checkpoint 5.
+- CR-3 hand-back (after the close call): **forward, 0 B / 0 S / 8 N**. Release build clean of DevTools, proven both ways:
+  V-04 PASS on a fresh release APK; `--positive-control` finds all four markers on a fresh debug APK. Recorded in tasks.md,
+  WO-005 and STATUS. No jobs running.

@@ -6,6 +6,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.StrokeCap
@@ -13,6 +14,11 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import io.github.jamisuni.tangram.contracts.puzzle.Picture
 import io.github.jamisuni.tangram.contracts.puzzle.PicturePoint
 import io.github.jamisuni.tangram.contracts.puzzle.PictureShape
@@ -29,13 +35,31 @@ import io.github.jamisuni.tangram.play.PlayLayout
 private var cachedPolys: List<List<Vec2>>? = null
 private var cachedPath: Path? = null
 
-/** The polygons (dp) as one [Path]: a union (no seam, REQ-011); per-polygon fill if the union fails (G-10). Main thread only. */
-internal fun silhouettePath(polys: List<List<Vec2>>): Path {
+/**
+ * The silhouette as ONE [Path] with no interior edge (REQ-011), in dp; it is also the picture clip. The union is
+ * computed in UNITS on a 2^-20 grid (shared vertices then coincide exactly and pieces that touch along a half-unit edge
+ * cancel exactly) and the result is scaled into dp; per-polygon fills left anti-aliased hairlines on a device. If the
+ * union fails the polygons are added to one path (G-10: draw something). Main thread only.
+ */
+internal fun silhouettePath(layout: PlayLayout): Path {
+    val polys = layout.silhouetteDp
     if (polys === cachedPolys) cachedPath?.let { return it }
+    val result = buildSilhouettePath(layout)
+    cachedPolys = polys
+    cachedPath = result
+    return result
+}
+
+/** The uncached union of [silhouettePath]; a grid thumbnail keeps its own copy so it never evicts the play area's slot. */
+internal fun buildSilhouettePath(layout: PlayLayout): Path {
+    val polys = layout.silhouetteDp
+    val grid = 1048576.0
+    fun snap(v: Double) = Math.rint(v * grid) / grid
     var union: Path? = null
     var ok = true
     for (poly in polys) {
-        val p = polygonPath(poly)
+        val units = poly.map { layout.toUnits(it).let { u -> Vec2(snap(u.x), snap(u.y)) } }
+        val p = polygonPath(units)
         val cur = union
         if (cur == null) {
             union = p
@@ -44,9 +68,24 @@ internal fun silhouettePath(polys: List<List<Vec2>>): Path {
             if (out.op(cur, p, PathOperation.Union)) union = out else { ok = false; break }
         }
     }
-    val result = if (ok && union != null) union else Path().also { all -> polys.forEach { all.addPath(polygonPath(it)) } }
-    cachedPolys = polys
-    cachedPath = result
+    val result: Path
+    if (ok && union != null) {
+        val o = layout.toDp(Vec2(0.0, 0.0))
+        val sc = layout.dpPerUnit.toFloat()
+        union.transform(
+            Matrix(
+                floatArrayOf(
+                    sc, 0f, 0f, 0f,
+                    0f, sc, 0f, 0f,
+                    0f, 0f, 1f, 0f,
+                    o.x.toFloat(), o.y.toFloat(), 0f, 1f,
+                ),
+            ),
+        )
+        result = union
+    } else {
+        result = Path().also { all -> polys.forEach { all.addPath(polygonPath(it)) } }
+    }
     return result
 }
 
@@ -61,8 +100,7 @@ internal fun rgbColor(c: Rgb): Color = Color(0xFF000000.toInt() or c.value)
  * The solved picture: base colour, then every shape in order, clipped to the silhouette (REQ-023 A1/A2, REQ-039 A1).
  * `layout` is dp; the dp to px step is [inDp]. A shape whose `d` does not parse is skipped (DA-21).
  */
-internal fun DrawScope.drawPicture(picture: Picture, layout: PlayLayout) {
-    val clip = silhouettePath(layout.silhouetteDp)
+internal fun DrawScope.drawPicture(picture: Picture, layout: PlayLayout, clip: Path = silhouettePath(layout)) {
     inDp {
         clipPath(clip) {
             drawRect(
@@ -73,6 +111,41 @@ internal fun DrawScope.drawPicture(picture: Picture, layout: PlayLayout) {
             for (shape in picture.shapes) drawShape(shape, layout)
         }
     }
+}
+
+/** Releases both picture caches (N2). Main thread only; the next draw rebuilds what it needs. */
+internal fun clearPictureCaches() {
+    cachedPolys = null
+    cachedPath = null
+    pictureKey = null
+    pictureImage = null
+}
+
+private var pictureKey: Array<Any>? = null
+private var pictureImage: ImageBitmap? = null
+
+/**
+ * The picture as the same pixels [drawPicture] gives on its own (REQ-023 A2: what the screen shows is the picture
+ * rendered alone). It is rendered once by the software canvas into a bitmap of the play area (a hardware canvas
+ * anti-aliased the picture's own inner edges differently) and drawn with [alpha]. One slot, rebuilt when the picture,
+ * layout, density or size changes. Main thread only.
+ */
+internal fun DrawScope.drawPictureImage(picture: Picture, layout: PlayLayout, alpha: Float) {
+    val w = size.width.toInt()
+    val h = size.height.toInt()
+    if (w <= 0 || h <= 0) return
+    val key = pictureKey
+    var img = pictureImage
+    if (img == null || key == null || key[0] !== picture || key[1] !== layout || key[2] != density || key[3] != w || key[4] != h) {
+        val fresh = ImageBitmap(w, h)
+        CanvasDrawScope().draw(Density(density), LayoutDirection.Ltr, Canvas(fresh), Size(w.toFloat(), h.toFloat())) {
+            drawPicture(picture, layout)
+        }
+        pictureKey = arrayOf(picture, layout, density, w, h)
+        pictureImage = fresh
+        img = fresh
+    }
+    drawImage(img, alpha = alpha)
 }
 
 private fun DrawScope.drawShape(shape: PictureShape, layout: PlayLayout) {

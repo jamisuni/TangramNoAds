@@ -24,6 +24,9 @@ Checks (rule ids match the spec, section "Validation rules"):
       the line is printed for authors and never fails a valid puzzle.
   V12 a "warmup" puzzle exposes at least half of every piece's outline on the silhouette edge
       (REQ-041), so each piece's shape can be seen in the silhouette
+  V13 every art path `d` (art.shapes[i] with "type": "path") parses under the same grammar as the Kotlin
+      play/.../PathData.kt: absolute M L Q C Z only, first command M, a minus may start a number, no exponent,
+      no implicit repetition (CR-1 F4)
 Exit code 0 when all files pass, 1 otherwise.
 """
 import json
@@ -187,6 +190,80 @@ ART_TYPES = {
 HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 
 
+def parse_path_data(d):
+    """Mirror of play/.../PathData.kt `parse` (CR-1 F4): returns a list of (command, numbers) or None.
+
+    Absolute M L Q C Z only, first command M. Letters may touch numbers; each command takes exactly its arity of
+    numbers (no implicit repetition); a number is -?(digits(.digits)?|.digits) (no exponent, no +); separators are
+    runs of spaces and/or one comma (between numbers only); every value finite.
+    """
+    if not isinstance(d, str):
+        return None
+    out = []
+    n = len(d)
+
+    def skip_spaces(k):
+        while k < n and d[k] == " ":
+            k += 1
+        return k
+
+    i = skip_spaces(0)
+    if i >= n or d[i] != "M":
+        return None
+    while True:
+        i = skip_spaces(i)
+        if i >= n:
+            break
+        c = d[i]
+        arity = {"M": 2, "L": 2, "Q": 4, "C": 6, "Z": 0}.get(c)
+        if arity is None:
+            return None
+        i += 1
+        vals = []
+        for k in range(arity):
+            before = i
+            i = skip_spaces(i)
+            sep = i > before
+            if k > 0 and i < n and d[i] == ",":
+                i = skip_spaces(i + 1)
+                sep = True
+            if k > 0 and not sep and not (i < n and d[i] == "-"):
+                return None   # a minus always starts a number
+            start = i
+            if i < n and d[i] == "-":
+                i += 1
+            int_start = i
+            while i < n and "0" <= d[i] <= "9":
+                i += 1
+            int_digits = i - int_start
+            frac_digits = 0
+            if i < n and d[i] == ".":
+                i += 1
+                fs = i
+                while i < n and "0" <= d[i] <= "9":
+                    i += 1
+                frac_digits = i - fs
+                if frac_digits == 0:
+                    return None
+            if int_digits == 0 and frac_digits == 0:
+                return None
+            x = float(d[start:i])
+            if not math.isfinite(x):
+                return None
+            vals.append(x)
+        if i < n and d[i] != " " and d[i] not in "MLQCZ":
+            return None
+        out.append((c, vals))
+    return out
+
+
+def path_data_error(d):
+    """None when `d` is accepted by the Kotlin grammar, else a short reason."""
+    if not isinstance(d, str):
+        return "d must be a string"
+    return None if parse_path_data(d) is not None else "not in the M/L/Q/C/Z grammar of PathData.kt"
+
+
 def validate_art(art):
     if art is None:
         return ["V10 art is missing (every puzzle needs a solved picture)"]
@@ -206,6 +283,10 @@ def validate_art(art):
                 errs.append(f"V10 art.shapes[{i}].{key} must be #RRGGBB")
         if t in ("line", "path") and "stroke" not in sh:
             errs.append(f"V10 art.shapes[{i}] ({t}): needs a stroke colour")
+        if t == "path" and "d" in sh:
+            why = path_data_error(sh["d"])
+            if why:
+                errs.append(f"V13 art.shapes[{i}] (path): bad path data {sh['d']!r} ({why})")
     return errs
 
 

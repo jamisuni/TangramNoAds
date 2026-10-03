@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "lastShown": "good-1",
+  "puzzles": {
+    "good-1": {"state": "solved", "pieces": {}, "puzzleSeconds": 47, "bestSeconds": 41},
+    "bad-1": {"state": "in_progress", "pieces": {"MT": {"where": "board", "turn": 0, "mirrored": false, "at": {"x": {"a": "1/63", "b": "0"}, "y": {"a": "0", "b": "0"}}}}, "puzzleSeconds": 1, "bestSeconds": null}
+  },
+  "playTime": {"day": "2026-10-03", "todaySeconds": 340, "totalSeconds": 5120},
+  "settings": {"timerShown": true, "soundOn": false}
+}

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "lastShown": "good-1",
+  "puzzles": {
+    "good-1": {"state": "solved", "pieces": {}, "puzzleSeconds": 47, "bestSeconds": 41},
+    "bad-1": {"state": "new", "pieces": {}, "puzzleSeconds": 0, "bestSeconds": null}
+  },
+  "playTime": {"day": "2026-10-03", "todaySeconds": 340, "totalSeconds": 5120},
+  "settings": "not an object"
+}

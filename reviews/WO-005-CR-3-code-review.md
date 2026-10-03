@@ -1,0 +1,97 @@
+# Review — code · WO-005 checkpoint CR-3 (release surface: TASK-030…035 + moved-in JVM tests)
+
+**Date:** 2026-10-03  ·  **Reviewer:** fresh context (code-reviewer)
+**Inputs:** AGENTS.md (rule 11, token rule), WO-005, tasks.md WO-005 (v1.5, CR-3 row and history), designs/WO-005-design.md (rev 2), decisions.md DA-72…DA-89, architecture.md G-04 and the V-04 row, ADR-006, REQ-046 (REQ-023 via the design). Read in full: `devtools/src/main/**` (+ strings en/fi), `app/src/{main,debug,release}` wiring (`AppViewModel`, `TangramApp`, `MainActivity`, `SessionHost`, both `DebugAids`), `play/.../{BoardSpace,PlaceSecondary,PlayArea,PlaySession}.kt` (+ `GestureMachine.up/cancel`, `PlayDrawing` solved reads), `LockSearch.isValidPlacement`, `PuzzleStates`, the three build files, `.swdev/verifiers/v04_release_apk.py` and `TestV04ReleaseApk`, and the independent tests in the tree (`ReleaseSeparationTest`, `DevSolutionTest`, `PlaceSecondarySweepTest`, `AidKit`, `SolveByAidDecisionTest`, `AidTimelineDecisionTest`) plus the devtools/play scaffolding. `.swdev/heldout/` not read. No device test run.
+
+## Verdict
+
+**forward** — 0 Blockers, 0 Should, 8 Nit/Note. The release surface is clean and the evidence re-derives. None of the Nits needs a re-review; F1–F3 are cheap hardening that can ride with TASK-036 or later.
+
+**Release build clean of DevTools: yes** (evidence below).
+
+**0 Blockers · 0 Should · 8 Nit/Note**
+
+## Evidence re-derived
+
+- **JVM, fresh (`cleanTest…` then `--no-build-cache`, so not FROM-CACHE):** `:devtools:testDebugUnitTest`, `:play:testDebugUnitTest`, `:app:testDebugUnitTest` BUILD SUCCESSFUL. Result XMLs: devtools 24, play 188, 0 failures/errors/skipped (app dir sums to 6 because the stale `testReleaseUnitTest` folder is counted; debug alone matches the claimed 4).
+- **Verifiers:** `test_verifiers.py` Ran 46, OK (the printed V-05/V-06 FAIL lines are the fixtures' expected output). V-01, V-05, V-06, V-07 PASS.
+- **V-04 on a fresh release APK** (built by the script, `app-release-unsigned.apk`): `V-04 PASS`, canary found (play package, MainActivity descriptor, `app_name`, `Restart`). APK has `classes.dex` and `classes2.dex`.
+- **Independent scan, not using V-04's code:** every zip entry of that release APK (except png/ogg), searched ASCII and UTF-16LE for `devtools`, `DevTools`, `0417`, `Developer`, `passcode`, `Passcode`, `DEV`. Hits: `DEV` twice in `classes.dex` (`AUTOFILL_HINT_PHONE_NUMBER_DEVICE`, `DEVICE_ROOT`) and `0417` twice in `res/Xk.xml` / `res/x4.xml`, which is the vector coordinate `11.0417` from a dependency. That second hit confirms why DA-85 does not search the digits in resources. No devtools class, string, resource key or text.
+- **Positive control on a fresh debug APK** (`--positive-control`, built by the script): `POSITIVE-CONTROL PASS: all 4 marker kinds found`. I also ran the normal scan against that debug APK: it FAILs with `devtools-class` hits (real negative control, the detector fires on a real leak).
+- **G-04 source:** `grep poseOf`/`.solution` over release scope: `poseOf` only in `devtools/DevSolution.kt` and in the content parser's validation (WO-002, not a placement). `.solution` in `play`/`browse` is read only for the silhouette, the piece set and the layout, as before WO-005. **N7 holds.**
+- **Tokens:** `REQ-NNN.An` texts in devtools/app/play tests: only the two comment lines of the independent tests (`DevSolutionTest` A2, `ReleaseSeparationTest` A4). No scaffolding file carries one; the other independent tests carry `decision DA-n`.
+
+## Checklist applied
+
+- [x] **Directives / guardrails** — G-04 (below), G-05 (V-05 PASS; en and fi both hold the same 14 `devtools_*` keys; Finnish carries the AI-written comment per DA-80), G-06 (V-06 PASS; devtools main = kernel + contracts + Compose foundation, `content` test-scope only), G-10 (see F6).
+- [x] **Contract** — no governed-interface change: `IProgressStore`/v1 untouched (`solveByAid` goes through the existing `onChanged` and `persist`; `canonical()` stores `pieces = {}`, `bestSeconds` from the base entry is kept). No `REQ`/`TYPE` change.
+- [x] **Scope** — the extras are all named by a decision: `BoardSpace` (DA-74), `placeSecondary` (DA-75), `solvePending` (DA-83), `blocked` (DA-87).
+- [x] **Traceability / token rule** — clean (above).
+- [x] **Hard-stops** — none touched (no network, permission, secret in the product sense, no format change).
+- [x] **Evidence re-derived** — above.
+- [x] **Conceptual 20 %** — attacks below.
+
+## Attack results
+
+### 1. G-04 leak paths — none found
+
+- **`main` → `DebugAids`.** `app/src/main` names only `io.github.jamisuni.tangram.DebugAids` and `play.BoardSpace`. The release twin imports only `Puzzle`, `PlacedPiece`, `BoardSpace`, Compose and `Modifier`; it holds no state and composes nothing. Same public signatures as the debug class (the DA-72 test; and `TangramApp` compiles against each twin per variant, so a drift breaks one of the two builds anyway).
+- **Gradle wiring.** `debugImplementation(project(":devtools"))` is the only `devtools` line in `app/build.gradle.kts`; no `releaseImplementation`, no `implementation`, no flavour. No other module's build file references `:devtools` (`play`, `browse` checked; V-06 would also refuse). `settings.gradle.kts` only includes the module (harmless: a configured but unlinked module).
+- **Resource merging.** Debug-only library strings do not enter the release `resources.arsc` (scan above). **R8 is off** for release (no `buildTypes` block, default `minifyEnabled false`), so a leaked class could not hide behind renaming. If R8 or name collapsing is turned on later, V-04's canaries (play package, `MainActivity;`, `app_name`) go blind and the script fails loudly instead of passing (checked in the code and in `test_v04_canary_minus_one_each…`). Resource path shortening is already on (`res/Xk.xml`); key names are still present (the `app_name` canary is found).
+- **Compose compiler metadata / `BuildConfig`.** No `devtools` text anywhere in the release APK (all entries scanned). `buildFeatures` enables only `compose`; no `BuildConfig` is generated and none is referenced.
+- **The release lambdas.** `TangramApp` builds `solveNow = { session.solveByAid(it) }` and `blocked` in release too; the twin ignores them, so `solveByAid` is reachable only by the DEV pill in debug. `solveByAid` itself ships in release by design (neutral hook, G-04); it is public and validated.
+- **Does V-04 see what it claims?**
+  - Dex: the string-id table is read at the correct header offsets (`0x38`/`0x3C`), ULEB length skipped, string ends at the NUL; MUTF-8 decoded as UTF-8 with `replace` (only ASCII needles matter; CESU surrogates cannot hide an ASCII needle). Every `classes\d*.dex` is parsed; an unparseable dex (magic, header size, table beyond EOF, version 040) is a finding **plus** a raw scan; no dex at all is a finding. Dex versions 035…039 are accepted (D8 emits 038/039 for minSdk 26).
+  - Non-dex entries are searched in ASCII and UTF-16LE (covers the arsc string pool in either encoding and binary XML); only png/webp/jpg/gif/ogg and `tangrams/` are skipped. Compressed entries are decompressed by `zipfile`.
+  - Failure modes exit 1 (finding) or 2 (usage/build/IO); nothing prints PASS on an error.
+  - The self-test builds every detector fixture as canary-complete base plus exactly one change and proves each marker, each encoding, the second dex, the skip rules, the exact-string rule for `0417`, and the fail-closed dex cases (E1 satisfied).
+- **Can the real-debug positive control catch a leak V-04 would miss?** It proves the scanner reads all four marker kinds out of a real debug APK (so a change of dex version, of arsc encoding, or of the way `0417` is compiled that blinds a primitive would be caught). It uses the same primitives, so it cannot catch a leak that takes a form outside those four kinds (see F2), and it is a manual step, not part of the default V-04 run (see F3).
+
+### 2. `solveByAid` — correct
+
+- **Validation by the engine.** Piece set equal to the puzzle's (size equal and set equal, so no duplicates and nothing missing), then each pose through `LockSearch.isValidPlacement` against the poses accepted so far in list order, then `SolvedCheck.isSolved`. The pre-existing board is ignored on purpose (replaced). All refusals return before any mutation (`interruptDrag` is called only after validation), so an invalid call changes nothing: `version` is not bumped, no event fires. `isValidPlacement` is fail-closed.
+- **Drag in progress.** `interruptDrag()` restores the pick-up pose silently, then the pieces are replaced. `GestureMachine.up` returns early (`drag ?: return` after `session.release` returns null; `syncExternalInterrupt` first), so a later finger-up does nothing. The pill's `blocked` guard makes the case near-unreachable in the app anyway.
+- **State.** `onTrayDragStarted` then `onPieceLocked(…, true)` takes New or In progress to Solved through the TYPE-006 functions; Solved returns false at the top.
+- **Events.** `onSolved(true)` once, then `settled()` (same order as the drop path, `onSolved(false)` then `settled()`); `restore` calls neither (`settle()` sets state and a settled `SolvedAt(-10_000)` only).
+- **REQ-023 timeline and the trap fix.** `solvePending` is resolved in `onFrame` before the `drag ?: return`, so an idle board resolves it; `solved.t0` is the frame's own clock (tests: idle frame, stale-frame, not restarted, reduced-motion flag). `animating` reads `version` first and returns true on `solvePending`, so the frame loop starts although nothing is dragged; `solveByAid` calls `invalidate()` so the `snapshotFlow` re-evaluates. Between the call and the first frame the drawing handles `solved == null` (pieces on the board, `sinceSolve = Long.MIN_VALUE`, no pop) for one frame.
+- **Persistence.** `persist` stores `copy(state, pieces)` then `canonical` (`pieces = {}` for Solved): `bestSeconds` and `puzzleSeconds` stay as they were (null on a fresh puzzle, an earlier best kept after a Retry). v1 format untouched (LOCK-V1). The byAid event is not yet consumed by `SessionHost` (the session is built without `onSolved`): by design, WO-008 wires it (F5).
+
+### 3. The secondary slot
+
+- **Board parity by construction.** `hasCorner`, `measured`, `placed` and the layout are computed exactly as before; the secondary `SubcomposeLayout` is after them in the tree, writes no state, and `placeSecondary` only reads `layout` and `primary` (the sweep also asserts the layout's `boardRect`/scale are unchanged by the call). `boardOverlay` is a plain `Box` without pointer input, above the canvas and below both corner slots.
+- **Solved.** The overlay is composed only while `!isSolved`; `TangramApp` composes no pill while `session.state == SOLVED` (reads a snapshot state inside the subcomposition, so it recomposes on the transition). The pill's `blocked` guard and the `clickable` are evaluated at click time.
+- **Release.** The release twin composes an empty `Box` in both slots: the secondary measures to 0 x 0 and is never placed; the overlay `Box` carries no content, no pointer input and no semantics. Nothing with content can be composed in release.
+- **Primary is never null in the app** (`cornerControl` is always passed and `computeWithCorner` returns a non-null placement), so MOVE-JVM ruling 2 only concerns a combination the app cannot produce.
+
+### 4. DevTools UI
+
+- Passcode field: `PasswordVisualTransformation` + `NumberPassword`, max 4 characters (longer refused, not cut), no hint text; a wrong code clears the field and shows only `devtools_wrong_passcode`; the locked-view hint does not mention the code. Unlock is `DevToolsState.unlocked`, held by `DebugAids` in `AppViewModel` (survives rotation and browsing, ends with the ViewModel/process, never persisted).
+- "Solve this puzzle now": `poses == null` or `solveNow(poses) == false` leaves the dialog open with `devtools_solve_failed`; success closes it. `open()` clears a stale notice.
+- Strings: 14 keys in both languages; Finnish is marked AI-written (DA-80); `DEV`, `OK` are language-neutral; V-05 PASS. No hard-coded UI text (piece ids on the overlay are identifiers, not UI text).
+
+### 5. Test substance and the two MOVE-JVM rulings
+
+- **Ruling 1 (file-level `@Suppress`): does not weaken the DA-72 test.** The test compares the set of public function signatures including annotation names; a function-level `@Suppress` made the release stub differ by an annotation that has no bearing on the signature. `@Composable` is still compared, and `decisionDA72_theSignatureReaderCanFail` proves that a dropped `@Composable`, a changed default and a missing parameter are detected. The file-level suppress only silences `UNUSED_PARAMETER` in a file that contains nothing but the two stubs.
+- **Ruling 2 (no-primary case may return null): does not weaken `placeSecondary`.** It matches the design (the never-null claim and the 468-case matrix are with Restart present; `primary = null` is a seam variant). The relaxed test keeps the real checks: a null is accepted only when no board corner is "surely legal" (probe at 4.01 dp), and every non-null result must be legal and the first legal one in order. The with-Restart sweep still asserts non-null for all 468 cases, independently of the product's geometry (own separating-axis check, tie-tolerant).
+- **`SolveByAidDecisionTest` / `AidTimelineDecisionTest`:** assert real behaviour (poses, events and their order, snapshot-equality for every refusal kind, exact-cover swap, drag interruption, a drop solve giving `solved:false` once, next-frame clock, reduced flag). The fixtures for "cannot be placed" are built so the refusal cannot come from an incidental order of checking. No vacuous assertion found.
+- **`ReleaseSeparationTest`:** exempts exactly two whole lines, each in its own file; scans the named trees only; fails loudly without `repo.root` or with an incomplete S; proves each reading with fixtures (path, comment, string, xml, json, import; passcode in code and xml; each wrong exemption). The A4 cache proof (scanned-file edit makes the test re-execute; a `devtools` word fails it at `BrowseStyle.kt:2`) is in the log; I re-read the Gradle input declaration and it declares S with relative path sensitivity.
+- **`DevSolutionTest`:** per-vertex equality with the stored polygon for all 13 puzzles, TYPE-001 colours from an independent table, centroid. Real, not vacuous.
+- **Token substance.** `DevSolutionTest` carries A2 and `ReleaseSeparationTest` carries A4. Both are honest *halves* (data-level A2, source-level A4); the draw half of A2 and the artifact half of A4 (V-04, a verifier) have no token yet (F7).
+
+## Findings
+
+| # | Sev | Target | Observation | REQ / decision | Proposed resolution | Owner |
+|---|---|---|---|---|---|---|
+| F1 | Nit | `devtools/build.gradle.kts:41-51` (`a4FileSetS`), `ReleaseSeparationTest.kt` (`decisionDA72_…`) | The DA-72 signature test reads `app/src/debug/.../DebugAids.kt`, which is not a declared input of the test task (S has `app/src/release/**` but not `app/src/debug/**`). A change that drifts only the debug twin can leave the test UP-TO-DATE or FROM-CACHE and pass stale. Practical effect is nil today because `TangramApp` compiles against each twin per variant, so a drift fails `assembleDebug`/`assembleRelease` anyway. | DA-72, DA-88 (cache-safety intent) | Add `app/src/debug/**` as a second declared input (not into S, so the A4 scan and its fixtures stay exact), or note in the test that compile is the real guard. | TASK-030c / orchestrator |
+| F2 | Nit | `v04_release_apk.py:41,48-49` (`RES_TEXT`, `NONDEX_NEEDLES`) | The resource deny-list is the `devtools_` key prefix plus one English text. If resource name collapsing is ever enabled (path shortening already is), a leaked devtools string would have no `devtools_` key and only the one text would still match; the other 13 strings (Finnish, "Solve this puzzle now", "Show the solution", "Testing aid") are not searched. The canaries would flag a collapse (`app_name`), so this fails closed for the collapse itself; the margin is thin for a partial one. | G-04, DA-79/85 | Add two or three more texts to `NONDEX_NEEDLES` (en and fi) and a fixture for each; keep digits out (DA-85). | TASK-035 (follow-up) |
+| F3 | Nit | `.swdev/verifiers/v04_release_apk.py` (`--positive-control`), tasks.md TASK-036 | The positive control is a manual mode and no routine gate runs it; V-04's default run never proves the scanner on a real debug APK. It passed today. | DA-86 | Keep it a TASK-036 step, and make "run `--positive-control` after any toolchain, AGP or dex-affecting change" a line in the verifier's docstring or `build-map.md`. | orchestrator |
+| F4 | Nit | `ReleaseSeparationTest.kt` `scan()` (`"0417" in line`) | The source scan rejects the digits `0417` anywhere in S, while V-04 deliberately does not search the digits in resources because they occur legitimately (`11.0417` in a vector path of a dependency, seen today). A future vector drawable or number in `app/src/main/res` containing `0417` would fail the JVM test spuriously. | DA-85, DA-89 | When it happens, narrow to `"0417"` with word boundaries, or to `.kt` files; no change now. | TASK-T5 / later |
+| F5 | Note | `SessionHost.kt` (`PlaySession(…, onChanged = changed)`), design 2c | `onSolved` is not wired in `app`: nothing consumes `byAid`. Correct for WO-005 (A3 "no best time" is checked at event level and nothing sets best times yet), but WO-008 must wire it or an aid solve will set a best time. Already carried OUT to WO-008. | REQ-030, REQ-046 A3, DA-73/77 | Keep the carry visible in the WO-008 brief: `SessionHost` passes `onSolved`; the aid-solve regression (held-out `HeldSolveNowStoreTest` exists for the store half). | WO-008 |
+| F6 | Nit | `PlaySession.solveByAid` (`PlaySession.kt:248`) | G-10 "never throws": `isValidPlacement` and the engine calls are fail-closed, but `Silhouette(...)` and `SolvedCheck.isSolved` are called unguarded. Both run on a content-validated puzzle and cannot throw today; it is debug-only reachable. | G-10 | Optionally wrap the validation block in `runCatching { … }.getOrDefault(false)` so a future content defect gives the "could not place" notice instead of a crash. | TASK-031b (optional) |
+| F7 | Note | `DevSolutionTest.kt:22`, `ReleaseSeparationTest.kt:129` | The two tokens are on halves: A2 data level (the draw half is `DevSolutionOverlayTest`, staged, moves in at MOVE-DEV), A4 source level (the artifact half is V-04, which carries no token). Trace-check will count both A2 and A4 as covered now. | REQ-046 A2/A4 | Fine as is (design says data/source level); at the trace audit read A2/A4 coverage as including the device test and V-04 evidence, not only these two files. | traceability auditor |
+| F8 | Nit | `DevCornerButton.kt` KDoc, `DevSolutionOverlay` z-order | (a) The KDoc says hiding the pill on a solved puzzle is done "through [modifier]", but `TangramApp` does it by not composing the pill. (b) The overlay is above the canvas, so a piece being dragged is drawn under the 0.55-alpha shapes. Both are debug-only and cosmetic. | DA-82 | Fix the KDoc sentence; accept (b) or draw the overlay between the board and the dragged piece if the owner complains. | TASK-032/033 (optional) |
+
+## Hand-back lines
+
+- No Blocker, no Should. Everything above is Nit/Note; none blocks MOVE-DEV or TASK-036.
+- Re-review: not needed.

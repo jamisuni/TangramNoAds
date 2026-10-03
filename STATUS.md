@@ -1,6 +1,6 @@
 # STATUS: where TangramNoAds stands
 
-**Updated:** 2026-10-02 ~21:45 (paused mid WO-003 at Jami's request) · **Phase:** requirements **locked** and accepted for the build (G1, Jami 2026-10-02); architecture locked (G2, `architecture.md` v1.0); **Kotlin + Compose build under SWDev — WO-001 #Locking and WO-002 #Content closed, WO-003 (rest of #Solving — first playable APK) in progress** (`build-map.md` §2, `tasks.md` WO-003).
+**Updated:** 2026-10-03 (WO-004 closed) · **Phase:** requirements **locked** and accepted for the build (G1); architecture locked (G2); **Kotlin + Compose build under SWDev — WO-001 #Locking, WO-002 #Content, WO-003 #Solving and WO-004 #Browsing + store closed**: a debug APK with every puzzle, browsing and saved progress; WO-005 (#DevTools) next (`build-map.md` §2).
 
 ## Snapshot
 | What | State |
@@ -12,7 +12,7 @@
 | Owner use so far | Web browser with a mouse (rounds 4–6). **No phone or tablet playtest yet** |
 | Review | The agent's concept review (2026-09-28) was accepted as a whole in round 6; its accepted proposals are listed in `Requirements/evidence/src-011-conversation-round6.md` |
 
-## Build progress (SWDev, 2026-10-02)
+## Build progress (SWDev, 2026-10-03)
 | What | State |
 |---|---|
 | G1 | collection v1.1 incl. `req_types.md` v0.2 accepted by Jami; fresh-eyes review `req_review_01.md` (38 findings, all triaged; capture-side actions CA-1…CA-4 waiting) |
@@ -21,19 +21,21 @@
 | WO-001 #Locking | **closed**: exact geometry kernel + TYPE-004 lock search + drop resolution (engine/state level); 116 kernel tests, 46 acceptance tests (15 held-out, all passed on first run); release manifest has no permissions and no backup |
 | Reference fix | `tools/tangram_geom.outline_corners` now counts 180° pinch points as corners (DA-7): `shapes-warmup-4` gained the anchor (2,2); prototype rebuilt, its tests ALL PASS |
 | WO-002 #Content | **closed**: `content` module — the 13 puzzles packaged from `Tangrams/` at build time, exact parser, ordered library behind the locked `IPuzzleLibrary`; validator verdicts in the golden; 31 content tests + 15 held-out (all passed) |
-| WO-003 #Solving (in progress) | design + plan done (G3), API 26 launch waiver recorded. **Done and verified:** TASK-011…017b (all game logic: layout, session, gestures, hit test, path data, timeline), CR-1 code review forward, TASK-018a Compose drawing (`play.draw`). JVM acceptance tests moved in and green: kernel 127, content 46, play 130 tests, 0 failures. **Running at pause:** TASK-018b (PlayArea, touch adapter, frame loop). Decisions DA-15…DA-37 + 2 staffing rows on the checkpoint-3 list |
-| Nothing playable on a phone yet | the first playable debug APK is WO-003 (after TASK-018b + TASK-019) |
+| WO-004 #Browsing + store | **closed 2026-10-03**: ‹ › with wrap, long-press › to the next unsolved puzzle, the all-puzzles grid with thumbnails, state text, Restart in a free board corner (DA-71), the solved bar (Retry / Next / best time); progress saved on the device in one versioned JSON file (`store`), survives closing the app; **v1 save format frozen** (LOCK-V1: a later change = migration hard-stop). Tests: JVM 469+22 held-out, device 159; held-out first run 6/6 with 0 escaped defects; trace GREEN (26/47 REQs) |
+| WO-003 #Solving | **closed 2026-10-03**: the play slice (tray, drag, tap/twist turns, flip badge, landing preview, lock, corner pulse, solved picture with fade and confetti) + a minimal app shell. Tests: JVM kernel 127, content 46, play 146 (incl. 15 held-out), app 3; device (API 37) play 103, app 4 — the first puzzle is solved by real touch. Held-out first run 11/12 with 0 escaped product defects (the failure was a test defect, DA-45). Decisions DA-15…DA-45 + staffing rows; waiver DA-43 (API 26) |
+| **First playable APK** | `app/build/outputs/apk/debug/app-debug.apk` (debug). Install it with `adb install -r` or from Android Studio. From WO-004 (in progress): browse every puzzle with ‹ › (long-press › jumps to the next unsolved one) and the all-puzzles grid; progress is saved on the device and survives closing the app (the WO-003 debug `puzzle` extra is retired, DA-56) |
 
-## ▶ Resume here (WO-003, paused 2026-10-02 ~21:45)
-1. Read `progress.md` (last entry) and the `tasks.md` WO-003 rows. The status column says what is done.
-2. **TASK-018b is partly done** (`PlayArea.kt` written, JVM green). Its `tasks.md` row lists four open items:
-   - (a) **Espresso blocker:** device tests die on API 37 with `InputManager.getInstance`. Fix: a build step pins `androidTestImplementation` espresso-core 3.7.0 in `play` and `app`; log a decision row.
-   - (b) **Pixel failures (TASK-018a drawing):** BoardPixels 7/26 (visible inner edges) and SolvedPicture 35/39. Seen in a scratch copy; route to a sonnet implementer.
-   - (c) **Staged device-test adapter fixes:** for TASK-T3, as a corrected check.
-   - (d) **Frame-loop deviation:** rule on it.
-3. Start the emulator (`emulator -avd Medium_Phone_API_37.0 -no-window`). Move `.swdev/staged/WO-003/play/src/androidTest/...` into `play/src/androidTest/` and run `:play:connectedDebugAndroidTest`. Route failures per `tasks.md` "Failure routing".
-4. TASK-019 app shell (sonnet), then move in the staged `app/src/androidTest`. TASK-020: APK check, V-07, the F4 validator half, the rule-10 chain.
-5. WO-003 code review → Test & Verify (held-out first run; brief it on the adapter classes in `tasks.md` "Held-out adapters") → trace audit → close → checkpoint 3 (owner review: the Finnish words "Pelialue"/"Tarjotin", DA-15…37, N8 badge strip).
+## ▶ Resume here (WO-005, paused for the night 2026-10-03)
+1. Read `progress.md` (last entry), `workorders/WO-005.md` (ledger + log) and the `tasks.md` WO-005 status column.
+2. **WO-005 #DevTools:** every build task (TASK-030…035) is DONE; MOVE-JVM is DONE (JVM devtools 24, play 188, app 4 green; the A4 cache proof passed). CR-3 is DONE: **forward, 0 B / 0 S / 8 Nits** (`reviews/WO-005-CR-3-code-review.md`; release build clean of DevTools, both directions proven). Triage the 8 nits (route the cheap ones, carry the rest), then MOVE-DEV (staged device tests from `.swdev/staged/WO-005/`), then TASK-036 (one build at a time: V-04 on a release APK must exit 0; `--positive-control` on a fresh debug APK must exit 0 = all four markers found; record both lines in the workorder), then Test & Verify (held-out REQ-046 A1 + A3 from `.swdev/heldout/WO-005/`), the trace audit, the close and checkpoint 5.
+3. Boot the emulator for device work: `emulator -avd Medium_Phone_API_37.0 -no-window -no-audio -no-boot-anim -no-snapshot-save`; one emulator user at a time.
+4. **Owner actions (still open from checkpoint 4, plus WO-005):**
+   - play the debug APK on a phone;
+   - install an **API 26** image (DA-43);
+   - review the AI-written Finnish (WO-003/004 words + 12 `devtools_*` strings);
+   - DA-85 (the G-04 reading: no passcode-digit search in resources) and the DEV pill corner rule (bottom-left unless the picture or Restart is there);
+   - capture side: CA-5 (REQ-046) + CA-6 (the WO-003/004 readings backfill) wait for a SwReqCollector session;
+   - **take a git snapshot** (WO-003, WO-004, WO-005 work uncommitted).
 
 ## Round history
 | Round | When | What Jami said (evidence) | What changed |

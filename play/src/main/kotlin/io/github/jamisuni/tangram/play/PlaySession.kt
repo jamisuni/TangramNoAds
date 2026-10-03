@@ -1,12 +1,16 @@
 package io.github.jamisuni.tangram.play
 
 import androidx.compose.runtime.mutableIntStateOf
+import io.github.jamisuni.tangram.contracts.progress.PieceSave
+import io.github.jamisuni.tangram.contracts.progress.PuzzleProgress
 import io.github.jamisuni.tangram.contracts.puzzle.Puzzle
 import io.github.jamisuni.tangram.kernel.geometry.PieceGeometry
 import io.github.jamisuni.tangram.kernel.geometry.PlacedPiece
 import io.github.jamisuni.tangram.kernel.geometry.Vec2
 import io.github.jamisuni.tangram.kernel.layout.LayoutClass
 import io.github.jamisuni.tangram.kernel.layout.TrayRules
+import io.github.jamisuni.tangram.kernel.geometry.Silhouette
+import io.github.jamisuni.tangram.kernel.lock.LockSearch
 import io.github.jamisuni.tangram.kernel.lock.SolvedCheck
 import io.github.jamisuni.tangram.kernel.model.ExactPoint
 import io.github.jamisuni.tangram.kernel.model.PieceId
@@ -78,6 +82,10 @@ class PlaySession(
     val puzzle: Puzzle,
     private val reducedMotion: () -> Boolean = { false },
     private val resolver: DropResolver = DropResolver(puzzle),
+    /** decision DA-49: fired after each settled event (see [settled]); never mid-drag, per frame, by [toProgress] or [restore]. */
+    private val onChanged: () -> Unit = {},
+    /** decision DA-73: fired once per solve, `false` for a drop, `true` for [solveByAid]; never by [restore]. */
+    private val onSolved: (byAid: Boolean) -> Unit = {},
 ) {
     /** Version counter (snapshot state) bumped on every mutation for Compose observability. CR-1 N1. */
     private val versionState = androidx.compose.runtime.mutableIntStateOf(0)
@@ -110,11 +118,24 @@ class PlaySession(
             (p.where as? Where.Board)?.let { PlacedPiece(p.piece, p.turn, p.mirrored, it.at) }
         }
 
-    var state: PuzzleState = PuzzleState.NEW
-        private set
+    // Own snapshot state (code review F2): only a REAL transition notifies, so a reader of `state` / `isDragging`
+    // does not recompose on every drag frame. The version counter stays for the drawing.
+    private val stateField = androidx.compose.runtime.mutableStateOf(PuzzleState.NEW)
+    private val draggingField = androidx.compose.runtime.mutableStateOf(false)
+
+    /** Observable, and changes only when the state really changes (WO-004 section 4, review F2). */
+    var state: PuzzleState
+        get() = stateField.value
+        private set(value) {
+            if (stateField.value != value) stateField.value = value
+        }
 
     internal var drag: DragState? = null
-        private set
+        private set(value) {
+            field = value
+            val now = value != null
+            if (draggingField.value != now) draggingField.value = now
+        }
 
     internal var pulse: Pulse? = null
         private set
@@ -133,7 +154,13 @@ class PlaySession(
     /** Set by the play area from the measured size; drags need it. */
     internal var layout: PlayLayout? = null
 
-    val isDragging: Boolean get() = drag != null
+    /** Observable, and changes only when a drag starts or ends (review F2). */
+    val isDragging: Boolean
+        get() = draggingField.value
+
+    /** The frame-clock ms of the latest [onFrame]; a rebuilt composition seeds its clock from it (CR-F1). */
+    internal var lastFrameMs: Long = 0L
+        private set
 
     private fun update(piece: PieceId, f: (PieceState) -> PieceState) {
         pieceList = pieceList.map { if (it.piece == piece) f(it) else it }
@@ -192,10 +219,58 @@ class PlaySession(
 
     /** Once per frame: freezes the pose and the preview computed from it. */
     internal fun onFrame(nowMs: Long) {
+        lastFrameMs = nowMs
         expire(nowMs)
+        // decision DA-83: resolve a pending aid solve BEFORE the no-drag early return below (an idle board has no drag)
+        if (solvePending) {
+            solved = SolvedAt(nowMs, reducedMotion())
+            solvePending = false
+            invalidate()
+        }
         val d = drag ?: return
         d.frame = frameAt(d, nowMs) ?: return
         invalidate()
+    }
+
+    /**
+     * decision DA-73: true from an accepted [solveByAid] until the next [onFrame], which starts the REQ-023 timeline
+     * from that frame's clock; the frame loop of the play area treats it as alive.
+     */
+    internal var solvePending: Boolean = false
+        private set
+
+    /**
+     * decision DA-73: the neutral "place these poses and finish" hook. False, changing nothing, unless the puzzle is not
+     * solved, [poses] name exactly the puzzle's pieces once each and every pose is a valid
+     * placement in list order (the lock engine's own rule). On true the pieces sit at the poses, the state is Solved
+     * (TYPE-006 path), the solve is pending for the next frame, then onSolved(true) and onChanged fire.
+     */
+    fun solveByAid(poses: List<PlacedPiece>): Boolean {
+        if (state == PuzzleState.SOLVED) return false
+        val ids = pieceList.map { it.piece }
+        if (poses.size != ids.size || poses.map { it.piece }.toSet() != ids.toSet()) return false
+        val silhouette = Silhouette(puzzle.solution.map { it.polygon })
+        val accepted = ArrayList<PlacedPiece>()
+        for (p in poses) {
+            if (!LockSearch.isValidPlacement(silhouette, accepted, p.piece, p.turn, p.mirrored, p.at)) return false
+            accepted += p
+        }
+        if (!SolvedCheck.isSolved(ids, poses)) return false
+        interruptDrag() // F5/DA-5: a running drag is restored silently first; only an accepted solve gets here
+        val byPiece = poses.associateBy { it.piece }
+        pieceList = pieceList.map { ps ->
+            val p = byPiece.getValue(ps.piece)
+            ps.copy(turn = p.turn, mirrored = p.mirrored, where = Where.Board(p.at))
+        }
+        glides = emptyList()
+        pulse = null
+        shake = null
+        state = PuzzleStates.onPieceLocked(PuzzleStates.onTrayDragStarted(state), true)
+        solvePending = true
+        invalidate()
+        onSolved(true)
+        settled()
+        return true
     }
 
     /** Drops animation facts whose lifetime is over (frame-clock ms). */
@@ -214,13 +289,17 @@ class PlaySession(
     /** REQ-016 A1: a tray piece turns one step (TYPE-003); no effect on the state. No-op unless it is in the tray. */
     internal fun tapTray(piece: PieceId) {
         if (state == PuzzleState.SOLVED) return
-        update(piece) { if (it.where == Where.Tray) it.copy(turn = Turn((it.turn.steps + 1) % 8)) else it }
+        if (pieceList.none { it.piece == piece && it.where == Where.Tray }) return
+        update(piece) { it.copy(turn = Turn((it.turn.steps + 1) % 8)) }
+        settled()
     }
 
     /** REQ-018 A1: a tray piece mirrors. No-op unless it is in the tray. */
     internal fun flipTray(piece: PieceId) {
         if (state == PuzzleState.SOLVED) return
-        update(piece) { if (it.where == Where.Tray) it.copy(mirrored = !it.mirrored) else it }
+        if (pieceList.none { it.piece == piece && it.where == Where.Tray }) return
+        update(piece) { it.copy(mirrored = !it.mirrored) }
+        settled()
     }
 
     /** REQ-016: a board piece turns one step about its centre, kept only if it still locks; else unchanged and shakes. */
@@ -247,6 +326,7 @@ class PlaySession(
             invalidate()
         } else {
             update(cur.piece) { it.copy(turn = next.turn, mirrored = next.mirrored, where = Where.Board(next.at)) }
+            settled()
         }
     }
 
@@ -290,6 +370,7 @@ class PlaySession(
                 if (state == PuzzleState.SOLVED) {
                     solved = SolvedAt(nowMs, reducedMotion())
                     invalidate()
+                    onSolved(false)
                 }
             }
             is DropOutcome.Home -> {
@@ -300,6 +381,7 @@ class PlaySession(
                 }
             }
         }
+        settled()
         return outcome
     }
 
@@ -315,7 +397,68 @@ class PlaySession(
         update(d.piece) { it.copy(turn = pu.turn, mirrored = pu.mirrored, where = pu.where) }
     }
 
+    /** decision DA-49: a settled event finished (drop locked or returned, tray or successful board turn or mirror). */
+    private fun settled() = onChanged()
+
+    /**
+     * WO-004 section 4: the session as progress on top of [base]. Interrupts a drag first (F5/DA-5), reports EVERY piece
+     * in any state (the storage policy is browse's, DA-48), never calls onChanged.
+     */
+    fun toProgress(base: PuzzleProgress): PuzzleProgress {
+        interruptDrag()
+        val saved = pieceList.associate { p ->
+            p.piece to when (val w = p.where) {
+                is Where.Board -> PieceSave.OnBoard(w.at, p.turn, p.mirrored)
+                else -> PieceSave.InTray(p.turn, p.mirrored)
+            }
+        }
+        return base.copy(state = state, pieces = saved)
+    }
+
+    /**
+     * WO-004 section 4: apply [saved] to a fresh session (already sanitized by browse). Calls no onChanged.
+     * A complete IN_PROGRESS save becomes a Solved settle (DA-66).
+     */
+    fun restore(saved: PuzzleProgress) {
+        check(drag == null) { "restore needs a session with no drag" }
+        fun resting(p: PieceState) = p.copy(turn = TrayRules.restingTurn(p.piece.shape), mirrored = false, where = Where.Tray)
+        when (saved.state) {
+            PuzzleState.SOLVED -> settle()
+            PuzzleState.NEW, PuzzleState.IN_PROGRESS -> {
+                val board = saved.state == PuzzleState.IN_PROGRESS
+                pieceList = pieceList.map { p ->
+                    when (val s = saved.pieces[p.piece]) {
+                        null -> resting(p)
+                        is PieceSave.OnBoard ->
+                            if (board) p.copy(turn = s.turn, mirrored = s.mirrored, where = Where.Board(s.at))
+                            else p.copy(turn = s.turn, mirrored = s.mirrored, where = Where.Tray)
+                        is PieceSave.InTray -> p.copy(turn = s.turn, mirrored = s.mirrored, where = Where.Tray)
+                    }
+                }
+                if (board && SolvedCheck.isSolved(pieceList.map { it.piece }, placed)) {
+                    settle() // decision DA-66
+                } else {
+                    state = saved.state
+                }
+            }
+        }
+        invalidate()
+    }
+
+    /**
+     * Solved settle: nothing placed, every piece resting, and t0 far enough in the past that [SolvedTimeline] is
+     * settled from the first frame (picture alpha 1, pieces hidden, no pop, no confetti); no best time here.
+     */
+    private fun settle() {
+        pieceList = pieceList.map {
+            it.copy(turn = TrayRules.restingTurn(it.piece.shape), mirrored = false, where = Where.Tray)
+        }
+        state = PuzzleState.SOLVED
+        solved = SolvedAt(-SETTLED_AGO_MS, reducedMotion())
+    }
+
     private companion object {
+        const val SETTLED_AGO_MS = 10_000L
         const val LIFT_PHONE_DP = 30.0
         const val LIFT_TABLET_DP = 40.0
     }

@@ -6,6 +6,7 @@ import io.github.jamisuni.tangram.kernel.geometry.PieceGeometry
 import io.github.jamisuni.tangram.kernel.geometry.Vec2
 import io.github.jamisuni.tangram.kernel.layout.LayoutClass
 import io.github.jamisuni.tangram.kernel.model.PieceId
+import io.github.jamisuni.tangram.kernel.model.PuzzleState
 import io.github.jamisuni.tangram.kernel.model.Turn
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -59,17 +60,16 @@ class SessionObservationScaffoldingTest {
     fun releaseGlideExpiryAndBoardIntentsBump() {
         val s = session()
         val cell = s.layout!!.cell(piece).centre
-        val pose = PieceGeometry.poseOf(piece, puzzle.solution.first().polygon)!!
         s.beginDrag(piece, cell, 1000L)
+        s.setDragTurn(PieceGeometry.poseOf(piece, puzzle.solution.first().polygon)!!.turn)
         s.dragTo(solutionFinger(s))
         s.onFrame(1200L)
         s.bumps("release") { s.release(1200L) }
         s.bumps("onFrame expiring the glide") { s.onFrame(1400L) }
-        // a mini puzzle may be solved by this one piece; the board intents are no-ops after the solve
-        if (s.state != io.github.jamisuni.tangram.kernel.model.PuzzleState.SOLVED && s.placed.any { it.piece == piece }) {
-            s.bumps("tapBoard") { s.tapBoard(piece, 2000L) }
-            s.bumps("flipBoard") { s.flipBoard(piece, 2100L) }
-        }
-        assertTrue(pose.piece == piece)
+        // precondition (fails loudly): the first puzzle is not solved by one piece, so the board intents are live
+        assertTrue("one lock must leave the puzzle unsolved", s.state != PuzzleState.SOLVED)
+        assertTrue("the locked piece must be on the board", s.placed.any { it.piece == piece })
+        s.bumps("tapBoard") { s.tapBoard(piece, 2000L) }
+        s.bumps("flipBoard") { s.flipBoard(piece, 2100L) }
     }
 }

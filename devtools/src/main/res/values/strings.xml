@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="devtools_button">DEV</string>
+    <string name="devtools_button_description">Developer tools</string>
+    <string name="devtools_title">Developer</string>
+    <string name="devtools_hint_locked">Testing aid, not part of the game. Enter the passcode to see how the pieces go.</string>
+    <string name="devtools_passcode_label">Passcode</string>
+    <string name="devtools_wrong_passcode">Wrong passcode.</string>
+    <string name="devtools_ok">OK</string>
+    <string name="devtools_cancel">Cancel</string>
+    <string name="devtools_hint_unlocked">Unlocked until the app is restarted. The solution overlay stays on while you browse puzzles.</string>
+    <string name="devtools_show_solution">Show the solution</string>
+    <string name="devtools_hide_solution">Hide the solution</string>
+    <string name="devtools_solve_now">Solve this puzzle now</string>
+    <string name="devtools_no_best_time">A puzzle solved here does not set a best time.</string>
+    <string name="devtools_solve_failed">The game engine could not place this puzzle\'s stored solution.</string>
+    <string name="devtools_done">Done</string>
+</resources>

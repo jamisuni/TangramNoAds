@@ -24,6 +24,7 @@ import io.github.jamisuni.tangram.kernel.geometry.Vec2
 import io.github.jamisuni.tangram.kernel.layout.TrayRules
 import io.github.jamisuni.tangram.kernel.model.PieceId
 import io.github.jamisuni.tangram.kernel.model.PieceShape
+import io.github.jamisuni.tangram.kernel.model.PuzzleState
 import io.github.jamisuni.tangram.kernel.model.Turn
 import io.github.jamisuni.tangram.play.DragMotion
 import io.github.jamisuni.tangram.play.PieceDrawing
@@ -53,7 +54,8 @@ internal fun sizeMarkOf(piece: PieceId): SizeMark? = when (piece.shape) {
 
 /** REQ-043: the marks on screen now: a triangle that is in the tray (not on the board, not in the hand). Reads the session. */
 internal fun visibleSizeMarks(session: PlaySession): List<Pair<PieceId, SizeMark>> =
-    session.pieces.filter { it.where == Where.Tray }.mapNotNull { p -> sizeMarkOf(p.piece)?.let { p.piece to it } }
+    if (session.state == PuzzleState.SOLVED) emptyList() // DA-52: no tray, so no marks, once solved
+    else session.pieces.filter { it.where == Where.Tray }.mapNotNull { p -> sizeMarkOf(p.piece)?.let { p.piece to it } }
 
 /** The chip of a mark inside its cell (dp): top-left corner (Spec/02 section 3 step 4b). */
 internal fun sizeMarkRect(cell: RectDp): RectDp {
@@ -109,6 +111,7 @@ internal fun DrawScope.drawPlay(
     measurer: TextMeasurer,
 ) {
     session.version // the one observation read of this pass (CR-1 N1)
+    val trayShown = session.state != PuzzleState.SOLVED // DA-52: SOLVED draws no tray, marks, badge or dashed outlines
     val solved = session.solved
     val sinceSolve = if (solved != null) nowMs - solved.t0 else Long.MIN_VALUE
     val piecesHidden = solved != null && SolvedTimeline.piecesHidden(sinceSolve)
@@ -127,11 +130,11 @@ internal fun DrawScope.drawPlay(
             Size(b.width.toFloat(), b.height.toFloat()),
             CornerRadius(VisualTokens.BOARD_RADIUS_DP, VisualTokens.BOARD_RADIUS_DP),
         )
-        drawPath(silhouettePath(layout.silhouetteDp), VisualTokens.SILHOUETTE)
+        drawPath(silhouettePath(layout), VisualTokens.SILHOUETTE)
 
         // tray: a cell holds its piece, its size mark (REQ-043), the flip badge for PG, or, once the piece left, its dashed outline (REQ-012, DA-37)
         for (s in pieces) {
-            if (!layout.hasCell(s.piece)) continue
+            if (!trayShown || !layout.hasCell(s.piece)) continue
             val cell = layout.cell(s.piece)
             drawRoundRect(
                 VisualTokens.TRAY_CELL,
@@ -141,7 +144,7 @@ internal fun DrawScope.drawPlay(
             )
         }
         for (s in pieces) {
-            if (s.where == Where.Tray || !layout.hasCell(s.piece)) continue
+            if (!trayShown || s.where == Where.Tray || !layout.hasCell(s.piece)) continue
             // DA-37: a piece that left the tray leaves its dashed outline (resting turn, unmirrored, at trayScale)
             val pts = pieceDp(s.piece, TrayRules.restingTurn(s.piece.shape), false, layout.cell(s.piece).centre, layout.trayScale)
             drawPath(
@@ -155,7 +158,7 @@ internal fun DrawScope.drawPlay(
             )
         }
         for (s in pieces) {
-            if (s.where != Where.Tray || s.piece in gliding) continue
+            if (!trayShown || s.where != Where.Tray || s.piece in gliding) continue
             val centre = restingCentre(s, layout) ?: continue
             fillPiece(pieceDp(s.piece, s.turn, s.mirrored, centre, PieceDrawing.scale(s, layout, drag)), pieceColour(s.piece))
         }
@@ -208,7 +211,7 @@ internal fun DrawScope.drawPlay(
                 val toScale = PieceDrawing.scale(s, layout, null)
                 val centre = Vec2(g.fromCentre.x + (to.x - g.fromCentre.x) * t, g.fromCentre.y + (to.y - g.fromCentre.y) * t)
                 val sc = g.fromScale + (toScale - g.fromScale) * t
-                fillPiece(pieceDp(s.piece, s.turn, s.mirrored, centre, sc), pieceColour(s.piece))
+                fillPiece(pieceDp(s.piece, s.turn, s.mirrored, centre, sc * pop), pieceColour(s.piece)) // N6: same pop as the board loop, no step at 180 ms
             }
         }
         if (drag != null) {
@@ -220,19 +223,17 @@ internal fun DrawScope.drawPlay(
             }
         }
 
-        // the solved picture fades in over the pieces (group alpha), then the confetti (REQ-023)
+    }
+
+    // the solved picture fades in over the pieces (group alpha), then the confetti (REQ-023). drawPicture does its own
+    // dp to px step, so it is called OUTSIDE inDp (never scaled twice).
+    if (solved != null) {
+        val a = SolvedTimeline.pictureAlpha(sinceSolve).toFloat()
+        if (a > 0f) drawPictureImage(session.puzzle.picture, layout, a)
+    }
+
+    inDp {
         if (solved != null) {
-            val a = SolvedTimeline.pictureAlpha(sinceSolve).toFloat()
-            if (a >= 1f) {
-                drawPicture(session.puzzle.picture, layout)
-            } else if (a > 0f) {
-                drawIntoCanvas { canvas ->
-                    val paint = Paint().apply { alpha = a }
-                    canvas.saveLayer(Rect(0f, 0f, layout.areaWidth.toFloat(), layout.areaHeight.toFloat()), paint)
-                    drawPicture(session.puzzle.picture, layout)
-                    canvas.restore()
-                }
-            }
             val centre = layout.boardRect.centre
             for (p in SolvedTimeline.confetti(sinceSolve, solved.reducedMotion)) {
                 val col = Color(0xFF000000.toInt() or p.colour).copy(alpha = p.alpha.toFloat())

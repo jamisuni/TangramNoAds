@@ -123,6 +123,12 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
   mentions an ID writes it without the dot (`REQ-039 A2`). Every acceptance-
   test-author and code-review brief says so; the orchestrator greps the new
   test files for tokens before Test & Verify.
+- **Seams and test adapters** *(lesson, WO-003)*:
+  - When the orchestrator plans, every frozen seam in a design names the task that delivers it. A seam changed at planning is written back into the design and `decisions.md` before the test author starts.
+  - Test adapters fail loudly on a miss (`error(…)`), never with a silent `?.invoke` / `?: return`. Tests in the same module call `internal` members directly instead of reflecting.
+  - A device test that pins a pixel is read against the geometry before the drawing is blamed: an outline corner is partly background by definition (DA-40).
+  - Compose UI-test imports *(recurred WO-003 + WO-004)*: `assertExists` / `assertDoesNotExist` / `assertIsDisplayed` are **member** functions of `SemanticsNodeInteraction` (never import them); `click()`, `swipe…()`, `longClick()` inside `performTouchInput` **need** `import androidx.compose.ui.test.<name>`. A test author compiles staged device tests as soon as the API exists (`:<module>:assembleDebugAndroidTest`), before the move-in.
+- **Implementer staffing and hand-backs** *(lesson, WO-003)*: UI, rendering, concurrency and device-only tasks go to the slice-implementer with a **sonnet** override; the haiku default is for mechanical tasks. When a task's done-check cannot exercise the behaviour (visual or device-only), the orchestrator reads the diff before accepting the hand-back. "Complete" with a stub or an empty body is a rejected hand-back.
 - **Gradle on this machine:** set `JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'`
   and `ANDROID_HOME='C:\Users\Jami\AppData\Local\Android\Sdk'` in the command
   if the shell predates them, and call `.\gradlew.bat` (cmd will not run a
@@ -138,9 +144,9 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
 
 ### Current phase
 
-`P3 — WO-003 rest of #Solving` (2026-10-02). Done: G1, G3 toolchain, G2
-(`architecture.md` v1.0), WO-001 #Locking and WO-002 #Content closed
-(checkpoints 1–2 surfaced). **In progress: WO-003 — the first playable APK**
-(paused 2026-10-02 ~21:45 after TASK-018a/018b; resume from `STATUS.md`
-"▶ Resume here" and the `tasks.md` WO-003 status column), then the sequence
-without waiting, unless Jami says stop. Update this line as phases advance.
+`P3 — WO-005 #DevTools` (2026-10-03). Done: G1, G3 toolchain, G2
+(`architecture.md` v1.0), WO-001 #Locking, WO-002 #Content, WO-003 #Solving
+(first playable APK) and WO-004 #Browsing + `store` (browsing, saved progress,
+**v1 save format frozen**) closed (checkpoints 1–4 surfaced). **In progress: WO-005
+#DevTools** (paused 2026-10-03 after its design review; resume from `STATUS.md` "▶ Resume here"), then the sequence without waiting, unless
+Jami says stop. Update this line as phases advance.

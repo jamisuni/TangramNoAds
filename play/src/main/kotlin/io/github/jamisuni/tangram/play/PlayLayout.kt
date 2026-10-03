@@ -21,6 +21,11 @@ internal data class RectDp(val left: Double, val top: Double, val right: Double,
     fun contains(p: Vec2): Boolean = p.x >= left && p.x <= right && p.y >= top && p.y <= bottom
 }
 
+/** F1 / DA-71: where the corner control sits; [STRIP] = no corner was free, a strip above the board was reserved. */
+internal enum class ControlCorner { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, STRIP }
+
+internal data class ControlPlacement(val corner: ControlCorner, val rect: RectDp)
+
 /** DA-30: layout inputs come from window metrics including the system bars (never `Configuration.screenHeightDp`). */
 internal object WindowMetrics {
     fun toDp(px: Int, density: Float): Double = px.toDouble() / density.toDouble()
@@ -113,6 +118,7 @@ internal class PlayLayout private constructor(
         private const val BOARD_BADGE_ABOVE = 4.0
         private const val BOARD_W_FRACTION = 0.82
         private const val BOARD_H_FRACTION = 0.80
+        private const val THUMB_FRACTION = 0.84
 
         /** REQ-013 turn diameter in units, from the kernel (one definition). */
         private fun diameter(piece: PieceId): Double = TrayRules.turnDiameter(piece.shape)
@@ -143,6 +149,87 @@ internal class PlayLayout private constructor(
             return if (scale == Double.MAX_VALUE) 1.0 else maxOf(scale, 0.0)
         }
 
+        /** Code review F1 / DA-71: the corner control's touch box, dp (REQ-037 minimum), and its gap from the edges. */
+        const val CORNER_CONTROL_DP = 48.0
+        const val CORNER_INSET_DP = 4.0
+
+        /** Clearance kept between the control and the silhouette, so a touch beside a piece never reaches the control. */
+        const val CORNER_CLEARANCE_DP = 4.0
+
+        /**
+         * F1 / DA-71: lays out the play area AND places a [controlWidthDp] x [controlHeightDp] control (its MEASURED size) (the corner slot) so it never
+         * sits over the silhouette. The control takes the first corner of the board rect (top-left, top-right,
+         * bottom-left, bottom-right) whose rect, grown by [CORNER_CLEARANCE_DP], touches no silhouette polygon. If no
+         * corner is free, a strip of the control's measured height is reserved above the board (the board shrinks by it) and
+         * the control sits at the strip's left. Pure: no Compose, no Android.
+         */
+        fun computeWithCorner(
+            areaWidthDp: Double,
+            areaHeightDp: Double,
+            screenHeightDp: Double,
+            layoutClass: LayoutClass,
+            trayRows: List<List<PieceId>>,
+            puzzle: Puzzle,
+            controlWidthDp: Double = CORNER_CONTROL_DP,
+            controlHeightDp: Double = CORNER_CONTROL_DP,
+        ): Pair<PlayLayout, ControlPlacement> {
+            val base = compute(areaWidthDp, areaHeightDp, screenHeightDp, layoutClass, trayRows, puzzle)
+            val b = base.boardRect
+            val m = CORNER_INSET_DP
+            val cw = minOf(controlWidthDp, maxOf(0.0, areaWidthDp - 2 * m)) // never wider than the area minus both insets
+            val ch = controlHeightDp
+            val candidates = listOf(
+                ControlPlacement(ControlCorner.TOP_LEFT, RectDp(b.left + m, b.top + m, b.left + m + cw, b.top + m + ch)),
+                ControlPlacement(ControlCorner.TOP_RIGHT, RectDp(b.right - m - cw, b.top + m, b.right - m, b.top + m + ch)),
+                ControlPlacement(ControlCorner.BOTTOM_LEFT, RectDp(b.left + m, b.bottom - m - ch, b.left + m + cw, b.bottom - m)),
+                ControlPlacement(ControlCorner.BOTTOM_RIGHT, RectDp(b.right - m - cw, b.bottom - m - ch, b.right - m, b.bottom - m)),
+            )
+            for (c in candidates) {
+                val r = c.rect
+                val fitsBoard = r.left >= b.left && r.right <= b.right && r.top >= b.top && r.bottom <= b.bottom
+                if (fitsBoard && !touchesSilhouette(r, base.silhouetteDp, CORNER_CLEARANCE_DP)) return base to c
+            }
+            val shrunk = compute(areaWidthDp, areaHeightDp, screenHeightDp, layoutClass, trayRows, puzzle, topReserve = ch)
+            return shrunk to ControlPlacement(ControlCorner.STRIP, RectDp(m, 0.0, m + cw, ch))
+        }
+
+        /** True if [r] grown by [margin] overlaps or touches any polygon (vertex in, rect corner in, or edges cross). */
+        internal fun touchesSilhouette(r: RectDp, polys: List<List<Vec2>>, margin: Double): Boolean {
+            val g = RectDp(r.left - margin, r.top - margin, r.right + margin, r.bottom + margin)
+            val corners = listOf(Vec2(g.left, g.top), Vec2(g.right, g.top), Vec2(g.right, g.bottom), Vec2(g.left, g.bottom))
+            for (poly in polys) {
+                if (poly.any { g.contains(it) }) return true
+                if (corners.any { pointInPolygon(it, poly) }) return true
+                for (i in poly.indices) {
+                    val a = poly[i]
+                    val c = poly[(i + 1) % poly.size]
+                    for (k in corners.indices) if (segmentsIntersect(a, c, corners[k], corners[(k + 1) % 4])) return true
+                }
+            }
+            return false
+        }
+
+        private fun pointInPolygon(p: Vec2, poly: List<Vec2>): Boolean {
+            var inside = false
+            var j = poly.size - 1
+            for (i in poly.indices) {
+                val a = poly[i]
+                val c = poly[j]
+                if ((a.y > p.y) != (c.y > p.y) && p.x < (c.x - a.x) * (p.y - a.y) / (c.y - a.y) + a.x) inside = !inside
+                j = i
+            }
+            return inside
+        }
+
+        private fun segmentsIntersect(a: Vec2, b: Vec2, c: Vec2, d: Vec2): Boolean {
+            fun cross(o: Vec2, p: Vec2, q: Vec2) = (p.x - o.x) * (q.y - o.y) - (p.y - o.y) * (q.x - o.x)
+            val d1 = cross(c, d, a)
+            val d2 = cross(c, d, b)
+            val d3 = cross(a, b, c)
+            val d4 = cross(a, b, d)
+            return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))
+        }
+
         fun compute(
             areaWidthDp: Double,
             areaHeightDp: Double,
@@ -150,6 +237,8 @@ internal class PlayLayout private constructor(
             layoutClass: LayoutClass,
             trayRows: List<List<PieceId>>,
             puzzle: Puzzle,
+            /** F1: height reserved above the board (the corner control's strip); 0 for the plain layout. */
+            topReserve: Double = 0.0,
         ): PlayLayout {
             val g = gap(layoutClass)
             val ts = trayScaleFor(areaWidthDp, screenHeightDp, layoutClass, trayRows)
@@ -174,7 +263,34 @@ internal class PlayLayout private constructor(
             }
 
             // Board: from the top of the area to the tray top, minus the board gap.
-            val boardRect = RectDp(0.0, 0.0, areaWidthDp, maxOf(0.0, trayTop - boardGap(layoutClass)))
+            val boardRect = RectDp(0.0, topReserve, areaWidthDp, maxOf(topReserve, trayTop - boardGap(layoutClass)))
+            val fit = fitSilhouette(boardRect, puzzle, BOARD_W_FRACTION, BOARD_H_FRACTION)
+            return PlayLayout(
+                layoutClass, areaWidthDp, areaHeightDp, fit.scale, fit.originX, fit.originY, boardRect, trayTop, ts, g, rows,
+                cells, fit.silhouetteDp,
+            )
+        }
+
+        /**
+         * WO-004 section 6 (REQ-050 A2, O-09): a layout with NO tray for a grid thumbnail: the silhouette fitted into
+         * a [widthDp] x [heightDp] box with padding. `silhouetteDp`, `toDp` and `boardRect` are the ones the play
+         * area uses, so `silhouettePath` and `drawPicture` are reused as they are.
+         */
+        fun forThumbnail(widthDp: Double, heightDp: Double, puzzle: Puzzle): PlayLayout {
+            val w = maxOf(widthDp, 0.0)
+            val h = maxOf(heightDp, 0.0)
+            val boardRect = RectDp(0.0, 0.0, w, h)
+            val fit = fitSilhouette(boardRect, puzzle, THUMB_FRACTION, THUMB_FRACTION)
+            return PlayLayout(
+                LayoutClass.PHONE, w, h, fit.scale, fit.originX, fit.originY, boardRect, h, 1.0, 0.0, emptyList(),
+                emptyMap(), fit.silhouetteDp,
+            )
+        }
+
+        private class Fit(val scale: Double, val originX: Double, val originY: Double, val silhouetteDp: List<List<Vec2>>)
+
+        /** The silhouette centred in [boardRect], filling at most the given fractions of its width and height. */
+        private fun fitSilhouette(boardRect: RectDp, puzzle: Puzzle, wFraction: Double, hFraction: Double): Fit {
             val units = puzzle.solution.flatMap { s -> s.polygon.map { Vec2(it.x.toDouble(), it.y.toDouble()) } }
             val minX = units.minOf { it.x }
             val maxX = units.maxOf { it.x }
@@ -182,16 +298,14 @@ internal class PlayLayout private constructor(
             val maxY = units.maxOf { it.y }
             val silW = maxOf(maxX - minX, 1e-9)
             val silH = maxOf(maxY - minY, 1e-9)
-            val scale = minOf(boardRect.width * BOARD_W_FRACTION / silW, boardRect.height * BOARD_H_FRACTION / silH)
+            val scale = minOf(boardRect.width * wFraction / silW, boardRect.height * hFraction / silH)
             val c = boardRect.centre
             val ox = c.x - (minX + maxX) / 2 * scale
             val oy = c.y - (minY + maxY) / 2 * scale
             val silDp = puzzle.solution.map { s ->
                 s.polygon.map { Vec2(ox + it.x.toDouble() * scale, oy + it.y.toDouble() * scale) }
             }
-            return PlayLayout(
-                layoutClass, areaWidthDp, areaHeightDp, scale, ox, oy, boardRect, trayTop, ts, g, rows, cells, silDp,
-            )
+            return Fit(scale, ox, oy, silDp)
         }
     }
 }

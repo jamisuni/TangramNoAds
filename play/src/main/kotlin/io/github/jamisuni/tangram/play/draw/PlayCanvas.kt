@@ -25,6 +25,7 @@ import io.github.jamisuni.tangram.play.PlaySession
 import io.github.jamisuni.tangram.play.R
 
 /**
+ * Required by design section 2 and 3 (REQ-011 A1, REQ-012 A1, REQ-043 A1, REQ-018 A2; DA-19 solved timeline).
  * TASK-018a: draws the whole play area and nothing else. No pointer input, no frame loop, no side effect in draw.
  * [layout] and [nowMs] (the frame clock, design E5) are parameters; PlayArea (TASK-018b) supplies them.
  *

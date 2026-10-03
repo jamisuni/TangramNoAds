@@ -94,6 +94,26 @@ object LockSearch {
     }
 
     /**
+     * TYPE-004 validity of one placement, the lock search's own rule (O-01; DA-50): [piece] at ([turn],
+     * [mirrored], [at]) is inside the [silhouette] and overlaps none of [others] (an entry with the piece's own
+     * id is ignored), within [TOLERANCE]. Unlike [find] it does not need an anchor to touch. Fail-closed
+     * (G-10): non-finite input or any exception gives `false`, never a throw.
+     */
+    fun isValidPlacement(
+        silhouette: Silhouette,
+        others: List<PlacedPiece>,
+        piece: PieceId,
+        turn: Turn,
+        mirrored: Boolean,
+        at: ExactPoint,
+    ): Boolean = try {
+        val fit = fitAt(silhouette, others, piece, turn, mirrored, at)
+        fit.insideDeficit <= TOLERANCE && fit.maxOverlap <= TOLERANCE
+    } catch (e: Exception) {
+        false
+    }
+
+    /**
      * DA-1 (TYPE-004 has no tie-break): [candidate] beats [best] when its score is lower by more than
      * [TIE_EPS]; else, scores within [TIE_EPS], when its distance is lower by more than [TIE_EPS]; else,
      * distances within [TIE_EPS], when its `at` is earlier in reading order (smaller y, then smaller x).

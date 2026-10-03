@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AI-written Finnish, owner list (DA-80): every row except devtools_button, devtools_ok (symbols) and devtools_done (the prototype's "Valmis"). -->
+    <string name="devtools_button">DEV</string>
+    <string name="devtools_button_description">Kehittäjän työkalut</string>
+    <string name="devtools_title">Kehittäjä</string>
+    <string name="devtools_hint_locked">Testausapu, ei osa peliä. Anna tunnuskoodi nähdäksesi, miten palat menevät.</string>
+    <string name="devtools_passcode_label">Tunnuskoodi</string>
+    <string name="devtools_wrong_passcode">Väärä tunnuskoodi.</string>
+    <string name="devtools_ok">OK</string>
+    <string name="devtools_cancel">Peruuta</string>
+    <string name="devtools_hint_unlocked">Auki, kunnes sovellus käynnistetään uudelleen. Ratkaisu pysyy näkyvissä, kun selaat tehtäviä.</string>
+    <string name="devtools_show_solution">Näytä ratkaisu</string>
+    <string name="devtools_hide_solution">Piilota ratkaisu</string>
+    <string name="devtools_solve_now">Ratkaise tämä tehtävä nyt</string>
+    <string name="devtools_no_best_time">Näin ratkaistusta tehtävästä ei tallennu parasta aikaa.</string>
+    <string name="devtools_solve_failed">Pelimoottori ei saanut tämän tehtävän tallennettua ratkaisua paikoilleen.</string>
+    <string name="devtools_done">Valmis</string>
+</resources>

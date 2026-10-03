@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="prev_puzzle">Previous puzzle</string>
+    <string name="next_puzzle">Next puzzle (hold: next unsolved)</string>
+    <string name="all_puzzles">All puzzles</string>
+    <string name="done">Done</string>
+    <string name="state_new">new</string>
+    <string name="state_in_progress">in progress</string>
+    <string name="state_solved">solved ✓</string>
+    <string name="restart">Restart</string>
+    <string name="retry">Retry</string>
+    <string name="next">Next</string>
+    <string name="best_time">best time</string>
+    <string name="best_time_none">–</string>
+    <string name="puzzle_counter">%1$d / %2$d</string>
+    <string name="puzzle_counter_description">Puzzle %1$d of %2$d. Show all puzzles</string>
+    <string name="rating_description">Difficulty %1$d of 5</string>
+    <string name="grid_cell_description">%1$d. %2$s · %3$s</string>
+    <string name="time_minutes_seconds">%1$d:%2$02d</string>
+</resources>
