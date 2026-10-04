@@ -693,3 +693,57 @@ entries below and in the tasks.md TASK-018b row).
   - WO-008 (#PlayTime) and WO-009 (#Release) remain.
 - **MOVE-DEV7 done.** The full re-run is green on both channels: API 37 and API 26 each 277/277 (play 116, browse 25, settings 8, app 115, devtools 13); smoke and gate PASS; every `--check` clean.
 - **Paused here.** No new job was started. STATUS "▶ Resume here" points at TASK-058 → T&V7 → AUDIT7 → CLOSE7 → WO-008. The emulator is stopped and no agent is running. Safe to shut down.
+
+## 2026-10-04 (evening) — installable build for a tablet
+
+**Human (verbatim):** is there some installable version to test now on real tablet?
+
+**What was done (summary):** checked `app/build/outputs/apk/debug/app-debug.apk` (built 14:32, newer than every source change, so it holds all of WO-001…007).
+- It is signed with the Android debug key (v2 scheme, verified with apksigner), so it installs on Android 8+ by sideloading.
+- Told Jami the path, how to install it, and what to look at on a tablet.
+- The release APK is unsigned and not installable; that is for WO-009.
+- No new job was started (still paused).
+
+## 2026-10-04 (evening) — stray directory C:\GitHub\I
+
+**Human (verbatim):** plz check if this directory done mistake is need? if not I remove it: C:\GitHub\I
+
+**What was done (summary):** inspected it read-only. It holds one file, `TangramNoAds/.swdev/verifiers/v05_string_parity.py`, written 2026-10-02 07:26 during WO-001. The `\A` of `C:\GitHub\AI` was eaten by a backslash escape (the known slip class).
+- It is an **older draft** of V-05 (3826 bytes). The real verifier in the repo is the later, improved version (4295 bytes, 18:30: it reads every values XML file and raises on a parse error).
+- Nothing references the stray path.
+- **Not needed: safe for Jami to delete.** The AGENTS.md backslash rule gained this example. Nothing was deleted by the agent.
+
+## 2026-10-04 (evening) — first real-device check by Jami
+
+**Human (verbatim):** game seams work, lets see what kiddo says from it... looks good so far!
+
+**What was done (summary):** this is the first owner check on a real tablet: the debug APK with WO-001…007 works. It is recorded as owner evidence, not a requirement change. A child's playtest is coming; its findings will become owner items or capture-side DEF/CHG proposals (the REQs are locked). The session is still paused, with no new job started.
+
+## 2026-10-04 (late) — resume WO-007
+
+**Human (verbatim):** plz continue
+
+**What was done (summary):** resumed from STATUS "▶ Resume here (WO-007)". Next, in order: TASK-058 (release checks, one build at a time) → T&V7 (held-out first run, both channels) → AUDIT7 → CLOSE7 → checkpoint 7 → WO-008 #PlayTime. Entries below.
+- **TASK-058 run 1:** V-01, V-04 and V-08 PASS. The API 26 release launch is OK (754 ms, 0 app FATAL, no permissions).
+- The release screenshot showed the ⚙ glyph filling its whole 48 dp box, so it looked oversized and crowded the edge. **DA-131 / TASK-053c:** the glyph is now 24 dp, centred; the touch box is unchanged.
+- **Re-running:** the `settings` + `app` device suites on API 26 and then API 37. After that, the TASK-058 release steps run again.
+- **TASK-058 done (run 2, after the gear fix):**
+  - V-01, V-04 and V-08 PASS on release (V-08 with the 25 = 25 caller check).
+  - API 26 release launch: 803 ms, 0 FATAL, 0 permission entries; the screenshot shows the ⚙ at icon size.
+  - The V-04 positive control and V-08 `--expect-debug` PASS. V-05/06/07 PASS; JVM 675.
+  - trace-check: every WO-007 REQ is covered. 39 of 47 locked REQs are covered; the remaining 8 belong to WO-008/009.
+- T&V7 dispatched.
+- **WO-007 T&V PASS** (DA-132). The held-out first run passes on both channels; one first-run failure was the solve-by-touch fixture trap again, corrected under route (b). 0 escaped product defects. The trap's 2nd occurrence is now an AGENTS.md rule. Traceability audit dispatched.
+- **WO-007 trace audit GREEN** (7 IDs + 6 carried parts; 72/72 hashes; v1 unchanged; G-04 clean).
+- **WO-007 CLOSED (CLOSE7):**
+  - build-map v1.6 (#Settings built; #Locking cues; the WO-008 carries; the guard re-froze the baseline);
+  - design-inputs 0.4 (the ⚙);
+  - AGENTS.md (the V-08 caller-check duty, `settings` in the device suites, the phase line → WO-008);
+  - the workorder: ledger, deltas, DoD 11/11, metrics;
+  - tasks.md v1.12; STATUS (resume = WO-008).
+- **Checkpoint 7 surfaced to Jami.** Totals: JVM 675; device 277 per channel; verifiers 93. 39 of 47 locked REQs are covered.
+- Next: WO-008 #PlayTime.
+- **WO-008 opened** (#PlayTime, Full mode). `workorders/WO-008.md` is written. The v1 format already holds `puzzleSeconds`, `bestSeconds`, `PlayTime(day, today, total)` and `timerShown`, so the design must fit them, or any change is a row-11 migration with a test. The design author (sonnet) was dispatched with the carries from WO-005, 006 and 007 and the injectable-clock requirement.
+- **WO-008 design rev 0 in.** It has a `time` module with timestamp counting (an injectable clock, a 60 s idle window, no polling when idle). All data fits the frozen v1 fields, so row 11 is not triggered. The highest risk is the order of the four writers of puzzle and best times; the product fork is whether today and total include browsing and settings time. A fresh design review was dispatched.
+- **Turn (Jami):** "time to hit bed.. plz dont start anything new now... we start shutting down"
+  - Pause: no new jobs. The running design review is allowed to finish, and its result will be recorded without acting on it. STATUS "▶ Resume here" now says WO-008 is in design review, with what to do if the review file is or is not there. The API 37 emulator is stopped (it is not needed until the build).

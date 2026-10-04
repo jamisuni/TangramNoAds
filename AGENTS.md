@@ -129,8 +129,8 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
   - A device test that pins a pixel is read against the geometry before the drawing is blamed: an outline corner is partly background by definition (DA-40).
   - Compose UI-test imports *(recurred WO-003 + WO-004)*: `assertExists` / `assertDoesNotExist` are **member** functions of `SemanticsNodeInteraction` (never import them); `assertIsDisplayed`, `assertIsOn` / `assertIsOff` and the other `assert…` helpers are **extension** functions and **need** `import androidx.compose.ui.test.<name>` *(corrected 2026-10-04, WO-007 T7a: the compiler required the import for `assertIsDisplayed`)*; `click()`, `swipe…()`, `longClick()` inside `performTouchInput` **need** `import androidx.compose.ui.test.<name>`. A test author compiles staged device tests as soon as the API exists (`:<module>:assembleDebugAndroidTest`), before the move-in.
 - **Implementer staffing and hand-backs** *(lesson, WO-003)*: UI, rendering, concurrency and device-only tasks go to the slice-implementer with a **sonnet** override; the haiku default is for mechanical tasks. When a task's done-check cannot exercise the behaviour (visual or device-only), the orchestrator reads the diff before accepting the hand-back. "Complete" with a stub or an empty body is a rejected hand-back.
-- **Release safety at every WO close** *(WO-005, CR-3 F3; G-04)*: build the release APK and run `python .swdev/verifiers/v04_release_apk.py` (exit 0 = no DevTools, canary found), then build a fresh debug APK and run `v04_release_apk.py --positive-control` (exit 0 = the scanner sees all four DevTools markers). One build at a time; record both result lines in the workorder. Re-run `--positive-control` also after any toolchain, AGP or dex-affecting change. **From WO-006 also V-08** (DA-104): `python .swdev/verifiers/v08_promise_apk.py` (it builds its own release APK; exit 0 = no SDK class definitions, no permission element, no debug-only class), then `v08_promise_apk.py --apk app/build/outputs/apk/debug/app-debug.apk --expect-debug` on the fresh debug APK. Record both lines.
-- **Two device channels at every WO close** *(WO-005, DA-92/93)*: run the full device suites (`play`, `browse`, `app`, `devtools`) on `Medium_Phone_API_37.0` **and** on `Phone_API_26` (Android 8.0, the minSdk floor), one emulator at a time, and launch a throwaway-signed copy of the release APK on API 26 (signed copy in the scratchpad only, with the local debug key). API 26 renders differently: a path drawn under a canvas scale blurs there, so `play` draws every path in px (the `PlayDrawing.kt` header rule). Never reintroduce a scaled-canvas path draw.
+- **Release safety at every WO close** *(WO-005, CR-3 F3; G-04)*: build the release APK and run `python .swdev/verifiers/v04_release_apk.py` (exit 0 = no DevTools, canary found), then build a fresh debug APK and run `v04_release_apk.py --positive-control` (exit 0 = the scanner sees all four DevTools markers). One build at a time; record both result lines in the workorder. Re-run `--positive-control` also after any toolchain, AGP or dex-affecting change. **From WO-006 also V-08** (DA-104): `python .swdev/verifiers/v08_promise_apk.py` (it builds its own release APK; exit 0 = no SDK class definitions, no permission element, no debug-only class), then `v08_promise_apk.py --apk app/build/outputs/apk/debug/app-debug.apk --expect-debug` on the fresh debug APK. Record both lines. **From WO-007, V-08's feedback-caller check** (DA-123/125/127) fails on any new caller of a sound or haptic API: a new dependency, or a Compose BOM bump. Before extending its pinned allow-list (caller method + callee), re-judge DA-125's inventory and log a decision row.
+- **Two device channels at every WO close** *(WO-005, DA-92/93)*: run the full device suites (`play`, `browse`, `settings`, `app`, `devtools`; `settings` includes the audio smoke) on `Medium_Phone_API_37.0` **and** on `Phone_API_26` (Android 8.0, the minSdk floor), one emulator at a time, and launch a throwaway-signed copy of the release APK on API 26 (signed copy in the scratchpad only, with the local debug key). API 26 renders differently: a path drawn under a canvas scale blurs there, so `play` draws every path in px (the `PlayDrawing.kt` header rule). Never reintroduce a scaled-canvas path draw.
   **Device hygiene (WO-006, DA-108):**
   - Before and after every device step, run `python tools/device_reset.py --serial S`, which resets and then checks.
   - A non-clean `--check` after a step voids that step: reset, re-run, and record the leftover in the workorder.
@@ -149,9 +149,13 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
   file named `C:Users…` in the current folder (happened 2026-10-02).
 - **Never put a backslash into a Python string literal that writes a project file** *(3rd occurrence, 2026-10-04)*:
   `\b`, `\a`, `\r` and `\n` become control bytes. This corrupted `tasks.md` (NUL, 2026-10-03) and the
-  WO-006 evidence line (`app\build\…` → backspace, bell, CR). Write Windows paths with forward slashes
+  WO-006 evidence line (`app\build\…` → backspace, bell, CR; and a stray draft verifier written to `C:/GitHub/I/TangramNoAds/...` on 2026-10-02, where the `A` of `C:/GitHub/AI` was lost after its backslash). Write Windows paths with forward slashes
   in prose, and put long or quoted text into a file with the Write tool first. After any scripted doc
   edit, scan for bytes < 0x20 other than tab and LF.
+- **A device test that solves a puzzle by touch uses the `solveByTouch` pattern** *(2nd occurrence: WO-006 DA-110, WO-007 DA-132)*:
+  place all pieces but the last with `placePieces`, then drop the last one **without** judging it by colour. The solved
+  picture replaces the piece colours at the moment of the solve, so a colour check on the final drop reads a correct
+  solve as a miss. The held-out kit carries the same helper, so a held test cannot reinvent the trap.
 - **A test that compares or exempts across files lands together with every file it reads**
   *(planning lesson, 2nd occurrence: WO-006 plan F1, WO-007 plan F1/F2)*. Examples: an equality
   check of two word-list copies, or a scan whose exempt-key list must match new strings. When a plan
@@ -167,11 +171,13 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
 
 ### Current phase
 
-`P3 — WO-007 #Settings` (2026-10-04). Done: G1, G3 toolchain, G2
+`P3 — WO-008 #PlayTime` (2026-10-04). Done: G1, G3 toolchain, G2
 (`architecture.md` v1.0), WO-001 #Locking, WO-002 #Content, WO-003 #Solving
 (first playable APK), WO-004 #Browsing + `store` (browsing, saved progress,
 **v1 save format frozen**), WO-005 #DevTools (debug-only DEV aid, V-04; API 26
-channel live, DA-92/93) and WO-006 #Layout/#Language/#Promise (phone + tablet,
-fi/en, the free promise; V-08; device hygiene) closed (checkpoints 1–6 surfaced). **Next: WO-007**
+channel live, DA-92/93), WO-006 #Layout/#Language/#Promise (phone + tablet,
+fi/en, the free promise; V-08; device hygiene) and WO-007 #Settings (settings screen,
+sound + haptics behind one gate, reset; platform click/vibration off; V-08 caller check)
+closed (checkpoints 1–7 surfaced). **Next: WO-008**
 (resume from `STATUS.md` "▶ Resume here"), then the sequence without waiting, unless
 Jami says stop. Update this line as phases advance.

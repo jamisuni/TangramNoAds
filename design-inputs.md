@@ -58,6 +58,7 @@ product notes — never cited, never read by workers), `Study/archive/`.
    47.78 dp, below REQ-037's 48 dp floor. `play/src/test/.../TraySizeSweepTest` found this through the real
    `PlayLayout`, and it then pins the fix over 654 windows. With 12 dp the cell is 49.3 dp. The phone gap
    stays 8 dp. REQ-013 names no gap, so this is a build value (CA-7(c)).
+6. DI-2 `Spec/02` §4 gives the **⚙ as 44 dp** → the build gives it a **48 dp touch area** (REQ-037's floor, DA-53) and draws its **glyph at 24 dp**, centred, the standard icon proportion (DA-119, DA-131). The first build drew the glyph across the whole 48 dp box, which looked oversized; the release screenshot on API 26 caught it.
 
 ### Interpretation layer (G1, 2026-10-02)
 
@@ -98,3 +99,4 @@ wins. Known disagreements:
 | 0.1 | 2026-10-01 | initial register from `README.md`, `STATUS.md`, `Spec/`, `Requirements/sources.md` SRC-004 | project adopted under SWDev v0.15, intake path C |
 | 0.2 | 2026-10-02 | §2 interpretation layer: the G1 decisions bind over the prototype; three known disagreements (F5, F3, F7/F8) | G1 acceptance with req_review_01 triage |
 | 0.3 | 2026-10-04 | §2 Superseded item 5: the tablet tray gap is 12 dp, not Spec/02's 14 dp | WO-006 close; DA-100(i), REQ-037 A1 |
+| 0.4 | 2026-10-04 | §2 Superseded item 6: ⚙ 48 dp touch area, 24 dp glyph | WO-007 close; DA-119, DA-131 |

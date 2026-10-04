@@ -32,7 +32,7 @@ fun SettingsGear(controller: SettingsController, modifier: Modifier = Modifier) 
             .semantics { contentDescription = description },
     ) {
         val c = Offset(size.width / 2f, size.height / 2f)
-        val u = size.minDimension / 24f // one design unit in px: a plain multiplication, no canvas scale
+        val u = size.minDimension / 48f // one design unit in px (a plain multiplication, no canvas scale): the 24-unit glyph spans the middle 24 dp, 12 dp clear around it
         for (i in 0 until 8) {
             val a = Math.PI / 4.0 * i
             val dx = cos(a).toFloat()
