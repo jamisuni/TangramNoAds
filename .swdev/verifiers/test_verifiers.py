@@ -781,5 +781,556 @@ class TestV04ReleaseApk(unittest.TestCase):
         self.assertEqual(len(self.v04.positive_control(self.make_apk())), 4)
 
 
+class TestV08PromiseApk(unittest.TestCase):
+    """Tests for V-08. Crafted dex fixtures (no Gradle, no real APK, no real aapt2: a fake aapt2 script).
+    Every detector fixture = clean base B plus exactly ONE change."""
+
+    PKG = "Lio/github/jamisuni/tangram/"
+    MAIN = PKG + "MainActivity;"
+    PLAY = PKG + "play/PlayArea;"
+    LOCALE = PKG + "LocaleOverrideActivity;"
+    TESTCFG = PKG + "TestConfig;"
+    PROBE = PKG + "FeedbackProbe;"
+    SOCKET = "Ljava/net/Socket;"
+    WEBVIEW = "Landroid/webkit/WebView;"
+    ARSC = b"app_name\x00Restart\x00Other\x00"
+    CLEAN_TREE = (
+        "E: manifest (line=2)\n"
+        "  A: package=\"io.github.jamisuni.tangram\" (Raw: \"io.github.jamisuni.tangram\")\n"
+        "  E: uses-sdk (line=7)\n"
+        "    A: http://schemas.android.com/apk/res/android:minSdkVersion(0x0101020c)=26\n"
+        "  E: application (line=12)\n"
+        "    A: http://schemas.android.com/apk/res/android:name(0x01010003)=\"x.App\" (Raw: \"x.App\")\n"
+    )
+
+    def setUp(self):
+        import contextlib
+        import io
+        import zipfile
+        self.contextlib, self.io, self.zipfile = contextlib, io, zipfile
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        sys.path.insert(0, str(Path(__file__).parent))
+        import v08_promise_apk
+        self.v08 = v08_promise_apk
+        self.n = 0
+        # a project tree whose only input is an hour old, so every fresh fixture APK is newer
+        self.root = self.tmp / "proj"
+        src = self.root / "app" / "src" / "main"
+        src.mkdir(parents=True)
+        self.input_file = src / "A.kt"
+        self.input_file.write_text("x", encoding="utf-8")
+        old = os.path.getmtime(self.input_file) - 3600
+        os.utime(self.input_file, (old, old))
+        self.aapt2 = self.fake_aapt2(self.CLEAN_TREE)
+
+    def fake_aapt2(self, tree):
+        self.n += 1
+        txt = self.tmp / f"tree{self.n}.txt"
+        txt.write_text(tree, encoding="utf-8", newline="\n")
+        if os.name == "nt":
+            path = self.tmp / f"aapt2_{self.n}.bat"
+            path.write_text(f'@echo off\r\ntype "{txt}"\r\n', encoding="ascii", newline="")
+        else:
+            path = self.tmp / f"aapt2_{self.n}.sh"
+            path.write_text(f'#!/bin/sh\ncat "{txt}"\n', encoding="utf-8", newline="\n")
+            path.chmod(0o755)
+        return path
+
+    @staticmethod
+    def _uleb(n):
+        out = bytearray()
+        while True:
+            b = n & 0x7F
+            n >>= 7
+            if n:
+                out.append(b | 0x80)
+            else:
+                out.append(b)
+                return bytes(out)
+
+    @classmethod
+    def make_dex(cls, defined, referenced=(), extra_strings=(), version="038", truncate=0, class_idx_override=None,
+                 descriptor_idx_override=None, defs_size_override=None, bad_magic=False, pad=0,
+                 callers=(), code_fault=None):
+        """A dex with string_ids, type_ids, method_ids, class_defs, class_data and code_items.
+        defined = class descriptors with a class_def; referenced = descriptors in type_ids only.
+        callers = [(class, method, [(callee class, callee name), ...])]: a defined class whose method is a real
+        code_item of invoke-virtual instructions plus return-void. code_fault (one change) breaks the code_item:
+        "short" (insns_size cuts an invoke), "size" (insns_size beyond the file), "method" (an invoke names
+        method index 999), "code_off" (code_off beyond the file)."""
+        defined = list(defined)
+        for c in dict.fromkeys(c for c, _, _ in callers):
+            if c not in defined:
+                defined.append(c)
+        meths = []   # (class, name), deduped, caller methods first
+        for c, m, callees in callers:
+            if (c, m) not in meths:
+                meths.append((c, m))
+        for _, _, callees in callers:
+            for ce in callees:
+                if tuple(ce) not in meths:
+                    meths.append(tuple(ce))
+        descs = list(defined)
+        for d in list(referenced) + [c for c, _ in meths]:
+            if d not in descs:
+                descs.append(d)
+        strings = list(descs)
+        for s in [n for _, n in meths] + list(extra_strings):
+            if s not in strings:
+                strings.append(s)
+        ns, nt, nd, nm = len(strings), len(descs), len(defined), len(meths)
+        sid_off = 0x70
+        tid_off = sid_off + 4 * ns
+        mid_off = tid_off + 4 * nt
+        data_off = mid_off + 8 * nm
+        blobs, offs, cur = [], [], data_off
+        for st in strings:
+            item = bytes([len(st)]) + st.encode("utf-8") + b"\x00"
+            offs.append(cur)
+            blobs.append(item)
+            cur += len(item)
+        def_off = cur
+        tail_off = def_off + 32 * nd
+        tail = bytearray()
+        class_data_off = {}
+        for c in defined:
+            mine = [(meths.index((cc, m)), cc, m, callees) for cc, m, callees in callers if cc == c]
+            if not mine:
+                continue
+            entries = []
+            for midx, _, _, callees in sorted(mine, key=lambda t: t[0]):
+                units = []
+                for ce in callees:
+                    units += [0x6E, 999 if code_fault == "method" else meths.index(tuple(ce)), 0]
+                units.append(0x000E)
+                size = {"short": 2, "size": 10 ** 6}.get(code_fault, len(units))
+                code_off = tail_off + len(tail)
+                tail += struct.pack("<HHHHII", 1, 0, 0, 0, 0, size) + b"".join(struct.pack("<H", u) for u in units)
+                entries.append((midx, 10 ** 8 if code_fault == "code_off" else code_off))
+            class_data_off[c] = tail_off + len(tail)
+            tail += cls._uleb(0) + cls._uleb(0) + cls._uleb(len(entries)) + cls._uleb(0)
+            prev = 0
+            for midx, code_off in entries:
+                tail += cls._uleb(midx - prev) + cls._uleb(1) + cls._uleb(code_off)
+                prev = midx
+        body = bytearray()
+        for o in offs:
+            body += struct.pack("<I", o)
+        for i in range(nt):
+            body += struct.pack("<I", i if descriptor_idx_override is None else descriptor_idx_override)
+        for c, m in meths:
+            body += struct.pack("<HHI", descs.index(c), 0, strings.index(m))
+        body += b"".join(blobs)
+        for i, c in enumerate(defined):
+            idx = i if class_idx_override is None else class_idx_override
+            body += struct.pack("<IIIIIIII", idx, 0, 0, 0, 0, 0, class_data_off.get(c, 0), 0)
+        body += tail
+        full_len = 0x70 + len(body)   # the header file_size keeps the ORIGINAL length (truncate/pad leave it stale)
+        if truncate:
+            body = body[:-truncate]
+        body += bytes(pad)
+        head = bytearray(0x70)
+        head[0:8] = (b"xxx\n" if bad_magic else b"dex\n") + version.encode() + b"\x00"
+        struct.pack_into("<I", head, 0x24, 0x70)
+        struct.pack_into("<II", head, 0x38, ns, sid_off)
+        struct.pack_into("<II", head, 0x40, nt, tid_off)
+        struct.pack_into("<II", head, 0x58, nm, mid_off)
+        struct.pack_into("<II", head, 0x60, nd if defs_size_override is None else defs_size_override, def_off)
+        struct.pack_into("<I", head, 0x20, full_len)
+        return bytes(head) + bytes(body)
+
+    OK_CALLER = ("Landroidx/compose/ui/platform/AndroidSoundEffect;", "playClickSound",
+                 [("Landroid/view/View;", "playSoundEffect")])
+
+    def base(self, **kw):
+        d = dict(defined=[self.MAIN, self.PLAY], referenced=[self.SOCKET, self.WEBVIEW], callers=[self.OK_CALLER])
+        d.update(kw)
+        return d
+
+    def make_apk(self, dex=None, arsc=None, dexes=None, **dexkw):
+        self.n += 1
+        path = self.tmp / f"f{self.n}.apk"
+        if dexes is None:
+            dexes = {"classes.dex": dex if dex is not None else self.make_dex(**self.base(**dexkw))}
+        with self.zipfile.ZipFile(path, "w") as z:
+            for name, data in dexes.items():
+                z.writestr(name, data)
+            z.writestr("resources.arsc", self.ARSC if arsc is None else arsc)
+            z.writestr("AndroidManifest.xml", b"<manifest/>")
+        return path
+
+    def run_v08(self, apk, *flags, aapt2=None, root=None):
+        buf = self.io.StringIO()
+        with self.contextlib.redirect_stdout(buf):
+            code = self.v08.main(["--apk", str(apk), "--project-root", str(root or self.root),
+                                  "--aapt2", str(aapt2 or self.aapt2), *flags])
+        return code, buf.getvalue().splitlines()
+
+    def assert_pass(self, apk, *flags):
+        code, lines = self.run_v08(apk, *flags)
+        self.assertEqual(code, 0, lines)
+        self.assertTrue(any(l.startswith("V-08 PASS") for l in lines), lines)
+
+    def assert_fail(self, apk, needle, *flags, **kw):
+        code, lines = self.run_v08(apk, *flags, **kw)
+        self.assertEqual(code, 1, lines)
+        self.assertTrue(any(needle in l for l in lines), lines)
+        self.assertFalse(any("scanner blind" in l for l in lines), lines)
+
+    def test_v08_clean_base_passes_with_framework_references(self):
+        self.assert_pass(self.make_apk())
+
+    def test_v08_dex_versions_035_to_039(self):
+        for v in ("035", "036", "037", "038", "039"):
+            self.assert_pass(self.make_apk(version=v))
+
+    def test_v08_same_type_referenced_passes_then_defined_fails(self):
+        sdk = "Lcom/google/firebase/analytics/FirebaseAnalytics;"
+        self.assert_pass(self.make_apk(referenced=[self.SOCKET, self.WEBVIEW, sdk]))
+        self.assert_fail(self.make_apk(defined=[self.MAIN, self.PLAY, sdk]), "sdk-class")
+
+    def test_v08_each_denied_sdk_kind_defined_fails_with_its_kind(self):
+        for prefix, kind in self.v08.DENIED_SDK:
+            desc = f"L{prefix}Probe;"
+            apk = self.make_apk(defined=[self.MAIN, self.PLAY, desc])
+            code, lines = self.run_v08(apk)
+            self.assertEqual(code, 1, (prefix, lines))
+            self.assertTrue(any(l.startswith("V-08 FAIL sdk-class") and kind in l and desc in l for l in lines),
+                            (prefix, lines))
+            self.assertFalse(any("scanner blind" in l for l in lines), lines)
+
+    def test_v08_denied_kinds_cover_the_promise(self):
+        joined = " ".join(k for _, k in self.v08.DENIED_SDK)
+        for word in ("ads", "billing", "review", "analytics", "crash", "network"):
+            self.assertIn(word, joined)
+
+    def test_v08_sdk_in_second_dex_fails(self):
+        dexes = {"classes.dex": self.make_dex(**self.base()),
+                 "classes2.dex": self.make_dex(defined=["Lokhttp3/OkHttpClient;"])}
+        self.assert_fail(self.make_apk(dexes=dexes), "okhttp3")
+
+    def test_v08_locale_activity_defined_in_release_fails(self):
+        self.assert_fail(self.make_apk(defined=[self.MAIN, self.PLAY, self.LOCALE]), "debug-class-in-release")
+
+    def test_v08_testconfig_defined_in_release_fails(self):
+        self.assert_fail(self.make_apk(defined=[self.MAIN, self.PLAY, self.TESTCFG]), "debug-class-in-release")
+
+    def test_v08_expect_debug_absent_fails_and_present_passes(self):
+        self.assert_fail(self.make_apk(), "debug-class-missing", "--expect-debug")
+        self.assert_fail(self.make_apk(defined=[self.MAIN, self.PLAY, self.LOCALE, self.PROBE]), self.TESTCFG,
+                         "--expect-debug")
+        self.assert_pass(self.make_apk(defined=[self.MAIN, self.PLAY, self.LOCALE, self.TESTCFG, self.PROBE]),
+                         "--expect-debug")
+
+    def test_v08_feedback_probe_defined_in_release_fails(self):
+        self.assert_fail(self.make_apk(defined=[self.MAIN, self.PLAY, self.PROBE]), "debug-class-in-release " + self.PROBE)
+
+    def test_v08_feedback_probe_absent_with_expect_debug_fails(self):
+        self.assert_fail(self.make_apk(defined=[self.MAIN, self.PLAY, self.LOCALE, self.TESTCFG]), self.PROBE,
+                         "--expect-debug")
+
+    def test_v08_debug_classes_only_referenced_do_not_count_as_defined(self):
+        apk = self.make_apk(referenced=[self.LOCALE, self.TESTCFG, self.PROBE])
+        self.assert_pass(apk)
+        self.assert_fail(apk, "debug-class-missing", "--expect-debug")
+
+    def test_v08_canary_minus_one_each_reports_exactly_one_blind_line(self):
+        cases = {
+            "Lio/github/jamisuni/tangram/play/": dict(defined=[self.MAIN]),
+            "Lio/github/jamisuni/tangram/MainActivity;": dict(defined=[self.PLAY]),
+            "app_name": dict(arsc=b"Restart\x00"),
+            "Restart": dict(arsc=b"app_name\x00"),
+        }
+        for label, kw in cases.items():
+            code, lines = self.run_v08(self.make_apk(**kw))
+            self.assertEqual(code, 1, lines)
+            blind = [l for l in lines if "scanner blind" in l]
+            self.assertEqual(len(blind), 1, lines)
+            self.assertIn(label, blind[0])
+            self.assertEqual([l for l in lines if not l.startswith("V-08 note")], blind, lines)
+
+    def test_v08_truncated_class_table_is_exit_2(self):
+        self.assertEqual(self.run_v08(self.make_apk(dex=self.make_dex(**self.base(), truncate=10)))[0], 2)
+
+    def test_v08_inconsistent_tables_are_exit_2(self):
+        bad = [
+            dict(class_idx_override=99),
+            dict(descriptor_idx_override=999),
+            dict(defs_size_override=1000),
+            dict(bad_magic=True),
+        ]
+        for kw in bad:
+            code, lines = self.run_v08(self.make_apk(dex=self.make_dex(**self.base(), **kw)))
+            self.assertEqual(code, 2, (kw, lines))
+
+    def test_v08_file_size_check_alone_rejects_a_padded_dex(self):
+        # tables intact and in bounds; only the header file_size no longer matches the bytes
+        self.v08.parse_dex_classes(self.make_dex(**self.base()))
+        with self.assertRaisesRegex(self.v08.DexError, "file_size"):
+            self.v08.parse_dex_classes(self.make_dex(**self.base(), pad=4))
+        with self.assertRaisesRegex(self.v08.DexError, "file_size"):
+            self.v08.parse_dex_classes(self.make_dex(**self.base(), truncate=10))
+        self.assertEqual(self.run_v08(self.make_apk(dex=self.make_dex(**self.base(), pad=4)))[0], 2)
+
+    def test_v08_one_bad_dex_among_good_is_exit_2(self):
+        dexes = {"classes.dex": self.make_dex(**self.base()),
+                 "classes2.dex": self.make_dex(**self.base(), truncate=5)}
+        self.assertEqual(self.run_v08(self.make_apk(dexes=dexes))[0], 2)
+
+    def test_v08_no_dex_is_exit_2(self):
+        self.assertEqual(self.run_v08(self.make_apk(dexes={"x.bin": b"1"}))[0], 2)
+
+    def test_v08_parse_dex_classes_raises_on_truncation(self):
+        with self.assertRaises(self.v08.DexError):
+            self.v08.parse_dex_classes(self.make_dex(**self.base(), truncate=10))
+        self.assertEqual(self.v08.parse_dex_classes(self.make_dex(**self.base())),
+                         [self.MAIN, self.PLAY, self.OK_CALLER[0]])
+
+    def test_v08_missing_apk_is_exit_2(self):
+        self.assertEqual(self.run_v08(self.tmp / "nope.apk")[0], 2)
+
+    def test_v08_stale_apk_is_exit_2_and_fresh_apk_passes(self):
+        apk = self.make_apk()
+        newer = os.path.getmtime(apk) + 100
+        os.utime(self.input_file, (newer, newer))
+        code, lines = self.run_v08(apk)
+        self.assertEqual(code, 2, lines)
+        self.assertTrue(any("stale" in l for l in lines), lines)
+        older = os.path.getmtime(apk) - 100
+        os.utime(self.input_file, (older, older))
+        self.assert_pass(apk)
+
+    def test_v08_stale_guard_input_set(self):
+        apk = self.make_apk()
+        future = os.path.getmtime(apk) + 100
+        # inputs that count
+        for rel in ("app/src/release/R.kt", "app/src/debug/res/values-fi/strings.xml", "gradle/libs.versions.toml",
+                    "app/build.gradle.kts", "settings.gradle.kts", "Tangrams/p.json",
+                    "app/src/debug/AndroidManifest.xml", "app/src/debug/java/io/x/FeedbackProbe.kt"):
+            f = self.root / rel
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text("x", encoding="utf-8")
+            os.utime(f, (future, future))
+            self.assertEqual(self.run_v08(apk)[0], 2, rel)
+            os.utime(f, (future - 1000, future - 1000))
+        # outputs and caches do not count
+        for rel in ("app/build/gen/X.kt", ".gradle/c.kts", "app/src/main/build/y.txt"):
+            f = self.root / rel
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text("x", encoding="utf-8")
+            os.utime(f, (future, future))
+        self.assertEqual(self.run_v08(apk)[0], 0)
+
+    def test_v08_empty_input_tree_is_exit_2(self):
+        empty = self.tmp / "empty"
+        empty.mkdir()
+        self.assertEqual(self.run_v08(self.make_apk(), root=empty)[0], 2)
+
+    def test_v08_missing_aapt2_is_exit_2(self):
+        self.assertEqual(self.run_v08(self.make_apk(), aapt2=self.tmp / "no-aapt2.exe")[0], 2)
+
+    def test_v08_permission_findings(self):
+        def tree(*elems):
+            t = self.CLEAN_TREE
+            for el, name in elems:
+                t += f'  E: {el} (line=3)\n    A: http://schemas.android.com/apk/res/android:name(0x01010003)="{name}" (Raw: "{name}")\n'
+            return t
+        apk = self.make_apk()
+        bad = [("uses-permission", "android.permission.VIBRATE"),
+               ("permission", "io.github.jamisuni.tangram.SOME_PERMISSION"),
+               ("uses-permission", "android.permission.INTERNET"),
+               ("uses-permission-sdk-23", "android.permission.ACCESS_NETWORK_STATE"),
+               ("uses-permission", "com.android.vending.BILLING"),
+               ("uses-feature", "android.hardware.wifi")]
+        for el, name in bad:
+            self.assert_fail(apk, f"permission {el} {name}", aapt2=self.fake_aapt2(tree((el, name))))
+        self.assert_pass(apk, "--aapt2", str(self.fake_aapt2(tree(("uses-feature", "android.hardware.touchscreen")))))
+
+    def test_v08_debug_mode_reports_androidx_permissions_as_notes(self):
+        name = "io.github.jamisuni.tangram.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        t = self.CLEAN_TREE
+        for el in ("permission", "uses-permission"):
+            t += f'  E: {el} (line=3)\n    A: android:name(0x01010003)="{name}" (Raw: "{name}")\n'
+        dbg = self.make_apk(defined=[self.MAIN, self.PLAY, self.LOCALE, self.TESTCFG, self.PROBE])
+        aapt = self.fake_aapt2(t)
+        code, lines = self.run_v08(dbg, "--expect-debug", aapt2=aapt)
+        self.assertEqual(code, 0, lines)
+        notes = [l for l in lines if l.startswith("V-08 note permission")]
+        self.assertEqual(len(notes), 2, lines)
+        self.assertIn(name, notes[0])
+        # the same manifest in release mode is a finding; a network name stays a finding in debug
+        self.assert_fail(self.make_apk(), f"permission permission {name}", aapt2=aapt)
+        net = self.fake_aapt2(self.CLEAN_TREE + '  E: uses-permission (line=3)\n'
+                              '    A: android:name(0x01010003)="android.permission.INTERNET"\n')
+        self.assert_fail(dbg, "permission uses-permission android.permission.INTERNET", "--expect-debug", aapt2=net)
+
+    def test_v08_manifest_tree_without_uses_sdk_or_application_is_exit_2(self):
+        apk = self.make_apk()
+        for tree in ("E: manifest (line=2)\n  E: application (line=3)\n",
+                     "E: manifest (line=2)\n  E: uses-sdk (line=3)\n",
+                     "E: manifest (line=2)\n"):
+            self.assertEqual(self.run_v08(apk, aapt2=self.fake_aapt2(tree))[0], 2, tree)
+
+    def test_v08_aapt2_without_manifest_output_is_exit_2(self):
+        self.assertEqual(self.run_v08(self.make_apk(), aapt2=self.fake_aapt2("garbage\n"))[0], 2)
+
+    # ---- feedback callers (WO-007 V-1): crafted dex with real code_items and invoke-virtual ----
+
+    ROGUE = "Lcom/example/Rogue;"
+
+    # (kind, callee class, callee name): every target kind the design names
+    FEEDBACK_TARGETS = [
+        ("View.playSoundEffect", "Landroid/view/View;", "playSoundEffect"),
+        ("View.performHapticFeedback", "Landroid/view/View;", "performHapticFeedback"),
+        ("ViewCompat.performHapticFeedback", "Landroidx/core/view/ViewCompat;", "performHapticFeedback"),
+        ("AudioManager.playSoundEffect", "Landroid/media/AudioManager;", "playSoundEffect"),
+        ("Vibrator.vibrate", "Landroid/os/Vibrator;", "vibrate"),
+        ("VibratorManager", "Landroid/os/VibratorManager;", "getDefaultVibrator"),
+        ("VibrationEffect", "Landroid/os/VibrationEffect;", "createOneShot"),
+        ("AudioTrack.play", "Landroid/media/AudioTrack;", "play"),
+        ("SoundPool", "Landroid/media/SoundPool;", "play"),
+        ("MediaPlayer", "Landroid/media/MediaPlayer;", "start"),
+        ("ToneGenerator", "Landroid/media/ToneGenerator;", "startTone"),
+        ("Ringtone", "Landroid/media/Ringtone;", "play"),
+        ("HapticFeedback.performHapticFeedback", "Landroidx/compose/ui/hapticfeedback/HapticFeedback;",
+         "performHapticFeedback"),
+        ("SoundEffect.playClickSound", "Landroidx/compose/ui/platform/SoundEffect;", "playClickSound"),
+        # CR-6 S3: the framework clicks or vibrates from these, and these media and speech players
+        ("View.performClick", "Landroid/view/View;", "performClick"),
+        ("View.performLongClick", "Landroid/view/View;", "performLongClick"),
+        ("View.callOnClick", "Landroid/view/View;", "callOnClick"),
+        ("CompoundButton.performClick", "Landroid/widget/CompoundButton;", "performClick"),
+        ("AudioManager.adjustVolume", "Landroid/media/AudioManager;", "adjustVolume"),
+        ("AudioManager.adjustStreamVolume", "Landroid/media/AudioManager;", "adjustStreamVolume"),
+        ("AudioManager.adjustSuggestedStreamVolume", "Landroid/media/AudioManager;", "adjustSuggestedStreamVolume"),
+        ("AudioManager.setStreamVolume", "Landroid/media/AudioManager;", "setStreamVolume"),
+        ("MediaActionSound", "Landroid/media/MediaActionSound;", "play"),
+        ("TextToSpeech.speak", "Landroid/speech/tts/TextToSpeech;", "speak"),
+        ("TextToSpeech.playEarcon", "Landroid/speech/tts/TextToSpeech;", "playEarcon"),
+    ]
+
+    def with_callers(self, *extra, **kw):
+        return self.make_apk(callers=[self.OK_CALLER, *extra], **kw)
+
+    def allow_list_callers(self):
+        out = []
+        for cls, method, ecls, ename, _status, _reason in self.v08.FEEDBACK_ALLOW:
+            out.append((cls, method, [(ecls, ename)]))
+        return out
+
+    def test_v08_feedback_allow_list_alone_passes(self):
+        self.assert_pass(self.make_apk(callers=self.allow_list_callers()))
+
+    def test_v08_feedback_allow_list_rows_are_exact_and_have_no_planned_entries(self):
+        allow = self.v08.FEEDBACK_ALLOW
+        self.assertEqual({e[4] for e in allow}, {"inventory", "WO-007"})
+        self.assertTrue(all(len(e) == 6 and e[5] for e in allow))     # every row has a reason
+        self.assertFalse(any("Lever" in e[0] or e[0].endswith("SilentHaptic;") or e[0].endswith("SilentSoundEffect;")
+                             for e in allow))
+        self.assertEqual(len({e[:4] for e in allow}), len(allow))      # no duplicate row
+        self.assertEqual({(e[0], e[1], e[2], e[3]) for e in allow if e[4] == "WO-007"}, {
+            ("Lio/github/jamisuni/tangram/settings/ViewHapticOut;", "tick", "Landroid/view/View;", "performHapticFeedback"),
+            ("Lio/github/jamisuni/tangram/settings/AudioTrackSoundOut;", "play", "Landroid/media/AudioTrack;", "play")})
+        da127 = [e for e in allow if e[0].endswith("HapticDefaults;")]
+        self.assertEqual([e[:4] for e in da127], [(
+            "Landroidx/compose/ui/platform/HapticDefaults;", "isPremiumVibratorEnabled",
+            "Landroid/os/Vibrator;", "areAllPrimitivesSupported")])
+
+    def test_v08_feedback_allowed_method_calling_its_pinned_callee_passes(self):
+        cls = "Lio/github/jamisuni/tangram/settings/ViewHapticOut;"
+        self.assert_pass(self.with_callers((cls, "tick", [("Landroid/view/View;", "performHapticFeedback")])))
+        # mangled Kotlin method names compare on the part before the dash
+        self.assertIsNotNone(self.v08.allow_entry(
+            "Landroidx/compose/foundation/text/selection/SelectionManager;", "onRelease-abc123",
+            "Landroidx/compose/ui/hapticfeedback/HapticFeedback;", "performHapticFeedback-CdsT49E"))
+
+    def test_v08_feedback_allowed_class_calling_a_different_target_fails(self):
+        cls = "Lio/github/jamisuni/tangram/settings/ViewHapticOut;"
+        for method, ecls, ename in (("tick", "Landroid/os/Vibrator;", "vibrate"),                      # other callee
+                                    ("buzz", "Landroid/view/View;", "performHapticFeedback"),          # other caller method
+                                    ("tick", "Landroid/view/View;", "playSoundEffect")):               # other callee method
+            apk = self.with_callers((cls, method, [(ecls, ename)]))
+            self.assert_fail(apk, f"feedback-caller {cls}->{method}  calls {ecls}->{ename}")
+        # the same holds for an inventory row: AudioTrackSoundOut may play, not vibrate
+        cls = "Lio/github/jamisuni/tangram/settings/AudioTrackSoundOut;"
+        self.assert_fail(self.with_callers((cls, "play", [("Landroid/os/Vibrator;", "vibrate")])),
+                         f"feedback-caller {cls}->play")
+
+    def test_v08_feedback_one_extra_caller_fails_for_each_target_kind(self):
+        for kind, ccls, cname in self.FEEDBACK_TARGETS:
+            apk = self.with_callers((self.ROGUE, "buzz", [(ccls, cname)]))
+            code, lines = self.run_v08(apk)
+            self.assertEqual(code, 1, (kind, lines))
+            hits = [l for l in lines if l.startswith(f"V-08 FAIL feedback-caller {self.ROGUE}->buzz")]
+            self.assertEqual(len(hits), 1, (kind, lines))
+            self.assertIn(f"{ccls}->{cname}", hits[0])
+            self.assertFalse(any("scanner blind" in l for l in lines), (kind, lines))
+
+    def test_v08_feedback_s3_non_targets_do_not_fire(self):
+        # AudioManager methods that play nothing, and an app-level method that only shares the name performClick
+        calls = [("Landroid/media/AudioManager;", "getStreamVolume"),
+                 ("Landroid/media/AudioManager;", "requestAudioFocus"),
+                 ("Lcom/example/Own;", "performClick")]
+        self.assert_pass(self.with_callers((self.ROGUE, "quiet", calls)))
+
+    def test_v08_feedback_extra_caller_in_second_dex_fails(self):
+        dexes = {"classes.dex": self.make_dex(**self.base()),
+                 "classes2.dex": self.make_dex(defined=[], callers=[
+                     (self.ROGUE, "buzz", [("Landroid/os/Vibrator;", "vibrate")])])}
+        self.assert_fail(self.make_apk(dexes=dexes), f"feedback-caller {self.ROGUE}->buzz")
+
+    def test_v08_feedback_non_playing_media_calls_are_named_exclusions(self):
+        calls = [(c + ";", "x") for c in self.v08.dex_callers.NON_PLAYING_MEDIA]
+        calls += [("Landroid/media/AudioManager;", "getStreamVolume"), ("Landroid/media/AudioTrack;", "<init>")]
+        self.assertGreaterEqual(len(self.v08.dex_callers.NON_PLAYING_MEDIA), 4)
+        self.assert_pass(self.with_callers((self.ROGUE, "quiet", calls)))
+
+    def test_v08_feedback_blind_when_no_pinned_inventory_caller_is_found(self):
+        planned = ("Lio/github/jamisuni/tangram/settings/AudioTrackSoundOut;", "play",
+                   [("Landroid/media/AudioTrack;", "play")])
+        for callers in ([], [planned], [(self.ROGUE, "quiet", [("Landroid/os/Handler;", "post")])]):
+            code, lines = self.run_v08(self.make_apk(callers=callers))
+            self.assertEqual(code, 1, lines)
+            blind = [l for l in lines if "scanner blind feedback-caller" in l]
+            self.assertEqual(len(blind), 1, lines)
+            self.assertEqual([l for l in lines if not l.startswith("V-08 note")], blind, lines)
+
+    def test_v08_feedback_malformed_code_item_is_exit_2(self):
+        for fault in ("short", "size", "method", "code_off"):
+            dex = self.make_dex(**self.base(), code_fault=fault)
+            code, lines = self.run_v08(self.make_apk(dex=dex))
+            self.assertEqual(code, 2, (fault, lines))
+            with self.assertRaises(self.v08.DexError):
+                self.v08.dex_callers.find_callers(dex)
+
+    def test_v08_feedback_find_callers_returns_exact_hits(self):
+        dex = self.make_dex(**self.base(callers=[
+            self.OK_CALLER, (self.ROGUE, "m", [("Landroid/os/Vibrator;", "vibrate"), ("Landroid/os/Handler;", "post")])]))
+        self.assertEqual(self.v08.dex_callers.find_callers(dex), {
+            (self.OK_CALLER[0], "playClickSound", "Landroid/view/View;", "playSoundEffect"),
+            (self.ROGUE, "m", "Landroid/os/Vibrator;", "vibrate")})
+
+    def test_v08_feedback_dex_callers_fails_closed_on_bad_tables(self):
+        good = self.make_dex(**self.base())
+        self.v08.dex_callers.find_callers(good)
+        with self.assertRaises(self.v08.DexError):
+            self.v08.dex_callers.find_callers(self.make_dex(**self.base(), bad_magic=True))
+        with self.assertRaises(self.v08.DexError):
+            self.v08.dex_callers.find_callers(self.make_dex(**self.base(), truncate=10))
+        for off, size in ((0x58, 5000), (0x60, 5000), (0x40, 5000)):   # method_ids, class_defs, type_ids beyond the file
+            cut = bytearray(good)
+            struct.pack_into("<I", cut, off, size)
+            with self.assertRaises(self.v08.DexError, msg=hex(off)):
+                self.v08.dex_callers.find_callers(bytes(cut))
+
+    def test_v08_files_are_utf8_lf_no_nul(self):
+        for name in ("v08_promise_apk.py", "dex_callers.py", "test_verifiers.py"):
+            raw = (Path(__file__).parent / name).read_bytes()
+            raw.decode("utf-8")
+            self.assertNotIn(b"\r", raw, name)
+            self.assertNotIn(b"\x00", raw, name)
+
+
 if __name__ == "__main__":
     unittest.main()

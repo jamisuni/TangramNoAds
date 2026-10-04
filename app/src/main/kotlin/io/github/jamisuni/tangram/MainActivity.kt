@@ -12,10 +12,11 @@ import androidx.lifecycle.ViewModelProvider
 import io.github.jamisuni.tangram.kernel.layout.LayoutRules
 
 /** O-05 / O-09 shell: edge to edge, the F3 orientation policy, the app state in a ViewModel (DA-26, WO-004). */
-class MainActivity : ComponentActivity() {
+open class MainActivity : ComponentActivity() {
     private lateinit var model: AppViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        PlatformFeedbackLever.installProcessFlags() // DA-125: first, before any compose context exists
         // decisions F3: the device-level smallest width, re-evaluated on every (re)creation. Set before
         // super.onCreate so a phone launched in landscape is not created and then recreated (CR-2 N8).
         requestedOrientation =
@@ -30,14 +31,20 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
         )
         model = ViewModelProvider(this, AppViewModel.Factory(filesDir))[AppViewModel::class.java]
+        model.haptics.attach(window.decorView)
         model.host.session?.interruptDrag() // F5: window change
-        setContent { TangramApp(model.controller, model.host, model.aids) }
+        setContent { TangramApp(model.controller, model.host, model.aids, model.settings) }
     }
 
     override fun onPause() {
         model.host.session?.interruptDrag() // F5: app hidden; first, so the save holds the settled board
         model.controller.persist() // DA-49
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        model.haptics.detach(window.decorView) // the ViewModel outlives the Activity; only this window's view
+        super.onDestroy()
     }
 
     override fun onStop() {

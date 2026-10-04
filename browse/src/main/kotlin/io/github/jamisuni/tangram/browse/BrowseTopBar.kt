@@ -46,7 +46,12 @@ internal const val LONG_PRESS_MS = 500L
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BrowseTopBar(controller: BrowseController, layoutClass: LayoutClass, modifier: Modifier = Modifier) {
+fun BrowseTopBar(
+    controller: BrowseController,
+    layoutClass: LayoutClass,
+    modifier: Modifier = Modifier,
+    trailing: @Composable () -> Unit = {},
+) {
     val height = if (layoutClass == LayoutClass.TABLET) 74.dp else 66.dp
     val puzzle = controller.current
     val total = controller.puzzles.size
@@ -116,6 +121,7 @@ fun BrowseTopBar(controller: BrowseController, layoutClass: LayoutClass, modifie
             onClick = controller::next,
             onLongClick = controller::nextUnsolved,
         )
+        trailing()
     }
 }
 

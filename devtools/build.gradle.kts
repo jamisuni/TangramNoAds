@@ -47,6 +47,7 @@ val a4FileSetS = listOf(
     "contracts/src/main/**",
     "content/src/main/**",
     "store/src/main/**",
+    "settings/src/main/**",
     "app/src/release/**",
     "app/build.gradle.kts",
     "settings.gradle.kts",

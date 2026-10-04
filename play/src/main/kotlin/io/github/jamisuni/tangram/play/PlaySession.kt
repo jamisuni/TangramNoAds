@@ -77,6 +77,9 @@ internal data class Glide(val piece: PieceId, val fromCentre: Vec2, val fromScal
 /** A 400 ms shake of a board piece that could not turn or mirror (REQ-016 A2, REQ-018). */
 internal data class Shake(val piece: PieceId, val startMs: Long)
 
+/** decision DA-115: what the player did, for the sound and haptic cue; fired before the settled-event persistence. */
+enum class PlayEvent { PICK_UP, TURN, LOCK, RETURN, SOLVE }
+
 /** Touched only from the main thread (no locking). */
 class PlaySession(
     val puzzle: Puzzle,
@@ -87,6 +90,12 @@ class PlaySession(
     /** decision DA-73: fired once per solve, `false` for a drop, `true` for [solveByAid]; never by [restore]. */
     private val onSolved: (byAid: Boolean) -> Unit = {},
 ) {
+    /**
+     * decision DA-115: one call per [PlayEvent], each BEFORE [settled] so disk I/O never delays a cue. Silent: a refused
+     * board turn or mirror, [interruptDrag], [restore], [toProgress]. Set after construction; nothing fires during it.
+     */
+    var onEvent: (PlayEvent) -> Unit = {}
+
     /** Version counter (snapshot state) bumped on every mutation for Compose observability. CR-1 N1. */
     private val versionState = androidx.compose.runtime.mutableIntStateOf(0)
 
@@ -203,6 +212,7 @@ class PlaySession(
         )
         invalidate()
         update(piece) { it.copy(where = Where.Dragged) }
+        onEvent(PlayEvent.PICK_UP)
     }
 
     /** The finger moved; the pose is frozen only by [onFrame]. */
@@ -213,8 +223,11 @@ class PlaySession(
 
     /** A twist changed the turn; applied about the fixed centre at the next frame. */
     internal fun setDragTurn(turn: Turn) {
-        drag?.turn = turn
+        val d = drag
+        val changed = d != null && d.turn != turn
+        d?.turn = turn
         invalidate()
+        if (changed) onEvent(PlayEvent.TURN)
     }
 
     /** Once per frame: freezes the pose and the preview computed from it. */
@@ -268,6 +281,7 @@ class PlaySession(
         state = PuzzleStates.onPieceLocked(PuzzleStates.onTrayDragStarted(state), true)
         solvePending = true
         invalidate()
+        onEvent(PlayEvent.SOLVE)
         onSolved(true)
         settled()
         return true
@@ -291,6 +305,7 @@ class PlaySession(
         if (state == PuzzleState.SOLVED) return
         if (pieceList.none { it.piece == piece && it.where == Where.Tray }) return
         update(piece) { it.copy(turn = Turn((it.turn.steps + 1) % 8)) }
+        onEvent(PlayEvent.TURN)
         settled()
     }
 
@@ -299,6 +314,7 @@ class PlaySession(
         if (state == PuzzleState.SOLVED) return
         if (pieceList.none { it.piece == piece && it.where == Where.Tray }) return
         update(piece) { it.copy(mirrored = !it.mirrored) }
+        onEvent(PlayEvent.TURN)
         settled()
     }
 
@@ -326,6 +342,7 @@ class PlaySession(
             invalidate()
         } else {
             update(cur.piece) { it.copy(turn = next.turn, mirrored = next.mirrored, where = Where.Board(next.at)) }
+            onEvent(PlayEvent.TURN)
             settled()
         }
     }
@@ -367,9 +384,11 @@ class PlaySession(
                 val all = SolvedCheck.isSolved(pieceList.map { it.piece }, placed)
                 state = PuzzleStates.onPieceLocked(state, all)
                 invalidate()
+                onEvent(PlayEvent.LOCK)
                 if (state == PuzzleState.SOLVED) {
                     solved = SolvedAt(nowMs, reducedMotion())
                     invalidate()
+                    onEvent(PlayEvent.SOLVE)
                     onSolved(false)
                 }
             }
@@ -379,6 +398,7 @@ class PlaySession(
                     pulse = Pulse(it, nowMs, reducedMotion())
                     invalidate()
                 }
+                onEvent(PlayEvent.RETURN)
             }
         }
         settled()

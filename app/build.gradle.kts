@@ -35,6 +35,7 @@ dependencies {
     implementation(project(":play"))
     implementation(project(":store"))
     implementation(project(":browse"))
+    implementation(project(":settings"))
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -45,4 +46,27 @@ dependencies {
     androidTestImplementation(libs.androidx.test.espresso.core)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(project(":devtools"))
+}
+
+// The unit-test inputs (DA-88): the files the source scan reads, declared with globs from the repo root
+// so a changed file re-runs the test. Never build output, never .gradle/.
+val scannedFileGlobs = listOf(
+    "*/src/main/**",
+    "*/src/release/**",
+    "*/src/debug/**",
+    "*/src/*/res/values*/strings.xml",
+    "gradle/libs.versions.toml",
+    "**/build.gradle.kts",
+    "settings.gradle.kts",
+    "Tangrams/*.json",
+    "*/src/androidTest/**/PromiseWords.kt",
+)
+
+tasks.withType<Test>().configureEach {
+    inputs.files(fileTree(rootDir) {
+        include(scannedFileGlobs)
+        // The directory names the scan skips, at any depth.
+        exclude("**/build/**", "**/.gradle/**", "**/.git/**", "**/.idea/**", "**/.swdev/**", "**/Study/**", "**/Requirements/**", "**/node_modules/**")
+    }).withPathSensitivity(PathSensitivity.RELATIVE)
+    systemProperty("repo.root", rootDir.absolutePath)
 }

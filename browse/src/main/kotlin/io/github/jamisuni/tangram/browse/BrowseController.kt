@@ -103,6 +103,14 @@ class BrowseController(
         showAt(indexState)
     }
 
+    /**
+     * After a confirmed reset (decision DA-120): the current puzzle stays shown, now New. It is exactly
+     * `showAt(index)`: a fresh session restored from the (already erased) store. It never calls [persist],
+     * never writes the store and never writes `lastShown`. [persist] captures `host.session`, which this call has
+     * already replaced, so a later [persist] can only save the New board. Idempotent.
+     */
+    fun afterReset() = showAt(indexState)
+
     /** Saves the shown puzzle in canonical form (decisions DA-48, DA-65). */
     fun persist() {
         val id = current.id

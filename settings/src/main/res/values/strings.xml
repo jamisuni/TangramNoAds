@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_open_description">Settings</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_done">Done</string>
+    <string name="settings_sound">Sound</string>
+    <string name="settings_sound_on_description">On</string>
+    <string name="settings_sound_off_description">Off</string>
+    <string name="settings_reset">Reset all progress</string>
+    <string name="settings_reset_question">Really erase all solved puzzles and times?</string>
+    <string name="settings_reset_confirm">Erase</string>
+    <string name="settings_reset_cancel">Keep</string>
+    <string name="settings_how_to">How to play: drag a piece onto the shape. Pieces keep their size; in the tray the triangles are marked S, M and L. Tap a piece to turn it 45°, in the tray or on the board, or hold it and twist with a second finger. The flip badge mirrors the parallelogram. A piece locks against the shape\'s corners and other pieces, or goes back to the tray. Hold › to jump to the next unsolved puzzle; the number in the top bar opens all puzzles.</string>
+    <string name="settings_free_note">Enjoy, it\'s absolutely free. No ads, no purchases, no network. Your play time stays on this device.</string>
+    <string name="settings_privacy">Privacy: this game collects no data. It has no network access, no accounts and no analytics. Your puzzle progress and play times are stored only on this device and are deleted when the game is uninstalled.</string>
+</resources>

@@ -9,7 +9,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.focusGroup
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.platform.LocalFocusManager
+import io.github.jamisuni.tangram.settings.SettingsController
+import io.github.jamisuni.tangram.settings.SettingsGear
+import io.github.jamisuni.tangram.settings.SettingsOverlay
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,7 +41,12 @@ import io.github.jamisuni.tangram.play.PuzzleThumbnail
  * tray on every API level. Back closes the grid while it is open (REQ-050); otherwise it leaves the app.
  */
 @Composable
-fun TangramApp(controller: BrowseController, host: SessionHost, aids: DebugAids) {
+fun TangramApp(controller: BrowseController, host: SessionHost, aids: DebugAids, settings: SettingsController) {
+    PlatformFeedbackLever.Provide { TangramContent(controller, host, aids, settings) }
+}
+
+@Composable
+private fun TangramContent(controller: BrowseController, host: SessionHost, aids: DebugAids, settings: SettingsController) {
     val density = LocalDensity.current
     val sizePx = LocalWindowInfo.current.containerSize
     val widthDp = sizePx.width / density.density
@@ -42,9 +54,19 @@ fun TangramApp(controller: BrowseController, host: SessionHost, aids: DebugAids)
     val layoutClass = LayoutRules.classFor(widthDp.toDouble())
     val rows = remember(layoutClass) { TrayRows.forClass(layoutClass) }
 
+    val focus = LocalFocusManager.current
+    LaunchedEffect(settings.isOpen) { if (settings.isOpen) focus.clearFocus() } // a base control may hold focus
+
     Box(Modifier.fillMaxSize().background(BROWSE_PAPER)) {
-        Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
-            BrowseTopBar(controller, layoutClass)
+        val baseModifier = if (settings.isOpen) {
+            Modifier.clearAndSetSemantics { }
+                .focusProperties { onEnter = { cancelFocusChange() } }
+                .focusGroup()
+        } else {
+            Modifier
+        }
+        Column(baseModifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
+            BrowseTopBar(controller, layoutClass, trailing = { SettingsGear(settings) })
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 val session = host.session
                 if (session != null) {
@@ -55,6 +77,7 @@ fun TangramApp(controller: BrowseController, host: SessionHost, aids: DebugAids)
                             trayRows = rows,
                             screenHeight = heightDp.dp,
                             modifier = Modifier.fillMaxSize(),
+                            inputEnabled = !settings.isOpen,
                             solvedBar = { SolvedBar(controller.shownBestSeconds, controller::restart, controller::next) },
                             // F1 / DA-71: always composed, so the slot is measured once and the board never relayouts
                             cornerControl = {
@@ -84,8 +107,12 @@ fun TangramApp(controller: BrowseController, host: SessionHost, aids: DebugAids)
                 modifier = Modifier.fillMaxSize(),
             )
         }
+        if (settings.isOpen) {
+            SettingsOverlay(settings, Modifier.fillMaxSize())
+        }
     }
     BackHandler(enabled = controller.gridOpen) { controller.closeGrid() }
+    BackHandler(enabled = settings.isOpen) { settings.close() } // registered last, so it wins
 }
 
 /**

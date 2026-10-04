@@ -81,6 +81,8 @@ fun PlayArea(
     boardOverlay: (@Composable BoxScope.(BoardSpace) -> Unit)? = null,
     /** decision DA-75: placed by [PlayLayout.placeSecondary] AFTER the board and the primary slot; never feeds the layout. */
     secondaryCornerControl: (@Composable BoxScope.() -> Unit)? = null,
+    /** decision DA-118: false cancels the gesture machine silently (no event) and ignores new downs. */
+    inputEnabled: Boolean = true,
 ) {
     BoxWithConstraints(modifier.semantics { testTag = "play-area" }) {
         val w = maxWidth.value.toDouble()
@@ -134,6 +136,15 @@ fun PlayArea(
             attached[0] = layout
             session.layout = layout
         }
+        // decision DA-118: disabling cancels a live gesture through the same silent path; downs are ignored below.
+        val inputOn = rememberUpdatedState(inputEnabled)
+        SideEffect {
+            if (!inputEnabled) {
+                queue.clear()
+                machine.cancel()
+                session.interruptDrag()
+            }
+        }
         // Leaving the composition: the loop dies with its queue, so cancel directly (needs no time).
         DisposableEffect(machine) {
             onDispose {
@@ -177,14 +188,14 @@ fun PlayArea(
                     ids.clear()
                     val first = awaitFirstDown(requireUnconsumed = false)
                     ids[first.id] = next++
-                    enqueue(PointerEv.Down(ids.getValue(first.id), dp(first.position, d)))
+                    if (inputOn.value) enqueue(PointerEv.Down(ids.getValue(first.id), dp(first.position, d)))
                     do {
                         val event = awaitPointerEvent(PointerEventPass.Main)
                         for (c in event.changes) {
                             val id = ids.getOrPut(c.id) { next++ }
                             val p = dp(c.position, d)
                             when {
-                                c.changedToDown() -> enqueue(PointerEv.Down(id, p))
+                                c.changedToDown() -> if (inputOn.value) enqueue(PointerEv.Down(id, p))
                                 c.changedToUp() -> {
                                     enqueue(PointerEv.Up(id, p))
                                     ids.remove(c.id)

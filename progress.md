@@ -530,3 +530,166 @@ entries below and in the tasks.md TASK-018b row).
   - verifiers 52.
 - Next: WO-006 #Layout, #Language, #Promise, in Full mode, opened right away per the G1 instruction "continue with all reqs".
 - **WO-006 opened** (#Layout, #Language, #Promise, Full mode): `workorders/WO-006.md` was written, and the design author (sonnet, fresh) was dispatched with 13 in-scope acceptance IDs, the carried-in REQ-037 `dev-*` exemption, both device channels, and the hard-stop on any v1 save-format change for rotation.
+- **WO-006 design rev 0 in.** Most of the WO is evidence for behaviour that already exists. It has two code findings: a REQ-037 tray-cell breach on narrow tablets and a title-language mismatch. The highest risk is the display-override harness. A fresh design review was dispatched.
+- **WO-006 design review: recirculate, 0 B / 8 S / 9 N.**
+  - Rulings: F4 (the REQ-013 ↔ REQ-037 conflict in short split-screen windows) keeps today's behaviour as the interim and becomes a two-option CHG for Jami. F5 (the *Swedish, Finnish* language list) gets a test on today's code first, no build change, and an owner option. F7 (the no-clip check) applies at font scale 1.0 only. The rest are as the reviewer required.
+  - Design rev 1 is in progress.
+- **WO-006 design rev 1 in.** All 8 S and 9 N are applied. It adds `tools/device_reset.py` (crash-safe device hygiene before and after every suite), a fail-loud `DisplayRule`, a harness scaffolding gate, the interim rules for F4 and F5, V-08 building its own APK, and DA-96…108 with CA-7 and CA-8. The spot-check re-review was dispatched to the original reviewer.
+- **WO-006 design is forward.** Rev 1 passed its spot-check with edits E1–E6, now applied as rev 2. Logged DA-96…108 and CA-7/CA-8; CA-7(b) and CA-8(a) are owner decisions for checkpoint 6. tasks.md v1.7 is the WO-006 plan, written by the orchestrator as planner under a logged exception. A fresh plan review was dispatched.
+- **WO-006 plan review: recirculate, 1 B / 10 S / 6 N.** The blocker: the word-list equality check read a device file that was not in the tree at MOVE-JVM6. tasks.md v1.8 applies all 17 findings:
+  - strict build order;
+  - named smoke and probe checks that can fail;
+  - V-08's `class_defs` reader and pre-runs;
+  - a per-kind re-run proof;
+  - gate, inset and time evidence;
+  - contingent triggers;
+  - C1–C11 listed;
+  - a CLOSE6 row;
+  - failure routing.
+  The spot-check was dispatched to the same reviewer.
+- **WO-006 G3 passed** (row 7, ai). The plan spot-check was forward with E1–E5, all applied. Dispatched TASK-040 (build setup: `open MainActivity`, glob-only test inputs, no "devtools"; it is the only Gradle user). TASK-044 (V-08: a new `class_defs` reader, self-test) and TASK-042 (`device_reset.py`, self-test) run in parallel, code only.
+- **TASK-040 done.** The orchestrator read the diff. `ReleaseSeparationTest` re-ran after the edit, and the G-04 grep finds the 2 allowed lines.
+- **TASK-044 (V-08) done.** It has a new fail-closed `class_defs` reader, and the verifier suite now has 76 tests, all OK. Both real-APK pre-runs PASS: the own build, and `--apk` on it.
+- **TASK-042: code and self-test done** (33 OK). The orchestrator's read-only probe of the clean API 37 AVD found that **auto-rotate is on (`accelerometer_rotation` = 1)**, while the script assumed 0, so it would have "reset" a clean device into a different state. Navigation mode is gestural (2). Both get fixed in 042's live round, after the API 26 baseline is read.
+- **Dispatched:** TASK-041 (the locale and font seam, with a smoke test on API 37 and then API 26, and the API 26 baseline readings). TASK-T6c, the JVM tests with the tray sweep first, is still running.
+- **TASK-041 done:** the locale and font seam works on API 37 and API 26. `createConfigurationContext` alone is enough on API 26. The release stays clean (V-04 and V-08 PASS).
+  - Finding: Android 14+ scales a 20 sp text non-linearly (×1.16 at font 1.3), so tests of text growth use a small-sp node.
+- **PRE-V08 PASS** (`--expect-debug`).
+- **The API 26 baselines differ from the script's assumptions:** `font_scale` and `user_rotation` are unset (null), and auto-rotate is on. TASK-042's live round fixes the constants, then runs induced-leak, `cmd overlay` and `wm` probes on both channels.
+- **T6c done, MOVE-JVM6 done.** The sweep confirms the REQ-037 breach, only on 600–602 dp tablets: square cell 47.78 dp. The re-run proof PASSES for all 5 input kinds, a forbidden word fails the scan, and the 6 reverts are hash-equal. V-05/06/07 PASS.
+- **TASK-042 done, live on both channels.** Induced leaks are caught and reset, the `cmd overlay` probe works, and the tablet override is 1920x1200 @ 240 with no clamp. Findings:
+  - the API 26 image cannot switch Wi-Fi (`svc wifi` killed), so airplane mode there cuts data only;
+  - the nav-mode switch is async, so the script polls for it.
+- **Dispatched:**
+  - TASK-043 (tablet gap 14 → 12 dp);
+  - TASK-T6a (visible device tests, briefed with today's measured facts);
+  - TASK-047 (owner Finnish list, with a count check).
+- **Queued:** TASK-040b (the device word list as a declared input).
+- Process slip: the orchestrator put a `git status` into a compound command. It was denied, and the command was re-run without it (no git used).
+- **TASK-043 done:** tablet gap 12 dp. The square cell at 600 dp is 49.3, the smallest cell from 560 dp up is 48.8, and play JVM is 192/192.
+- **TASK-040b deferred to MOVE-DEV6.** The new input glob correctly made the scan red, because the file is not yet in the tree. It was reverted, and the tree is green.
+- **TASK-047 done:** 27 Finnish strings and the word stems are listed for Jami, with the count verified. TASK-T6a (visible device tests) is still running.
+- **TASK-T6a done:** the visible device tests and kit are staged and compile, with exactly 8 tokens. Dispatched TASK-T6b (held-out, including `tools/compare_kits.py`) in parallel with CR-5 (the fresh code review of 040–044, the moved-in JVM tests and the staged kit's restore paths; read-only).
+- **TASK-T6b done:** the held-out slice is compiled, and the 8 visible / 5 held-out tokens are disjoint (checked by ID only). `compare_kits.py` shows all 9 kit copies equal. CR-5 (the code review) is still running; then MOVE-DEV6 on both channels.
+- **CR-5: revise (narrow), 0 B / 4 S / 17 N** (DA-109). The release build is clean of the debug seam. S1 found that the touch-target walk measured Compose's enlarged touch bounds, which are always ≥ 48 dp, so it was blind. It now measures layout bounds, with a 30 dp negative control. Other fixes in progress:
+  - S2: any permission element in release fails V-08;
+  - S3: inflected promise words added;
+  - S4: the nav restore moved inside the `try`;
+  - nits sent to their owners (test author, 044b, 042b; 040/041 after the test author's builds).
+  N11 (the design's stale rotation baseline) is written back by the orchestrator.
+- **MOVE-DEV6 started.**
+  - All CR-5 fixes are done.
+  - V-08 PASSES on fresh release and debug APKs.
+  - The T6a device tests, the equality test and TASK-040b's glob are in, with the re-run proof for the device word copy.
+  - **G-DISPLAY gate on API 37: 8/9.** The display override, mid-process density, nav mode, airplane mode, locale, font and the 30 dp negative control all work, and the device is clean afterwards.
+  - The rotation case failed because it rotated a portrait-locked phone window (F3). That is a fixture defect, routed to the test author: use a tablet display first.
+- **Gate run 2: 10/10 on API 37.**
+- **API 37 visible run:** play 115, browse 25 and devtools 13 all pass; app is 69/75, and `--check` was clean.
+  - 2 DA-103 no-clip failures: Finnish Restart pill, state and counter "overflow"; the counter is suspicious.
+  - 4 failures from "the ST2 miniature is not in the tray", in the play-through and airplane tests.
+  The test author is diagnosing both groups on the device and will classify each as product (→ L-3) or fixture (→ corrected check).
+- **The 6 API 37 app failures are fixtures, not the product** (DA-110), each with device evidence:
+  - The no-clip check read `hasVisualOverflow`, which is true for every wrap-content text. Real line widths and screenshots show no Finnish text cut at 360 dp.
+  - The play-through misread the solving drop, because the solved picture replaces the piece colours. A new `solveByTouch` adapter handles it.
+  The affected classes are green. The full app suite is re-running on API 37.
+- **API 37 complete for MOVE-DEV6:** play 115, browse 25, app 75 and devtools 13 are all green, with every `--check` clean. Recorded:
+  - the language lists: no title/button mismatch, so TASK-046 is not triggered;
+  - the gesture insets: +7.6 dp, under the trigger, so TASK-045 is not triggered;
+  - the tablet system UI under the override: no taskbar, the DA-96 limit.
+- **API 26:** the emulator came up on port 5556. The first gate run was void (wrong serial, caught by the reset script, exit 2). The valid re-run is **8/10**: the tablet rotation does not turn, and the density change mid-process leaves the scenario stuck. The test author is diagnosing whether this is a harness, product (rotation on Android 8) or gate-item-2 problem, which would mean the fallback on API 26.
+- **MOVE-DEV6 done:** both channels pass 228/228 (API 37 and API 26), every `--check` is clean, and TASK-045/046 were not triggered. DA-111 covers two API 26 harness fixes. The launcher does not rotate on API 26, but the app does, so **REQ-036 A2 holds on Android 8**. The kit now waits for the home screen to settle after display changes below API 30.
+- **TASK-048 done (one build at a time):**
+  - V-01, V-04, V-08 PASS on release;
+  - API 26 release launch: Status ok in 737 ms, 0 app crashes (the logcat FATALs were the launcher's), no permissions at all;
+  - V-04 positive control PASS, V-08 `--expect-debug` PASS;
+  - V-05/06/07 PASS; 79 verifier tests OK;
+  - JVM 567 + 2;
+  - trace-check: the in-scope gap is only the 5 held-out IDs.
+- Process slip: a Python string literal turned `app\build\…` into control bytes in the WO-006 evidence line. The bytes were repaired, all docs were scanned clean, and an AGENTS.md rule was added (3rd occurrence).
+- **Test & Verify (sonnet) dispatched:** the visible baseline on both channels, then the held-out first run (5 IDs) on API 26 and then API 37.
+- **WO-006 T&V PASS** (DA-112). The held-out first run is 5/5 IDs (11/11 cases) on both API 37 and API 26, with 0 corrections and 0 escaped defects, the baselines exact on both channels, and every check clean.
+  - N1 found that the "+2 release" JVM results in the WO-005/WO-006 records were stale files from 2026-10-03, because `app` has no release unit-test task. The records are corrected, and no coverage is lost.
+  - The traceability audit (sonnet) is dispatched.
+- **WO-006 trace audit GREEN.** 13/13 IDs and 13 tokens; no orphans; baseline 72/72 equal; the G-04 grep finds the 2 allowed lines.
+- **WO-006 CLOSED (CLOSE6).**
+  - build-map v1.5: #Layout, #Language and #Promise built; V-08 live; carried parts C1–C11 written into the WO-006…009 rows. The guard logged the delta and re-froze the baseline.
+  - design-inputs 0.3: the tablet gap departure.
+  - AGENTS.md: V-08 at every close, device hygiene and the API 26 limits; phase line → WO-007.
+  - Workorder: ledger, deltas, DoD 11/11, metrics. tasks.md v1.9. STATUS resumes at WO-007.
+  - **Checkpoint 6 surfaced to Jami**, with 5 owner decisions.
+- Totals at close:
+  - JVM 567;
+  - device 239 per channel (API 37 and API 26, including 11 held-out cases);
+  - verifiers 79.
+- **Next: WO-007 #Settings**, opened right away under the G1 instruction.
+- **WO-007 opened** (#Settings, Full mode): `workorders/WO-007.md` written, and the design author (sonnet) dispatched. The key constraints:
+  - no permission at all, so haptics go through `performHapticFeedback` and sounds are synthesised;
+  - the frozen v1 format, so the sound setting needs another home or a designed migration (row 11);
+  - the locked REQ-009 and REQ-049 texts are used verbatim and exempted by key from the promise scan;
+  - the six WO-006 carries are re-verified with the same tokens.
+- **WO-007 design rev 0 in.** The sound setting reuses the existing v1 `settings.soundOn`, so there is no format change. Also: a new `settings` module, an overlay screen, a 48 dp ⚙, sound synthesised with `AudioTrack`, permission-free haptics, a single gate plus a debug probe for REQ-033, and a two-step reset. A fresh design review was dispatched.
+- **WO-007 design review: recirculate, 1 B / 4 S / 8 N.**
+  - The blocker: Compose's default system click sound and the long-press vibration bypass the sound gate. With sound off, phones would still click and buzz while every check passed. Ruling: suppress the platform defaults always, with one root lever, and prove it on device; REQ-033 is not narrowed.
+  - F3: after a reset, stay on the current puzzle (REQ-032 Statement, F25).
+  - F4: keep the `SessionHost` signature, because a held-out test depends on it.
+  - Design rev 1 is in progress.
+- **WO-007 design rev 1 in.** One root lever, chosen from the bytecode, silences the platform click sound and the long-press haptic always. Also: the call-path scan, stay on the current puzzle after a reset, the held-out test untouched, the `AudioTrack` contract pinned. The spot-check went to the same reviewer.
+- **WO-007 design forward.** Rev 2 after the spot-check (E1–E6, the most important being a V-08 check that fails on any new sound or haptic caller in the APK). Logged DA-113…125, CA-9 and the CA-3 addendum. tasks.md v1.10 is the WO-007 plan, with the WO-006 plan-review lessons built in. A fresh plan review was dispatched.
+- **WO-007 plan review: recirculate, 2 B / 10 S / 8 N.**
+  - Both blockers are timing: the new settings texts would trip the promise scan before their exemption landed, and the two word-list copies would be compared while unequal.
+  - v1.11 fixes all 20 findings: a one-move PROMISE-KEYS7 step, the settings tasks in sequence, implementer scaffolding tests, a SHA guard on the held tests, a real input-proof mechanism, and a smoke waiver. DA-126 covers module-scoped parallel builds.
+  - The spot-check went to the same reviewer.
+  - **Lesson:** the "two copies must land in one move" class has now appeared twice (WO-006 F1, WO-007 F2). It goes to AGENTS.md at the WO-007 close.
+- **WO-007 G3 passed** (row 7, ai). The plan spot-check was forward with E1–E4, all applied; in particular the Dialog/Popup deny now excludes the debug-only `devtools`. AGENTS.md gained the "cross-file tests land together" rule (2nd occurrence).
+- **Dispatched:** TASK-050 (build setup, alone) ∥ TASK-057 (the V-08 feedback-caller check with `dex_callers.py`, Python only) ∥ the WO-007 test author (T7pk staging + T7c authoring, no builds).
+- **WO-007 build:**
+  - TASK-050 done: settings module and build inputs; `ReleaseSeparationTest` 9/9 re-ran; G-04 clean.
+  - TASK-055 done: `afterReset`, the `trailing` slot.
+  - TASK-051 done: the gate and the 5 synthesized cues.
+  - TASK-052 (`AudioTrack` outputs plus a smoke test that can fail) dispatched.
+  - Still running: TASK-054 (play events), TASK-057 (V-08 caller check), the test author (T7pk + T7c).
+  - Held-test SHAs were recorded before 054/056.
+- **TASK-054 done:** play device 116/116 on API 37, held SHAs equal. **TASK-057 done:** 90 verifier tests; DA-127 allows Compose's Vibrator capability query by method. **TASK-052 done:** the audio smoke PASSES on both channels and the playback head advances, so no waiver is needed. **TASK-053** (the settings screen) dispatched.
+- Note: an agent overwrote the orchestrator's scratch `count.py`, so the counter now lives as `orch_devcount.py`.
+- **TASK-053 done:** the settings screen, ⚙ drawn in px, 13 keys en + fi, no Dialog/Popup. **PROMISE-KEYS7 done:** both word-list copies moved in one step, and the promise scan and equality test are green with the two settings texts exempt. **TASK-056** (app wiring + the lever + the probe) and **TASK-059** (the owner list) dispatched.
+- **WO-007 build tasks done:**
+  - **TASK-059:** the owner list, 12 F14 keys + 1 AI key.
+  - **TASK-056:** the app wiring, the lever and the probe. Held SHAs are equal and the release twin passes through.
+- **PRE-V08-7 PASS:** the release feedback-caller check matches the WO-007 class names, and the debug build finds all 3 debug-only classes.
+- **`app` device run on API 37: 87/90.** The 3 are the expected kit gap: the WO-006 language walks don't yet read `settings`' strings. That is the C1/C2 carry in T7a; the evidence went to the test author.
+- **Running now:** the test author (T7c compile, then T7a).
+- **T7c compile-checked; T7a authored and compiled** (kit + carried cases; DA-128 for the rule-2/3 declaration conflict; AGENTS.md corrected: `assertIsDisplayed` is an extension and needs an import).
+- **MOVE-JVM7 done.** 415 JVM tests, fresh, all green. The re-run proofs pass: `lockedReqTexts` is in the cache key, a `settings` edit re-runs the devtools test, an `app/src/debug` edit re-runs the scan, and a planted `Vibrator` fails 2 scans; all reverts are hash-equal.
+  - Lesson: Gradle's `--rerun` applies only to the task named just before it. Use it after each task.
+- **CR-6** (fresh code review) dispatched ∥ T7b (held-out authoring).
+- **CR-6 fixes all done** (DA-129):
+  - 050b: the settings strings are a declared input, proven.
+  - 057b: V-08 pins caller + callee; 25 call sites = 25 rows; 93 verifier tests.
+  - 052b / 056b / 056c: detach-by-view, counted play exceptions, a guarded event hook.
+  - Test author: rule 4 catches scope calls, rule 6 one gate, the install-order check, the keyboard positive control.
+- **MOVE-DEV7 started:** 4 new + 13 updated device-test files moved in, the kit 9 equal, held SHAs equal. The API 37 run (smoke → gate → 5 suites) is running.
+- **MOVE-DEV7, API 37:**
+  - The smoke and gate pass. play, browse and devtools are green.
+  - settings is 7/8 and app is 103/115, in three groups:
+    - (A) scrolls to a control outside the scroll container: fixture;
+    - (B) the keyboard positive control fails: diagnosis; the focus block is only applied while open;
+    - (C) the Finnish how-to's "lukittuu" trips the promise lock stem, so TASK-053b rewords it.
+  - All checks are clean.
+- **MOVE-DEV7 fixes:**
+  - (A) the scroll walks were a fixture issue.
+  - (B) the keyboard positive control was a harness issue: Compose-injected keys never reach focus in touch mode. With real window keys, ‹ works and the overlay blocks it.
+  - (C) the Finnish text was reworded.
+  - All recorded under DA-130, and the class re-runs are green.
+- The full re-run (API 37, then API 26: smoke → gate → 5 suites) is running in the background.
+
+## 2026-10-04 (evening) — pause for a backup
+
+**Human (verbatim):** plz wait that last one and lets stop there again... I do backup and close computer for moment... how far we are are as 0% to 100% about on progress
+
+**What was done (summary):** the running job, the full WO-007 MOVE-DEV7 re-run on API 37 and then API 26, is left to finish. No new job is started. Then the progress is saved (this entry and STATUS "▶ Resume here"), the emulator is stopped, and Jami is told when it is safe to shut down.
+- Progress estimate given to Jami: about **75 %** of the planned build.
+  - 6 of 9 work orders are closed, and WO-007 is about 80 %.
+  - 34 of 47 locked REQs are covered today; 39 once WO-007 closes.
+  - WO-008 (#PlayTime) and WO-009 (#Release) remain.
+- **MOVE-DEV7 done.** The full re-run is green on both channels: API 37 and API 26 each 277/277 (play 116, browse 25, settings 8, app 115, devtools 13); smoke and gate PASS; every `--check` clean.
+- **Paused here.** No new job was started. STATUS "▶ Resume here" points at TASK-058 → T&V7 → AUDIT7 → CLOSE7 → WO-008. The emulator is stopped and no agent is running. Safe to shut down.

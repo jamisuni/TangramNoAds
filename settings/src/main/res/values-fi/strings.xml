@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_open_description">Asetukset</string>
+    <string name="settings_title">Asetukset</string>
+    <string name="settings_done">Valmis</string>
+    <string name="settings_sound">Äänet</string>
+    <string name="settings_sound_on_description">Päällä</string>
+    <string name="settings_sound_off_description">Pois</string>
+    <string name="settings_reset">Nollaa kaikki edistyminen</string>
+    <string name="settings_reset_question">Poistetaanko varmasti kaikki ratkaisut ja ajat?</string>
+    <string name="settings_reset_confirm">Poista</string>
+    <string name="settings_reset_cancel">Säilytä</string>
+    <string name="settings_how_to">Näin pelataan: vedä pala kuvion päälle. Palat pysyvät oikean kokoisina; tarjottimella kolmiot on merkitty S, M ja L. Napauta palaa kääntääksesi sitä 45°, tarjottimella tai laudalla, tai pidä siitä kiinni ja kierrä toisella sormella. Peilausnappi peilaa suunnikkaan. Pala napsahtaa paikalleen kuvion kulmiin ja muihin paloihin, tai palaa tarjottimelle. Pidä › pohjassa hypätäksesi seuraavaan ratkaisemattomaan tehtävään; yläpalkin numero avaa kaikki tehtävät.</string>
+    <string name="settings_free_note">Nauti, se on ihan ilmaista. Ei mainoksia, ei ostoksia, ei verkkoa. Peliaikasi pysyy tällä laitteella.</string>
+    <string name="settings_privacy">Tietosuoja: tämä peli ei kerää mitään tietoja. Sillä ei ole verkkoyhteyttä, tilejä eikä analytiikkaa. Ratkaisusi ja peliaikasi tallennetaan vain tälle laitteelle, ja ne poistuvat kun peli poistetaan.</string>
+</resources>

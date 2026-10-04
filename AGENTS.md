@@ -127,10 +127,19 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
   - When the orchestrator plans, every frozen seam in a design names the task that delivers it. A seam changed at planning is written back into the design and `decisions.md` before the test author starts.
   - Test adapters fail loudly on a miss (`error(…)`), never with a silent `?.invoke` / `?: return`. Tests in the same module call `internal` members directly instead of reflecting.
   - A device test that pins a pixel is read against the geometry before the drawing is blamed: an outline corner is partly background by definition (DA-40).
-  - Compose UI-test imports *(recurred WO-003 + WO-004)*: `assertExists` / `assertDoesNotExist` / `assertIsDisplayed` are **member** functions of `SemanticsNodeInteraction` (never import them); `click()`, `swipe…()`, `longClick()` inside `performTouchInput` **need** `import androidx.compose.ui.test.<name>`. A test author compiles staged device tests as soon as the API exists (`:<module>:assembleDebugAndroidTest`), before the move-in.
+  - Compose UI-test imports *(recurred WO-003 + WO-004)*: `assertExists` / `assertDoesNotExist` are **member** functions of `SemanticsNodeInteraction` (never import them); `assertIsDisplayed`, `assertIsOn` / `assertIsOff` and the other `assert…` helpers are **extension** functions and **need** `import androidx.compose.ui.test.<name>` *(corrected 2026-10-04, WO-007 T7a: the compiler required the import for `assertIsDisplayed`)*; `click()`, `swipe…()`, `longClick()` inside `performTouchInput` **need** `import androidx.compose.ui.test.<name>`. A test author compiles staged device tests as soon as the API exists (`:<module>:assembleDebugAndroidTest`), before the move-in.
 - **Implementer staffing and hand-backs** *(lesson, WO-003)*: UI, rendering, concurrency and device-only tasks go to the slice-implementer with a **sonnet** override; the haiku default is for mechanical tasks. When a task's done-check cannot exercise the behaviour (visual or device-only), the orchestrator reads the diff before accepting the hand-back. "Complete" with a stub or an empty body is a rejected hand-back.
-- **Release safety at every WO close** *(WO-005, CR-3 F3; G-04)*: build the release APK and run `python .swdev/verifiers/v04_release_apk.py` (exit 0 = no DevTools, canary found), then build a fresh debug APK and run `v04_release_apk.py --positive-control` (exit 0 = the scanner sees all four DevTools markers). One build at a time; record both result lines in the workorder. Re-run `--positive-control` also after any toolchain, AGP or dex-affecting change.
+- **Release safety at every WO close** *(WO-005, CR-3 F3; G-04)*: build the release APK and run `python .swdev/verifiers/v04_release_apk.py` (exit 0 = no DevTools, canary found), then build a fresh debug APK and run `v04_release_apk.py --positive-control` (exit 0 = the scanner sees all four DevTools markers). One build at a time; record both result lines in the workorder. Re-run `--positive-control` also after any toolchain, AGP or dex-affecting change. **From WO-006 also V-08** (DA-104): `python .swdev/verifiers/v08_promise_apk.py` (it builds its own release APK; exit 0 = no SDK class definitions, no permission element, no debug-only class), then `v08_promise_apk.py --apk app/build/outputs/apk/debug/app-debug.apk --expect-debug` on the fresh debug APK. Record both lines.
 - **Two device channels at every WO close** *(WO-005, DA-92/93)*: run the full device suites (`play`, `browse`, `app`, `devtools`) on `Medium_Phone_API_37.0` **and** on `Phone_API_26` (Android 8.0, the minSdk floor), one emulator at a time, and launch a throwaway-signed copy of the release APK on API 26 (signed copy in the scratchpad only, with the local debug key). API 26 renders differently: a path drawn under a canvas scale blurs there, so `play` draws every path in px (the `PlayDrawing.kt` header rule). Never reintroduce a scaled-canvas path draw.
+  **Device hygiene (WO-006, DA-108):**
+  - Before and after every device step, run `python tools/device_reset.py --serial S`, which resets and then checks.
+  - A non-clean `--check` after a step voids that step: reset, re-run, and record the leftover in the workorder.
+  - Confirm serials with `adb devices` after every boot. The API 26 instance can come up as emulator-5556 if port 5554 is still held.
+
+  **API 26 limits** (DA-98, DA-105, DA-111):
+  - There is no gesture bar, so REQ-035 A2 is rule-level there and its evidence is API 37.
+  - `svc wifi` is killed on that image.
+  - The launcher relaunches after every display change. The test kit waits for it to settle.
 - **Gradle on this machine:** set `JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'`
   and `ANDROID_HOME='C:\Users\Jami\AppData\Local\Android\Sdk'` in the command
   if the shell predates them, and call `.\gradlew.bat` (cmd will not run a
@@ -138,6 +147,18 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
   In bash, write file paths with forward slashes (`/c/Users/…`): a
   `> C:\Users\…\file` redirect loses its backslashes and lands as a junk
   file named `C:Users…` in the current folder (happened 2026-10-02).
+- **Never put a backslash into a Python string literal that writes a project file** *(3rd occurrence, 2026-10-04)*:
+  `\b`, `\a`, `\r` and `\n` become control bytes. This corrupted `tasks.md` (NUL, 2026-10-03) and the
+  WO-006 evidence line (`app\build\…` → backspace, bell, CR). Write Windows paths with forward slashes
+  in prose, and put long or quoted text into a file with the Write tool first. After any scripted doc
+  edit, scan for bytes < 0x20 other than tab and LF.
+- **A test that compares or exempts across files lands together with every file it reads**
+  *(planning lesson, 2nd occurrence: WO-006 plan F1, WO-007 plan F1/F2)*. Examples: an equality
+  check of two word-list copies, or a scan whose exempt-key list must match new strings. When a plan
+  moves tests in per module, list each cross-file test's inputs, and schedule one move (or one task)
+  that lands all of them at once, right where the product change that needs them lands. Never put a
+  window between "the new strings exist" and "their exemption exists", or between "copy A changed" and
+  "copy B changed".
 - **Governance:** once `governance.md` is `in force`, a control point it
   assigns to `ai` is exercised, not asked, and every such decision is
   appended to `decisions.md` (what, why, how to reverse); `ai+inform` rows
@@ -146,10 +167,11 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
 
 ### Current phase
 
-`P3 — WO-006 #Layout, #Language, #Promise` (2026-10-04). Done: G1, G3 toolchain, G2
+`P3 — WO-007 #Settings` (2026-10-04). Done: G1, G3 toolchain, G2
 (`architecture.md` v1.0), WO-001 #Locking, WO-002 #Content, WO-003 #Solving
 (first playable APK), WO-004 #Browsing + `store` (browsing, saved progress,
-**v1 save format frozen**) and WO-005 #DevTools (debug-only DEV aid, V-04; API 26
-channel live, DA-92/93) closed (checkpoints 1–5 surfaced). **Next: WO-006**
+**v1 save format frozen**), WO-005 #DevTools (debug-only DEV aid, V-04; API 26
+channel live, DA-92/93) and WO-006 #Layout/#Language/#Promise (phone + tablet,
+fi/en, the free promise; V-08; device hygiene) closed (checkpoints 1–6 surfaced). **Next: WO-007**
 (resume from `STATUS.md` "▶ Resume here"), then the sequence without waiting, unless
 Jami says stop. Update this line as phases advance.

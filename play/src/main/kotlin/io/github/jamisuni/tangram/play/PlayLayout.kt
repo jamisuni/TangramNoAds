@@ -124,7 +124,7 @@ internal class PlayLayout private constructor(
         private fun diameter(piece: PieceId): Double = TrayRules.turnDiameter(piece.shape)
 
         private fun sideMargin(c: LayoutClass) = if (c == LayoutClass.PHONE) 8.0 else 16.0
-        private fun gap(c: LayoutClass) = if (c == LayoutClass.PHONE) 8.0 else 14.0
+        private fun gap(c: LayoutClass) = if (c == LayoutClass.PHONE) 8.0 else 12.0
         private fun bottomMargin(c: LayoutClass) = if (c == LayoutClass.PHONE) 10.0 else 14.0
         private fun boardGap(c: LayoutClass) = if (c == LayoutClass.PHONE) 8.0 else 12.0
 

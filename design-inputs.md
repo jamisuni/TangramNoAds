@@ -1,6 +1,6 @@
 # Design inputs — TangramNoAds
 
-**Status:** Current  ·  **Last updated:** 2026-10-02
+**Status:** Current  ·  **Last updated:** 2026-10-04
 **Contract:** `Requirements/` collection v1.1 — REQ-001..051 (47 locked, 4 withdrawn), TYPE-001..007, locked 2026-10-01 (SRC-014, SRC-015)
 
 > Inputs the pipeline must honor beside the requirements. Each is named in
@@ -53,6 +53,11 @@ product notes — never cited, never read by workers), `Study/archive/`.
 4. DI-2 §5 type face "e.g. *Baloo 2*" and the exact colour values are the
    agent's choices (TYPE-001 colours are ASSUMPTIONs confirmed by the lock);
    they bind only where a REQ/TYPE names them.
+5. DI-2 `Spec/02` §3.4 and DI-1's (n + 1)-gap formula give the **tablet tray gap as 14 dp** → the build
+   uses **12 dp** from WO-006 (DA-100(i)). With 14 dp the square's tray cell on a 600 dp-wide tablet is
+   47.78 dp, below REQ-037's 48 dp floor. `play/src/test/.../TraySizeSweepTest` found this through the real
+   `PlayLayout`, and it then pins the fix over 654 windows. With 12 dp the cell is 49.3 dp. The phone gap
+   stays 8 dp. REQ-013 names no gap, so this is a build value (CA-7(c)).
 
 ### Interpretation layer (G1, 2026-10-02)
 
@@ -92,3 +97,4 @@ wins. Known disagreements:
 |---|---|---|---|
 | 0.1 | 2026-10-01 | initial register from `README.md`, `STATUS.md`, `Spec/`, `Requirements/sources.md` SRC-004 | project adopted under SWDev v0.15, intake path C |
 | 0.2 | 2026-10-02 | §2 interpretation layer: the G1 decisions bind over the prototype; three known disagreements (F5, F3, F7/F8) | G1 acceptance with req_review_01 triage |
+| 0.3 | 2026-10-04 | §2 Superseded item 5: the tablet tray gap is 12 dp, not Spec/02's 14 dp | WO-006 close; DA-100(i), REQ-037 A1 |

@@ -8,6 +8,8 @@ import io.github.jamisuni.tangram.browse.PuzzleHost
 import io.github.jamisuni.tangram.contracts.progress.PuzzleProgress
 import io.github.jamisuni.tangram.contracts.puzzle.Puzzle
 import io.github.jamisuni.tangram.kernel.model.PuzzleState
+import io.github.jamisuni.tangram.settings.FeedbackEvent
+import io.github.jamisuni.tangram.play.PlayEvent
 import io.github.jamisuni.tangram.play.PlaySession
 
 /**
@@ -49,10 +51,22 @@ class SessionHost internal constructor(
 
     override fun capture(base: PuzzleProgress): PuzzleProgress? = session?.toProgress(base)
 
-    /** A new session whose `onChanged` goes to the host's current callback. */
-    private fun build(puzzle: Puzzle): PlaySession = newSession(puzzle) { onChanged() }
+    /** Every play event of every session this host builds (DA-115); the view model points it at the feedback gate. */
+    var onEvent: (PlayEvent) -> Unit = {}
+
+    /** A new session whose `onChanged` and `onEvent` go to the host's current callbacks. */
+    private fun build(puzzle: Puzzle): PlaySession = newSession(puzzle) { onChanged() }.also { s -> s.onEvent = { onEvent(it) } }
 
     private fun warn(message: String, t: Throwable) {
         runCatching { Log.w("SessionHost", message, t) } // a plain JVM test has no android.util.Log
     }
+}
+
+/** `play`'s event onto the feedback gate's event (the two enums have the same five names). */
+internal fun PlayEvent.toFeedback(): FeedbackEvent = when (this) {
+    PlayEvent.PICK_UP -> FeedbackEvent.PICK_UP
+    PlayEvent.TURN -> FeedbackEvent.TURN
+    PlayEvent.LOCK -> FeedbackEvent.LOCK
+    PlayEvent.RETURN -> FeedbackEvent.RETURN
+    PlayEvent.SOLVE -> FeedbackEvent.SOLVE
 }
