@@ -129,6 +129,8 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
   - A device test that pins a pixel is read against the geometry before the drawing is blamed: an outline corner is partly background by definition (DA-40).
   - Compose UI-test imports *(recurred WO-003 + WO-004)*: `assertExists` / `assertDoesNotExist` / `assertIsDisplayed` are **member** functions of `SemanticsNodeInteraction` (never import them); `click()`, `swipe…()`, `longClick()` inside `performTouchInput` **need** `import androidx.compose.ui.test.<name>`. A test author compiles staged device tests as soon as the API exists (`:<module>:assembleDebugAndroidTest`), before the move-in.
 - **Implementer staffing and hand-backs** *(lesson, WO-003)*: UI, rendering, concurrency and device-only tasks go to the slice-implementer with a **sonnet** override; the haiku default is for mechanical tasks. When a task's done-check cannot exercise the behaviour (visual or device-only), the orchestrator reads the diff before accepting the hand-back. "Complete" with a stub or an empty body is a rejected hand-back.
+- **Release safety at every WO close** *(WO-005, CR-3 F3; G-04)*: build the release APK and run `python .swdev/verifiers/v04_release_apk.py` (exit 0 = no DevTools, canary found), then build a fresh debug APK and run `v04_release_apk.py --positive-control` (exit 0 = the scanner sees all four DevTools markers). One build at a time; record both result lines in the workorder. Re-run `--positive-control` also after any toolchain, AGP or dex-affecting change.
+- **Two device channels at every WO close** *(WO-005, DA-92/93)*: run the full device suites (`play`, `browse`, `app`, `devtools`) on `Medium_Phone_API_37.0` **and** on `Phone_API_26` (Android 8.0, the minSdk floor), one emulator at a time, and launch a throwaway-signed copy of the release APK on API 26 (signed copy in the scratchpad only, with the local debug key). API 26 renders differently: a path drawn under a canvas scale blurs there, so `play` draws every path in px (the `PlayDrawing.kt` header rule). Never reintroduce a scaled-canvas path draw.
 - **Gradle on this machine:** set `JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'`
   and `ANDROID_HOME='C:\Users\Jami\AppData\Local\Android\Sdk'` in the command
   if the shell predates them, and call `.\gradlew.bat` (cmd will not run a
@@ -144,9 +146,10 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
 
 ### Current phase
 
-`P3 — WO-005 #DevTools` (2026-10-03). Done: G1, G3 toolchain, G2
+`P3 — WO-006 #Layout, #Language, #Promise` (2026-10-04). Done: G1, G3 toolchain, G2
 (`architecture.md` v1.0), WO-001 #Locking, WO-002 #Content, WO-003 #Solving
-(first playable APK) and WO-004 #Browsing + `store` (browsing, saved progress,
-**v1 save format frozen**) closed (checkpoints 1–4 surfaced). **In progress: WO-005
-#DevTools** (paused 2026-10-03 after its design review; resume from `STATUS.md` "▶ Resume here"), then the sequence without waiting, unless
+(first playable APK), WO-004 #Browsing + `store` (browsing, saved progress,
+**v1 save format frozen**) and WO-005 #DevTools (debug-only DEV aid, V-04; API 26
+channel live, DA-92/93) closed (checkpoints 1–5 surfaced). **Next: WO-006**
+(resume from `STATUS.md` "▶ Resume here"), then the sequence without waiting, unless
 Jami says stop. Update this line as phases advance.

@@ -9,7 +9,7 @@ Default mode builds the release APK (:app:assembleRelease) or takes --apk, then 
   * every classes*.dex is parsed (string-id table, MUTF-8): a string under io/github/jamisuni/tangram/devtools
     (slash or dotted form) or the exact string "0417" is a finding; an unparseable dex is a finding plus a raw scan;
   * every other zip entry except dex, images/audio and tangrams/ is searched (ASCII and UTF-16LE) for the package
-    forms, the devtools_ resource key and "Wrong passcode." (the digits 0417 are NOT searched here, DA-85);
+    forms, the devtools_ resource key and every devtools_* string value of 6+ chars, en and fi (the digits 0417 are NOT searched here, DA-85);
   * release canary (DA-86): the scanner must itself find the play package, the MainActivity descriptor, the
     app_name key and the "Restart" text, otherwise "scanner blind";
   * folds tools/check_apk_puzzles.check() (--no-puzzles skips it).
@@ -56,6 +56,45 @@ MARKER_KINDS = [
 
 class DexError(Exception):
     pass
+
+
+MIN_VALUE_LEN = 6
+STRINGS_FILES = ("devtools/src/main/res/values/strings.xml", "devtools/src/main/res/values-fi/strings.xml")
+
+
+def devtools_value_sets(root=None):
+    """(denied, excluded) for the project root in use.
+    denied: distinct values (>= 6 chars) of every devtools_* string in the devtools module's en and fi strings.xml,
+    minus excluded: values a non-devtools strings.xml under the same root also holds (a word the app itself uses,
+    e.g. fi "Valmis", cannot be told apart in an APK). A missing devtools strings file raises RuntimeError
+    (exit 2): a deny-list that silently shrank would be a blind scanner."""
+    import xml.etree.ElementTree as ET
+    root = Path(root) if root is not None else Path(__file__).resolve().parents[2]
+
+    def values(f, prefix_only):
+        got = set()
+        for el in ET.parse(f).getroot().iter("string"):
+            if el.get("name", "").startswith("devtools_") == prefix_only:
+                got.add((el.text or "").replace(chr(92) + "'", "'").replace(chr(92) + '"', '"').strip())
+        return got
+
+    long_values = set()
+    for rel in STRINGS_FILES:
+        f = root / rel
+        if not f.is_file():
+            raise RuntimeError(f"devtools strings file not found under {root}: {rel}")
+        long_values |= {v for v in values(f, True) if len(v) >= MIN_VALUE_LEN}
+    app_values = set()
+    for f in root.glob("*/src/main/res/values*/strings.xml"):
+        if f.parts[len(root.parts)] != "devtools":
+            app_values |= values(f, False)
+    excluded = long_values & app_values
+    return long_values - excluded, excluded
+
+
+def devtools_values(root=None):
+    """The denied devtools string values (see devtools_value_sets)."""
+    return devtools_value_sets(root)[0]
 
 
 def _has(blob, text):
@@ -143,8 +182,14 @@ def _canary_findings(others, strings, raw_blobs):
     return out
 
 
-def scan_apk(apk):
-    """Findings ('V-04 FAIL ...' lines) for an APK; empty list = clean and the scanner could see."""
+def scan_apk(apk, project_root=None):
+    """Findings ('V-04 FAIL ...' lines) for an APK; empty list = clean and the scanner could see.
+    The resource deny-list also holds every devtools_* string value of 6+ chars (en and fi), read from the repo."""
+    denied, excluded = devtools_value_sets(project_root)
+    needles = NONDEX_NEEDLES + sorted(denied - set(NONDEX_NEEDLES))
+    shared = ", ".join(sorted(excluded)) or "none"
+    print(f"V-04 note: {len(denied)} devtools values denied, {len(excluded)} shared value(s) excluded ({shared})",
+          file=sys.stderr)
     others, strings, findings, raw_blobs = _collect(apk)
     for dex, s in strings:
         if DEVTOOLS_SLASH in s or DEVTOOLS_DOT in s:
@@ -156,7 +201,7 @@ def scan_apk(apk):
             if _has(blob, needle):
                 findings.append(f"V-04 FAIL devtools-raw {dex} unparseable dex contains {needle}")
     for name in sorted(others):
-        for needle in NONDEX_NEEDLES:
+        for needle in needles:
             if _has(others[name], needle):
                 findings.append(f"V-04 FAIL devtools-resource {name} contains {needle}")
     findings.extend(_canary_findings(others, strings, raw_blobs))
@@ -248,7 +293,7 @@ def main(argv):
                 return 1
             print(f"V-04 POSITIVE-CONTROL PASS: all {len(MARKER_KINDS)} marker kinds found in {apk}")
             return 0
-        findings = scan_apk(apk)
+        findings = scan_apk(apk, root)
         if puzzles:
             findings.extend(_puzzle_findings(apk, root))
     except Exception as e:  # a traceback never decides the exit code

@@ -55,5 +55,8 @@ val a4FileSetS = listOf(
 tasks.withType<Test>().configureEach {
     inputs.files(fileTree(rootDir) { include(a4FileSetS) })
         .withPathSensitivity(PathSensitivity.RELATIVE)
+    // The DA-72 test also reads the debug DebugAids; a separate input, never part of S (it legitimately names devtools).
+    inputs.files(fileTree(rootDir) { include("app/src/debug/**") })
+        .withPathSensitivity(PathSensitivity.RELATIVE)
     systemProperty("repo.root", rootDir.absolutePath)
 }

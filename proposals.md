@@ -168,3 +168,18 @@ from starvation.
   - (b) trace-check, or a verifier, flags any row-12 decision without a CA/CHG reference.
   - (c) Give "capture-side proposal" one defined location for path C projects whose spec dir is read-only to the build side.
 - **Severity:** medium
+
+## 2026-10-04 — The minSdk floor was waived for three WOs and hid a real rendering defect
+
+- **Context:** the API 26 release launch was waived from WO-003 (DA-43) because no image was installed, so every device check ran on API 37 only. When Jami installed the image, the first run on API 26 found a real product defect. Android 8's renderer blurs any path drawn under a canvas scale, giving soft piece and silhouette edges for every Android 8 player (DA-92). The waiver had covered only "the release launch", but the actual gap was "nothing ever ran at the floor". The fix and its guard test took about an hour. The defect itself had been present since WO-003.
+- **Proposal:**
+  - (a) Treat the minSdk floor as a **device channel**, not a launch check. The framework's device-test guidance names two channels, newest and floor, from the first WO that has device tests.
+  - (b) A waiver on the floor channel blocks a release candidate.
+  - (c) When a project cannot install the floor image itself, the kickoff checklist asks the owner for it at G1, not at the first WO close.
+- **Severity:** medium
+
+## 2026-10-04 — A held-out test that did not compile reached Test & Verify
+
+- **Context:** WO-005's held-out `HeldSolveNowStoreTest` (an `app` JVM test) called `PlaySession.onFrame`, which is `internal` to `play`, so it could never compile in `app`. Nobody compiles a held-out slice before its first run, because the orchestrator may not read it. T&V had to make an adapter-only correction (DA-95). The visible slice has an "early compile" lesson (AGENTS.md); the held-out slice has none.
+- **Proposal:** the acceptance-test author compiles the held-out slice against the tree before handing back. It can copy the slice into a scratch copy of the module test set, compile, and delete the copy. The author's hand-back then states "held-out compiled: yes". Add this to the test-author agent definition.
+- **Severity:** low

@@ -49,7 +49,8 @@ import io.github.jamisuni.tangram.kernel.geometry.PlacedPiece
 /**
  * REQ-046 rule 1: the small dashed DEV pill and the dialog it opens. The touch box is exactly 56 x 40 dp and the
  * label ignores the system font scale (DA-75). A click while [blocked] is true does nothing (DA-87). Hiding the
- * pill on a solved puzzle is the caller's job, through [modifier] (design 3, rule 6).
+ * pill on a solved puzzle is the caller's job: `TangramApp` does not compose it while the puzzle is SOLVED
+ * (`secondaryCornerControl` is null then, DA-82).
  *
  * [solveNow] is given the stored solution's poses ([DevSolution.poses]); if it returns false, or the poses are
  * null, the dialog stays open with the "could not place" notice (DA-80).

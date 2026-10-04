@@ -596,6 +596,29 @@ class TestV04ReleaseApk(unittest.TestCase):
             self.assert_fail(self.make_apk(extra={entry: b"..." + needles[self.n % 3] + b"..."}), "devtools-resource")
         self.assert_fail(self.make_apk(arsc=self.ARSC + b"devtools_x"), "devtools-resource")
 
+    def test_v04_finnish_devtools_string_in_arsc(self):
+        self.assert_fail(self.make_apk(arsc=self.ARSC + "Näytä ratkaisu".encode("utf-8")), "devtools-resource")
+        self.assert_fail(self.make_apk(arsc=self.ARSC + "Näytä ratkaisu".encode("utf-16-le")), "devtools-resource")
+
+    def test_v04_long_english_devtools_hint_in_arsc(self):
+        hint = "Unlocked until the app is restarted. The solution overlay stays on while you browse puzzles."
+        self.assert_fail(self.make_apk(arsc=self.ARSC + hint.encode("utf-8")), "devtools-resource")
+        self.assert_fail(self.make_apk(arsc=self.ARSC + "Solve this puzzle now".encode("utf-16-le")),
+                         "devtools-resource")
+
+    def test_v04_short_and_common_words_do_not_fire(self):
+        self.assert_pass(self.make_apk(arsc=self.ARSC + b"OK\x00DEV\x00Done\x00Settings\x00Puzzle\x00"))
+
+    def test_v04_devtools_values_threshold(self):
+        vals = self.v04.devtools_values()
+        self.assertIn("Show the solution", vals)
+        self.assertIn("N\u00e4yt\u00e4 ratkaisu", vals)
+        self.assertIn("The game engine could not place this puzzle's stored solution.", vals)
+        for short in ("OK", "DEV", "Done"):
+            self.assertNotIn(short, vals)
+        self.assertNotIn("Valmis", vals)   # also a browse string (shared word, excluded)
+        self.assertTrue(all(len(v) >= 6 for v in vals))
+
     def test_v04_png_entry_is_excluded(self):
         self.assert_pass(self.make_apk(extra={"res/a.png": b"devtools_x"}))
 
@@ -642,10 +665,50 @@ class TestV04ReleaseApk(unittest.TestCase):
         for v in ("035", "039"):
             self.assert_pass(self.make_apk(dexes={"classes.dex": self.make_dex(self.base_dex_strings(), version=v)}))
 
+    @staticmethod
+    def _write_strings(root, dev_en=("devtools_hint", "Show the solution"), dev_fi=("devtools_hint", "Valmis"),
+                       app=(("done", "Valmis"),), skip_dev=False):
+        def res(path, rows):
+            f = Path(root) / path
+            f.parent.mkdir(parents=True, exist_ok=True)
+            body = "".join(f'<string name="{k}">{v}</string>' for k, v in rows)
+            f.write_text(f"<resources>{body}</resources>", encoding="utf-8", newline="\n")
+        if not skip_dev:
+            res("devtools/src/main/res/values/strings.xml", [dev_en])
+            res("devtools/src/main/res/values-fi/strings.xml", [dev_fi])
+        res("browse/src/main/res/values-fi/strings.xml", list(app))
+
+    def test_v04_shared_value_exclusion_synthetic_root(self):
+        root = self.tmp / "synth"
+        self._write_strings(root)
+        denied, excluded = self.v04.devtools_value_sets(root)
+        self.assertEqual(denied, {"Show the solution"})
+        self.assertEqual(excluded, {"Valmis"})
+        # a leaked non-shared devtools value fails; the shared one alone does not
+        leaked = self.make_apk(arsc=self.ARSC + b"Show the solution")
+        shared = self.make_apk(arsc=self.ARSC + b"Valmis")
+        buf = self.io.StringIO()
+        with self.contextlib.redirect_stdout(buf), self.contextlib.redirect_stderr(self.io.StringIO()) as err:
+            self.assertEqual(self.v04.main(["--apk", str(leaked), "--no-puzzles", "--project-root", str(root)]), 1)
+            self.assertIn("V-04 FAIL devtools-resource resources.arsc contains Show the solution", buf.getvalue())
+            buf.truncate(0)
+            self.assertEqual(self.v04.main(["--apk", str(shared), "--no-puzzles", "--project-root", str(root)]), 0)
+        self.assertIn("V-04 note: 1 devtools values denied, 1 shared value(s) excluded (Valmis)", err.getvalue())
+
+    def test_v04_missing_devtools_strings_is_exit_2_no_fallback(self):
+        root = self.tmp / "nodev"
+        self._write_strings(root, skip_dev=True)
+        buf = self.io.StringIO()
+        with self.contextlib.redirect_stdout(buf):
+            code = self.v04.main(["--apk", str(self.make_apk()), "--no-puzzles", "--project-root", str(root)])
+        self.assertEqual(code, 2, buf.getvalue())
+        self.assertIn("devtools strings file not found", buf.getvalue())
+
     def _puzzle_root(self, apk_extra):
         root = self.tmp / f"root{self.n}"
         (root / "Tangrams").mkdir(parents=True)
         (root / "Tangrams" / "a.json").write_bytes(b'{"id":"a"}\n')
+        self._write_strings(root)
         return root, self.make_apk(extra=apk_extra)
 
     def _run_with_puzzles(self, root, apk):

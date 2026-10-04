@@ -1,6 +1,6 @@
 # STATUS: where TangramNoAds stands
 
-**Updated:** 2026-10-03 (WO-004 closed) · **Phase:** requirements **locked** and accepted for the build (G1); architecture locked (G2); **Kotlin + Compose build under SWDev — WO-001 #Locking, WO-002 #Content, WO-003 #Solving and WO-004 #Browsing + store closed**: a debug APK with every puzzle, browsing and saved progress; WO-005 (#DevTools) next (`build-map.md` §2).
+**Updated:** 2026-10-04 (WO-005 closed) · **Phase:** requirements **locked** and accepted for the build (G1); architecture locked (G2); **Kotlin + Compose build under SWDev — WO-001 #Locking, WO-002 #Content, WO-003 #Solving, WO-004 #Browsing + store and WO-005 #DevTools closed**: a debug APK with every puzzle, browsing, saved progress and the DEV aid (passcode 0417); verified on Android 8 (API 26) and API 37; WO-006 (#Layout, #Language, #Promise) next (`build-map.md` §2).
 
 ## Snapshot
 | What | State |
@@ -12,7 +12,7 @@
 | Owner use so far | Web browser with a mouse (rounds 4–6). **No phone or tablet playtest yet** |
 | Review | The agent's concept review (2026-09-28) was accepted as a whole in round 6; its accepted proposals are listed in `Requirements/evidence/src-011-conversation-round6.md` |
 
-## Build progress (SWDev, 2026-10-03)
+## Build progress (SWDev, 2026-10-04)
 | What | State |
 |---|---|
 | G1 | collection v1.1 incl. `req_types.md` v0.2 accepted by Jami; fresh-eyes review `req_review_01.md` (38 findings, all triaged; capture-side actions CA-1…CA-4 waiting) |
@@ -21,21 +21,21 @@
 | WO-001 #Locking | **closed**: exact geometry kernel + TYPE-004 lock search + drop resolution (engine/state level); 116 kernel tests, 46 acceptance tests (15 held-out, all passed on first run); release manifest has no permissions and no backup |
 | Reference fix | `tools/tangram_geom.outline_corners` now counts 180° pinch points as corners (DA-7): `shapes-warmup-4` gained the anchor (2,2); prototype rebuilt, its tests ALL PASS |
 | WO-002 #Content | **closed**: `content` module — the 13 puzzles packaged from `Tangrams/` at build time, exact parser, ordered library behind the locked `IPuzzleLibrary`; validator verdicts in the golden; 31 content tests + 15 held-out (all passed) |
+| WO-005 #DevTools | **closed 2026-10-04**: debug builds have a DEV pill in a free board corner. After passcode 0417 it shows each piece's solution place or solves the puzzle at once (Solved, no best time, the normal solved timeline). The release build has none of it, proven by V-04 on the release APK, with its positive control on a debug APK. The **API 26 waiver is exited** (DA-93): the release build launches on Android 8.0, and all device suites run on API 26 too. The first API 26 run found a real defect: Android 8 blurred every scaled path, so the drawing is now px-only (DA-92). Tests: JVM 547 (+2 release), device 191 on each of API 37 and API 26, verifiers 52. Held-out: 1 fixture correction (DA-95), 0 escaped product defects; trace GREEN |
 | WO-004 #Browsing + store | **closed 2026-10-03**: ‹ › with wrap, long-press › to the next unsolved puzzle, the all-puzzles grid with thumbnails, state text, Restart in a free board corner (DA-71), the solved bar (Retry / Next / best time); progress saved on the device in one versioned JSON file (`store`), survives closing the app; **v1 save format frozen** (LOCK-V1: a later change = migration hard-stop). Tests: JVM 469+22 held-out, device 159; held-out first run 6/6 with 0 escaped defects; trace GREEN (26/47 REQs) |
 | WO-003 #Solving | **closed 2026-10-03**: the play slice (tray, drag, tap/twist turns, flip badge, landing preview, lock, corner pulse, solved picture with fade and confetti) + a minimal app shell. Tests: JVM kernel 127, content 46, play 146 (incl. 15 held-out), app 3; device (API 37) play 103, app 4 — the first puzzle is solved by real touch. Held-out first run 11/12 with 0 escaped product defects (the failure was a test defect, DA-45). Decisions DA-15…DA-45 + staffing rows; waiver DA-43 (API 26) |
-| **First playable APK** | `app/build/outputs/apk/debug/app-debug.apk` (debug). Install it with `adb install -r` or from Android Studio. From WO-004 (in progress): browse every puzzle with ‹ › (long-press › jumps to the next unsolved one) and the all-puzzles grid; progress is saved on the device and survives closing the app (the WO-003 debug `puzzle` extra is retired, DA-56) |
+| **First playable APK** | `app/build/outputs/apk/debug/app-debug.apk` (debug). Install it with `adb install -r` or from Android Studio. WO-005 adds the DEV pill (passcode **0417**) to check every puzzle. Browse every puzzle with ‹ › (long-press › jumps to the next unsolved one) and the all-puzzles grid; progress is saved on the device and survives closing the app (the WO-003 debug `puzzle` extra is retired, DA-56) |
 
-## ▶ Resume here (WO-005, paused for the night 2026-10-03)
-1. Read `progress.md` (last entry), `workorders/WO-005.md` (ledger + log) and the `tasks.md` WO-005 status column.
-2. **WO-005 #DevTools:** every build task (TASK-030…035) is DONE; MOVE-JVM is DONE (JVM devtools 24, play 188, app 4 green; the A4 cache proof passed). CR-3 is DONE: **forward, 0 B / 0 S / 8 Nits** (`reviews/WO-005-CR-3-code-review.md`; release build clean of DevTools, both directions proven). Triage the 8 nits (route the cheap ones, carry the rest), then MOVE-DEV (staged device tests from `.swdev/staged/WO-005/`), then TASK-036 (one build at a time: V-04 on a release APK must exit 0; `--positive-control` on a fresh debug APK must exit 0 = all four markers found; record both lines in the workorder), then Test & Verify (held-out REQ-046 A1 + A3 from `.swdev/heldout/WO-005/`), the trace audit, the close and checkpoint 5.
-3. Boot the emulator for device work: `emulator -avd Medium_Phone_API_37.0 -no-window -no-audio -no-boot-anim -no-snapshot-save`; one emulator user at a time.
-4. **Owner actions (still open from checkpoint 4, plus WO-005):**
-   - play the debug APK on a phone;
-   - install an **API 26** image (DA-43);
+## ▶ Resume here (WO-006 next, 2026-10-04)
+1. Read `progress.md` (last entry), then `build-map.md` §2 (the WO-006 row) and `workorders/WO-005.md` (closed; lessons).
+2. **WO-006 #Layout, #Language, #Promise:** REQ-006 A1, REQ-035 A1–A2, REQ-036 A1–A2, REQ-037 A1, REQ-047 A1–A2, REQ-001 A1, REQ-008 A1–A2, REQ-010 A1–A2 (REQ-001 A2 → WO-009). Full mode: design author → design review → plan → plan review → G3 (row 7, ai) → build.
+3. **Device channels (AGENTS.md):** `emulator -avd Medium_Phone_API_37.0 -no-window -no-audio -no-boot-anim -no-snapshot-save`, and `Phone_API_26` (Android 8.0, the minSdk floor). One emulator at a time. At every WO close, run the full device suites on both, plus the API 26 release launch.
+4. **Owner actions (open):**
+   - play the debug APK on a phone; the DEV pill (0417) lets you check each puzzle;
    - review the AI-written Finnish (WO-003/004 words + 12 `devtools_*` strings);
    - DA-85 (the G-04 reading: no passcode-digit search in resources) and the DEV pill corner rule (bottom-left unless the picture or Restart is there);
    - capture side: CA-5 (REQ-046) + CA-6 (the WO-003/004 readings backfill) wait for a SwReqCollector session;
-   - **take a git snapshot** (WO-003, WO-004, WO-005 work uncommitted).
+   - **take a git snapshot**: WO-005's close is uncommitted (DA-92 px drawing, MOVE-DEV, the held-out move-in, review follow-ups).
 
 ## Round history
 | Round | When | What Jami said (evidence) | What changed |

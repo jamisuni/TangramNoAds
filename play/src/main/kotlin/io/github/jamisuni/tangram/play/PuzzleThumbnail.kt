@@ -10,7 +10,9 @@ import io.github.jamisuni.tangram.contracts.puzzle.Puzzle
 import io.github.jamisuni.tangram.play.draw.VisualTokens
 import io.github.jamisuni.tangram.play.draw.buildSilhouettePath
 import io.github.jamisuni.tangram.play.draw.drawPicture
-import io.github.jamisuni.tangram.play.draw.inDp
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.platform.LocalDensity
 
 /**
  * WO-004 section 6 (REQ-050 A2, O-09: play lends its drawing, `browse` never duplicates it). One grid cell's art: the
@@ -29,12 +31,16 @@ fun PuzzleThumbnail(puzzle: Puzzle, solved: Boolean, modifier: Modifier = Modifi
         // N4: an unbounded or empty box has nothing to fit into; draw nothing instead of infinite or NaN geometry.
         if (!w.isFinite() || !h.isFinite() || w <= 0.0 || h <= 0.0) return@BoxWithConstraints
         val layout = remember(puzzle, w, h) { PlayLayout.forThumbnail(w, h, puzzle) }
-        val clip = remember(layout) { buildSilhouettePath(layout) }
+        val density = LocalDensity.current.density
+        // decision DA-92: the clip is a px path (a path under a canvas scale is blurred on API 26)
+        val clip = remember(layout, density) {
+            Path().apply { addPath(buildSilhouettePath(layout)); transform(Matrix().apply { scale(density, density) }) }
+        }
         Canvas(Modifier.fillMaxSize()) { // fills the box the caller gives; with no size modifier, all the room offered
             if (solved) {
                 drawPicture(puzzle.picture, layout, clip)
             } else {
-                inDp { drawPath(clip, VisualTokens.SILHOUETTE) }
+                drawPath(clip, VisualTokens.SILHOUETTE)
             }
         }
     }

@@ -50,6 +50,26 @@ internal fun silhouettePath(layout: PlayLayout): Path {
     return result
 }
 
+private var pxSource: Path? = null
+private var pxDensity = 0f
+private var pxPath: Path? = null
+
+/**
+ * [silhouettePath] already scaled to px (a copy, cached on the dp path and the density). Filling a path under a canvas
+ * scale transform is blurred about 2.5 px each side by the API 26 hardware renderer; a path in px is crisp there, and the
+ * same pixels as the scaled draw elsewhere (REQ-011 A2). Main thread only.
+ */
+internal fun silhouettePathPx(layout: PlayLayout, density: Float): Path {
+    val src = silhouettePath(layout)
+    pxPath?.let { if (src === pxSource && density == pxDensity) return it }
+    val m = Matrix().apply { scale(density, density) }
+    val out = Path().apply { addPath(src); transform(m) }
+    pxSource = src
+    pxDensity = density
+    pxPath = out
+    return out
+}
+
 /** The uncached union of [silhouettePath]; a grid thumbnail keeps its own copy so it never evicts the play area's slot. */
 internal fun buildSilhouettePath(layout: PlayLayout): Path {
     val polys = layout.silhouetteDp
@@ -94,22 +114,33 @@ internal fun polygonPath(points: List<Vec2>): Path = Path().apply {
     close()
 }
 
+/** [polygonPath] with every point times [density]: the px path every draw uses (decision DA-92, see PlayDrawing.kt). */
+internal fun polygonPathPx(points: List<Vec2>, density: Float): Path = Path().apply {
+    points.forEachIndexed { i, p ->
+        val x = (p.x * density).toFloat()
+        val y = (p.y * density).toFloat()
+        if (i == 0) moveTo(x, y) else lineTo(x, y)
+    }
+    close()
+}
+
 internal fun rgbColor(c: Rgb): Color = Color(0xFF000000.toInt() or c.value)
 
 /**
  * The solved picture: base colour, then every shape in order, clipped to the silhouette (REQ-023 A1/A2, REQ-039 A1).
- * `layout` is dp; the dp to px step is [inDp]. A shape whose `d` does not parse is skipped (DA-21).
+ * `layout` is dp and every value is turned into px (times `density`) as it is used; nothing is drawn under a canvas
+ * scale (decision DA-92). [clip] is a px path (default [silhouettePathPx]). A shape whose `d` does not parse is
+ * skipped (DA-21).
  */
-internal fun DrawScope.drawPicture(picture: Picture, layout: PlayLayout, clip: Path = silhouettePath(layout)) {
-    inDp {
-        clipPath(clip) {
-            drawRect(
-                rgbColor(picture.base),
-                Offset(layout.boardRect.left.toFloat(), layout.boardRect.top.toFloat()),
-                Size(layout.areaWidth.toFloat(), layout.areaHeight.toFloat()),
-            )
-            for (shape in picture.shapes) drawShape(shape, layout)
-        }
+internal fun DrawScope.drawPicture(picture: Picture, layout: PlayLayout, clip: Path = silhouettePathPx(layout, density)) {
+    val d = density
+    clipPath(clip) {
+        drawRect(
+            rgbColor(picture.base),
+            Offset(layout.boardRect.left.toFloat() * d, layout.boardRect.top.toFloat() * d),
+            Size(layout.areaWidth.toFloat() * d, layout.areaHeight.toFloat() * d),
+        )
+        for (shape in picture.shapes) drawShape(shape, layout)
     }
 }
 
@@ -117,6 +148,8 @@ internal fun DrawScope.drawPicture(picture: Picture, layout: PlayLayout, clip: P
 internal fun clearPictureCaches() {
     cachedPolys = null
     cachedPath = null
+    pxSource = null
+    pxPath = null
     pictureKey = null
     pictureImage = null
 }
@@ -149,14 +182,16 @@ internal fun DrawScope.drawPictureImage(picture: Picture, layout: PlayLayout, al
 }
 
 private fun DrawScope.drawShape(shape: PictureShape, layout: PlayLayout) {
-    fun pt(p: PicturePoint): Vec2 = layout.toDp(Vec2(p.x, p.y))
-    val u = layout.dpPerUnit
+    // px, not dp: a path under a canvas scale is blurred on API 26 (decision DA-92)
+    val d = density
+    fun pt(p: PicturePoint): Vec2 = layout.toDp(Vec2(p.x, p.y)).let { Vec2(it.x * d, it.y * d) }
+    val u = layout.dpPerUnit * d
     when (shape) {
         is PictureShape.Polygon -> paintShape(
             Path().apply {
                 shape.points.forEachIndexed { i, p ->
-                    val d = pt(p)
-                    if (i == 0) moveTo(d.x.toFloat(), d.y.toFloat()) else lineTo(d.x.toFloat(), d.y.toFloat())
+                    val q = pt(p)
+                    if (i == 0) moveTo(q.x.toFloat(), q.y.toFloat()) else lineTo(q.x.toFloat(), q.y.toFloat())
                 }
                 close()
             },
@@ -233,7 +268,7 @@ private fun DrawScope.paintShape(path: Path, style: PictureStyle, layout: PlayLa
     if (canFill && fill != null) drawPath(path, rgbColor(fill), alpha)
     val stroke = style.stroke
     if (stroke != null) {
-        val w = (style.strokeWidth ?: VisualTokens.DEFAULT_STROKE_UNITS) * layout.dpPerUnit
+        val w = (style.strokeWidth ?: VisualTokens.DEFAULT_STROKE_UNITS) * layout.dpPerUnit * density
         drawPath(path, rgbColor(stroke), alpha, Stroke(w.toFloat(), cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }

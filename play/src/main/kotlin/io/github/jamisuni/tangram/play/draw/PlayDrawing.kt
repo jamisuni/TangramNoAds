@@ -39,8 +39,12 @@ import io.github.jamisuni.tangram.play.pulseRadius
 import io.github.jamisuni.tangram.play.shakeOffset
 
 // WO-003 TASK-018a: the drawing of the play area, a pure function of (session, layout, nowMs) with no side effects.
-// All lengths from PlayLayout are dp and are used as they are inside inDp (one dp to px step). nowMs is the frame
-// clock handed in by the caller (design E5); there is no clock in here.
+// nowMs is the frame clock handed in by the caller (design E5); there is no clock in here.
+// decision DA-92, the ONE rule: everything PlayLayout hands out is dp and is turned into px at the point of use
+// (value times `density`, G-03) and drawn in px; no draw here runs under a canvas scale transform. Reason: the API 26
+// hardware renderer blurs a path (fill, stroke, dashes) drawn under a scale by about 2.5 px each side, while rects,
+// round rects and circles stay crisp (measured). Paths are therefore built from px points (polygonPathPx), strokes,
+// dashes and radii are multiplied by density, and the picture and the silhouette do the same (PictureDrawing.kt).
 
 /** REQ-043: the three marks; the square and the parallelogram have none. */
 internal enum class SizeMark { LARGE, MEDIUM, SMALL }
@@ -94,11 +98,11 @@ private fun restingCentre(s: PieceState, layout: PlayLayout): Vec2? = when (val 
 }
 
 private fun DrawScope.fillPiece(points: List<Vec2>, colour: Color) {
-    val path = polygonPath(points)
+    val path = polygonPathPx(points, density)
     drawPath(path, colour)
     drawPath(
         path, VisualTokens.PIECE_EDGE,
-        style = Stroke(VisualTokens.PIECE_EDGE_DP, cap = StrokeCap.Round, join = StrokeJoin.Round),
+        style = Stroke(VisualTokens.PIECE_EDGE_DP * density, cap = StrokeCap.Round, join = StrokeJoin.Round),
     )
 }
 
@@ -121,147 +125,140 @@ internal fun DrawScope.drawPlay(
     val gliding = glides.map { it.piece }.toSet()
     val pop = if (solved != null) SolvedTimeline.popScale(sinceSolve, solved.reducedMotion) else 1.0
 
-    inDp {
-        // board background (white, rounded) then the silhouette: ONE union path, one flat colour (REQ-011)
-        val b = layout.boardRect
+    val d = density
+    // board background (white, rounded) then the silhouette: ONE union path, one flat colour (REQ-011)
+    val b = layout.boardRect
+    drawRoundRect(
+        VisualTokens.BOARD,
+        Offset(b.left.toFloat() * d, b.top.toFloat() * d),
+        Size(b.width.toFloat() * d, b.height.toFloat() * d),
+        CornerRadius(VisualTokens.BOARD_RADIUS_DP * d, VisualTokens.BOARD_RADIUS_DP * d),
+    )
+    drawPath(silhouettePathPx(layout, d), VisualTokens.SILHOUETTE)
+
+    // tray: a cell holds its piece, its size mark (REQ-043), the flip badge for PG, or, once the piece left, its dashed outline (REQ-012, DA-37)
+    for (s in pieces) {
+        if (!trayShown || !layout.hasCell(s.piece)) continue
+        val cell = layout.cell(s.piece)
         drawRoundRect(
-            VisualTokens.BOARD,
-            Offset(b.left.toFloat(), b.top.toFloat()),
-            Size(b.width.toFloat(), b.height.toFloat()),
-            CornerRadius(VisualTokens.BOARD_RADIUS_DP, VisualTokens.BOARD_RADIUS_DP),
+            VisualTokens.TRAY_CELL,
+            Offset(cell.left.toFloat() * d, cell.top.toFloat() * d),
+            Size(cell.width.toFloat() * d, cell.height.toFloat() * d),
+            CornerRadius(VisualTokens.CELL_RADIUS_DP * d, VisualTokens.CELL_RADIUS_DP * d),
         )
-        drawPath(silhouettePath(layout), VisualTokens.SILHOUETTE)
-
-        // tray: a cell holds its piece, its size mark (REQ-043), the flip badge for PG, or, once the piece left, its dashed outline (REQ-012, DA-37)
-        for (s in pieces) {
-            if (!trayShown || !layout.hasCell(s.piece)) continue
-            val cell = layout.cell(s.piece)
-            drawRoundRect(
-                VisualTokens.TRAY_CELL,
-                Offset(cell.left.toFloat(), cell.top.toFloat()),
-                Size(cell.width.toFloat(), cell.height.toFloat()),
-                CornerRadius(VisualTokens.CELL_RADIUS_DP, VisualTokens.CELL_RADIUS_DP),
-            )
-        }
-        for (s in pieces) {
-            if (!trayShown || s.where == Where.Tray || !layout.hasCell(s.piece)) continue
-            // DA-37: a piece that left the tray leaves its dashed outline (resting turn, unmirrored, at trayScale)
-            val pts = pieceDp(s.piece, TrayRules.restingTurn(s.piece.shape), false, layout.cell(s.piece).centre, layout.trayScale)
-            drawPath(
-                polygonPath(pts), VisualTokens.CELL_OUTLINE,
-                style = Stroke(
-                    VisualTokens.CELL_OUTLINE_DP,
-                    cap = StrokeCap.Round,
-                    join = StrokeJoin.Round,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(VisualTokens.CELL_OUTLINE_DASH_DP, VisualTokens.CELL_OUTLINE_GAP_DP)),
-                ),
-            )
-        }
-        for (s in pieces) {
-            if (!trayShown || s.where != Where.Tray || s.piece in gliding) continue
-            val centre = restingCentre(s, layout) ?: continue
-            fillPiece(pieceDp(s.piece, s.turn, s.mirrored, centre, PieceDrawing.scale(s, layout, drag)), pieceColour(s.piece))
-        }
-
-        // placed pieces (2 dp white edge), pop about their centres, shake of the one that refused a turn
-        if (!piecesHidden) {
-            val shake = session.shake
-            for (s in pieces) {
-                if (s.where !is Where.Board || s.piece in gliding) continue
-                val centre = restingCentre(s, layout) ?: continue
-                val dx = if (shake != null && shake.piece == s.piece) shakeOffset(nowMs - shake.startMs) else 0.0
-                val at = Vec2(centre.x + dx, centre.y)
-                fillPiece(pieceDp(s.piece, s.turn, s.mirrored, at, PieceDrawing.scale(s, layout, drag) * pop), pieceColour(s.piece))
-            }
-        }
-
-        // landing preview (DA-20): dashed white outline, no fill
-        drag?.frame?.preview?.let { pv ->
-            val pts = pv.corners.map { layout.toDp(Vec2(it.x.toDouble(), it.y.toDouble())) }
-            drawPath(
-                polygonPath(pts), VisualTokens.PREVIEW,
-                style = Stroke(
-                    VisualTokens.PREVIEW_DP,
-                    cap = StrokeCap.Round,
-                    join = StrokeJoin.Round,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(VisualTokens.PREVIEW_DASH_DP, VisualTokens.PREVIEW_GAP_DP)),
-                ),
-            )
-        }
-
-        // corner pulse (DA-20, REQ-051): radius from the seam, static under reduced motion
-        session.pulse?.let { pulse ->
-            val r = pulseRadius(nowMs - pulse.startMs, pulse.reduced).toFloat()
-            if (r > 0f) {
-                for (c in pulse.corners.corners) {
-                    val p = layout.toDp(Vec2(c.x.toDouble(), c.y.toDouble()))
-                    val centre = Offset(p.x.toFloat(), p.y.toFloat())
-                    drawCircle(VisualTokens.ACCENT, r, centre)
-                    drawCircle(VisualTokens.PULSE_RING, r, centre, style = Stroke(VisualTokens.PULSE_RING_DP))
-                }
-            }
-        }
-
-        // gliding pieces (180 ms from the drop pose to the logical place), then the dragged piece
-        if (!piecesHidden) {
-            for (g in glides) {
-                val s = pieces.firstOrNull { it.piece == g.piece } ?: continue
-                val to = restingCentre(s, layout) ?: continue
-                val t = DragMotion.ease((nowMs - g.startMs).toDouble() / PlayTiming.GLIDE_MS)
-                val toScale = PieceDrawing.scale(s, layout, null)
-                val centre = Vec2(g.fromCentre.x + (to.x - g.fromCentre.x) * t, g.fromCentre.y + (to.y - g.fromCentre.y) * t)
-                val sc = g.fromScale + (toScale - g.fromScale) * t
-                fillPiece(pieceDp(s.piece, s.turn, s.mirrored, centre, sc * pop), pieceColour(s.piece)) // N6: same pop as the board loop, no step at 180 ms
-            }
-        }
-        if (drag != null) {
-            val s = pieces.firstOrNull { it.piece == drag.piece }
-            if (s != null) {
-                val centre = drag.frame?.centre ?: drag.pickUp.centre
-                val turn = drag.frame?.pose?.turn ?: drag.turn
-                fillPiece(pieceDp(s.piece, turn, drag.mirrored, centre, PieceDrawing.scale(s, layout, drag)), pieceColour(s.piece))
-            }
-        }
-
+    }
+    for (s in pieces) {
+        if (!trayShown || s.where == Where.Tray || !layout.hasCell(s.piece)) continue
+        // DA-37: a piece that left the tray leaves its dashed outline (resting turn, unmirrored, at trayScale)
+        val pts = pieceDp(s.piece, TrayRules.restingTurn(s.piece.shape), false, layout.cell(s.piece).centre, layout.trayScale)
+        drawPath(
+            polygonPathPx(pts, d), VisualTokens.CELL_OUTLINE,
+            style = Stroke(
+                VisualTokens.CELL_OUTLINE_DP * d,
+                cap = StrokeCap.Round,
+                join = StrokeJoin.Round,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(VisualTokens.CELL_OUTLINE_DASH_DP * d, VisualTokens.CELL_OUTLINE_GAP_DP * d)),
+            ),
+        )
+    }
+    for (s in pieces) {
+        if (!trayShown || s.where != Where.Tray || s.piece in gliding) continue
+        val centre = restingCentre(s, layout) ?: continue
+        fillPiece(pieceDp(s.piece, s.turn, s.mirrored, centre, PieceDrawing.scale(s, layout, drag)), pieceColour(s.piece))
     }
 
-    // the solved picture fades in over the pieces (group alpha), then the confetti (REQ-023). drawPicture does its own
-    // dp to px step, so it is called OUTSIDE inDp (never scaled twice).
+    // placed pieces (2 dp white edge), pop about their centres, shake of the one that refused a turn
+    if (!piecesHidden) {
+        val shake = session.shake
+        for (s in pieces) {
+            if (s.where !is Where.Board || s.piece in gliding) continue
+            val centre = restingCentre(s, layout) ?: continue
+            val dx = if (shake != null && shake.piece == s.piece) shakeOffset(nowMs - shake.startMs) else 0.0
+            val at = Vec2(centre.x + dx, centre.y)
+            fillPiece(pieceDp(s.piece, s.turn, s.mirrored, at, PieceDrawing.scale(s, layout, drag) * pop), pieceColour(s.piece))
+        }
+    }
+
+    // landing preview (DA-20): dashed white outline, no fill
+    drag?.frame?.preview?.let { pv ->
+        val pts = pv.corners.map { layout.toDp(Vec2(it.x.toDouble(), it.y.toDouble())) }
+        drawPath(
+            polygonPathPx(pts, d), VisualTokens.PREVIEW,
+            style = Stroke(
+                VisualTokens.PREVIEW_DP * d,
+                cap = StrokeCap.Round,
+                join = StrokeJoin.Round,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(VisualTokens.PREVIEW_DASH_DP * d, VisualTokens.PREVIEW_GAP_DP * d)),
+            ),
+        )
+    }
+
+    // corner pulse (DA-20, REQ-051): radius from the seam, static under reduced motion
+    session.pulse?.let { pulse ->
+        val r = pulseRadius(nowMs - pulse.startMs, pulse.reduced).toFloat()
+        if (r > 0f) {
+            for (c in pulse.corners.corners) {
+                val p = layout.toDp(Vec2(c.x.toDouble(), c.y.toDouble()))
+                val centre = Offset(p.x.toFloat() * d, p.y.toFloat() * d)
+                drawCircle(VisualTokens.ACCENT, r * d, centre)
+                drawCircle(VisualTokens.PULSE_RING, r * d, centre, style = Stroke(VisualTokens.PULSE_RING_DP * d))
+            }
+        }
+    }
+
+    // gliding pieces (180 ms from the drop pose to the logical place), then the dragged piece
+    if (!piecesHidden) {
+        for (g in glides) {
+            val s = pieces.firstOrNull { it.piece == g.piece } ?: continue
+            val to = restingCentre(s, layout) ?: continue
+            val t = DragMotion.ease((nowMs - g.startMs).toDouble() / PlayTiming.GLIDE_MS)
+            val toScale = PieceDrawing.scale(s, layout, null)
+            val centre = Vec2(g.fromCentre.x + (to.x - g.fromCentre.x) * t, g.fromCentre.y + (to.y - g.fromCentre.y) * t)
+            val sc = g.fromScale + (toScale - g.fromScale) * t
+            fillPiece(pieceDp(s.piece, s.turn, s.mirrored, centre, sc * pop), pieceColour(s.piece)) // N6: same pop as the board loop, no step at 180 ms
+        }
+    }
+    if (drag != null) {
+        val s = pieces.firstOrNull { it.piece == drag.piece }
+        if (s != null) {
+            val centre = drag.frame?.centre ?: drag.pickUp.centre
+            val turn = drag.frame?.pose?.turn ?: drag.turn
+            fillPiece(pieceDp(s.piece, turn, drag.mirrored, centre, PieceDrawing.scale(s, layout, drag)), pieceColour(s.piece))
+        }
+    }
+
+    // the solved picture fades in over the pieces (group alpha), then the confetti (REQ-023); drawPictureImage is px too
     if (solved != null) {
         val a = SolvedTimeline.pictureAlpha(sinceSolve).toFloat()
         if (a > 0f) drawPictureImage(session.puzzle.picture, layout, a)
-    }
 
-    inDp {
-        if (solved != null) {
-            val centre = layout.boardRect.centre
-            for (p in SolvedTimeline.confetti(sinceSolve, solved.reducedMotion)) {
-                val col = Color(0xFF000000.toInt() or p.colour).copy(alpha = p.alpha.toFloat())
-                translate((centre.x + p.dx).toFloat(), (centre.y + p.dy).toFloat()) {
-                    rotate(Math.toDegrees(p.rotation).toFloat(), Offset.Zero) {
-                        drawRect(col, Offset((-p.width / 2).toFloat(), (-p.height / 2).toFloat()), Size(p.width.toFloat(), p.height.toFloat()))
-                    }
+        val centre = layout.boardRect.centre
+        for (p in SolvedTimeline.confetti(sinceSolve, solved.reducedMotion)) {
+            val col = Color(0xFF000000.toInt() or p.colour).copy(alpha = p.alpha.toFloat())
+            translate((centre.x + p.dx).toFloat() * d, (centre.y + p.dy).toFloat() * d) {
+                rotate(Math.toDegrees(p.rotation).toFloat(), Offset.Zero) {
+                    drawRect(col, Offset((-p.width / 2).toFloat() * d, (-p.height / 2).toFloat() * d), Size(p.width.toFloat() * d, p.height.toFloat() * d))
                 }
             }
         }
-
-        // the flip badge (DA-29/35): null = none; the 38 dp disc sits at the top right of its 60 dp square
-        layout.badgeRect(session)?.let { drawBadge(it) }
-
-        // size marks (REQ-043): chips tinted with the piece colour
-        for ((piece, _) in visibleSizeMarks(session)) {
-            if (!layout.hasCell(piece)) continue
-            val r = sizeMarkRect(layout.cell(piece))
-            drawRoundRect(
-                pieceColour(piece),
-                Offset(r.left.toFloat(), r.top.toFloat()),
-                Size(r.width.toFloat(), r.height.toFloat()),
-                CornerRadius(5f, 5f),
-            )
-        }
     }
 
-    // size mark letters: text is measured in px, so positions are dp times density here (the only px code)
+    // the flip badge (DA-29/35): null = none; the 38 dp disc sits at the top right of its 60 dp square
+    layout.badgeRect(session)?.let { drawBadge(it) }
+
+    // size marks (REQ-043): chips tinted with the piece colour
+    for ((piece, _) in visibleSizeMarks(session)) {
+        if (!layout.hasCell(piece)) continue
+        val r = sizeMarkRect(layout.cell(piece))
+        drawRoundRect(
+            pieceColour(piece),
+            Offset(r.left.toFloat() * d, r.top.toFloat() * d),
+            Size(r.width.toFloat() * d, r.height.toFloat() * d),
+            CornerRadius(5f * d, 5f * d),
+        )
+    }
+
+    // size mark letters: text is measured in px, so positions are dp times density here (measured in px, so converted by hand like every other value here)
     val style = TextStyle(color = VisualTokens.MARK_TEXT, fontSize = VisualTokens.MARK_TEXT_SP.sp)
     for ((piece, mark) in visibleSizeMarks(session)) {
         if (!layout.hasCell(piece)) continue
@@ -274,21 +271,23 @@ internal fun DrawScope.drawPlay(
 }
 
 private fun DrawScope.drawBadge(rect: RectDp) {
-    val r = VisualTokens.BADGE_DISC_DP / 2f
-    val centre = Offset((rect.right - r).toFloat(), (rect.top + r).toFloat())
+    val d = density
+    val r = VisualTokens.BADGE_DISC_DP / 2f * d
+    val centre = Offset((rect.right * d).toFloat() - r, (rect.top * d).toFloat() + r)
     drawCircle(VisualTokens.BADGE_FILL, r, centre)
-    drawCircle(VisualTokens.BADGE_EDGE, r, centre, style = Stroke(VisualTokens.BADGE_EDGE_DP))
+    drawCircle(VisualTokens.BADGE_EDGE, r, centre, style = Stroke(VisualTokens.BADGE_EDGE_DP * d))
     // two opposite arrows (mirror glyph), drawn as strokes so no font glyph is needed
-    val w = 7f
-    val dy = 4f
-    val st = Stroke(2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    val w = 7f * d
+    val dy = 4f * d
+    val h = 3f * d
+    val st = Stroke(2f * d, cap = StrokeCap.Round, join = StrokeJoin.Round)
     val up = Path().apply {
         moveTo(centre.x - w, centre.y - dy); lineTo(centre.x + w, centre.y - dy)
-        moveTo(centre.x + w - 3f, centre.y - dy - 3f); lineTo(centre.x + w, centre.y - dy); lineTo(centre.x + w - 3f, centre.y - dy + 3f)
+        moveTo(centre.x + w - h, centre.y - dy - h); lineTo(centre.x + w, centre.y - dy); lineTo(centre.x + w - h, centre.y - dy + h)
     }
     val down = Path().apply {
         moveTo(centre.x + w, centre.y + dy); lineTo(centre.x - w, centre.y + dy)
-        moveTo(centre.x - w + 3f, centre.y + dy - 3f); lineTo(centre.x - w, centre.y + dy); lineTo(centre.x - w + 3f, centre.y + dy + 3f)
+        moveTo(centre.x - w + h, centre.y + dy - h); lineTo(centre.x - w, centre.y + dy); lineTo(centre.x - w + h, centre.y + dy + h)
     }
     drawPath(up, VisualTokens.BADGE_GLYPH, style = st)
     drawPath(down, VisualTokens.BADGE_GLYPH, style = st)

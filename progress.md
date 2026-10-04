@@ -492,3 +492,41 @@ entries below and in the tasks.md TASK-018b row).
 - CR-3 hand-back (after the close call): **forward, 0 B / 0 S / 8 N**. Release build clean of DevTools, proven both ways:
   V-04 PASS on a fresh release APK; `--positive-control` finds all four markers on a fresh debug APK. Recorded in tasks.md,
   WO-005 and STATUS. No jobs running.
+
+## 2026-10-04 — resume WO-005; API 26 image installed
+
+**Human (verbatim):** plz continue (Android 26 emulator image is there now)
+
+**What was done (summary):** resumed from STATUS.md "▶ Resume here (WO-005)". The CR-3 nits are triaged, then MOVE-DEV, the TASK-036 checks,
+**the API 26 runs (exiting waiver DA-43)**, Test & Verify, the trace audit, the close and checkpoint 5 (entries below).
+
+- **CR-3 nits triaged** (DA-91). F1 → TASK-030d: `app/src/debug/**` is now a declared devtools test input, 24 tests green, V-06 PASS. F2 → TASK-035b: V-04 also denies every devtools string value of 6+ characters, minus words the app itself uses (DA-90). The verifier suite has 50 tests, all OK, and the real release APK passes V-04. F8a → TASK-033b (KDoc, after MOVE-DEV). F6 was declined.
+- **API 26 (waiver DA-43).** There is no avdmanager here, so I made the `Phone_API_26` AVD by hand from the Medium Phone config (Android 8.0 google_apis x86_64, 1080×2400 at 420 dpi) and booted it headless.
+  - **Release launch OK.** The release APK, signed with a throwaway debug key (scratchpad copy only), installed and started: Status ok in 946 ms, `MainActivity` resumed, 0 FATAL, no permissions. The screenshot is in `reviews/screens/WO-005-release-launch-api26.png`.
+  - **Device suites on API 26.** browse 25/25, app 25/25, devtools 5/5. **play is 94/112**: 18 edge-of-shape pixel probes fail (BoardPixels A2 ×10, SolvedPicture A1 ×8, all at the same sample points), while the centre and inner-edge probes pass. This is either a real drawing difference at minSdk 26 or the test's screenshot mapping. A sonnet diagnosis agent is on it, with pixel evidence required before any fix.
+- **Bookkeeping fix.** Yesterday WO-005's MOVE-JVM result was written into WO-004's MOVE-JVM row. WO-004's own result is restored from the session transcript, and the WO-005 row now holds its result.
+- **API 26 diagnosis back: a product defect (DA-92).** The test harness is exact. On Android 8, the renderer blurs any path drawn under the canvas dp scale, leaving a ~5 px soft edge. Drawing the silhouette from a px path brought `play` to **112/112 on API 26**. Android 8 players would still see soft piece edges, so TASK-037 moves every draw that blurs to px and adds a device guard test that must fail without the fix. The API 37 re-run happens at MOVE-DEV.
+- **TASK-037 done.** Every path in `play` is drawn in px. That covers pieces, edges, dashed outlines, the preview, badge glyphs, the solved picture and the browse thumbnails, which were blurred on API 26 too. The guard test was proven to fail without the fix. Diff read by the orchestrator. TASK-033b (KDoc) is done.
+- **MOVE-DEV done, on both channels.** Seven staged device tests moved in unedited. All four suites are green on API 26 (play 115, browse 25, app 30, devtools 10) and on API 37 (the same 180).
+- **DA-43 exited (DA-93).** Today's release APK (V-04 PASS) launches on Android 8.0: Status ok in 738 ms, 0 FATAL, no permissions, crisp first screen. AGENTS.md now requires both device channels plus the API 26 release launch at every WO close.
+- **TASK-036 done:**
+  - V-04 PASS on the release APK, and the positive control finds all 4 markers on a fresh debug APK (both lines are in WO-005);
+  - V-01/05/06/07 PASS;
+  - JVM 538 + 2, 0 failures;
+  - token grep clean;
+  - trace-check's in-scope gap is only the held-out A1/A3.
+- **Dispatched in parallel:**
+  - Test & Verify (sonnet): visible baseline, then the held-out first run on API 37 and API 26;
+  - a fresh code review of the changes made after CR-3, mainly the DA-92 drawing rewrite (read-only, so it doesn't collide with T&V's builds).
+- **Fresh code review of the post-CR-3 changes (CR-4): forward, 0 B / 0 S / 7 N** (DA-94). DA-92 is confirmed correct. TASK-035c (F6) is done: V-04 has no silent fallback and prints a note line, with 2 synthetic tests. The verifier suite has 52 tests, all OK. The real release APK exits 0, with 24 values denied and 1 excluded; DA-90 said 25, which is corrected. TASK-037b, the guard-test nits, waits for Test & Verify to free the emulator.
+- **Test & Verify first run: HOLD** (DA-95). The held-out JVM tests passed 9/9 and everything passed on API 26. On API 37 one held-out check failed: an absolute "≤ 3 early picture pixels" bound saw 4 anti-aliased edge pixels, while the timeline evidence shows the product is correct. The ruling is a fixture threshold. TASK-T5c, the test author's corrected check, moves to a relative bound (≤ 2 % of the settled picture) and folds in T&V's adapter fix for a held-out test that did not compile. Both copies are byte-identical. TASK-037b (the guard-test nits) is done, with the guard green on API 37. Two lessons go to `proposals.md`: treat the minSdk floor as a device channel from the start, and compile the held-out slice before its first run.
+- **Running now:** the T&V re-run (JVM, then all four device suites on API 37 and on API 26) ∥ the traceability audit (read-only).
+- **CR-4 follow-ups done:** TASK-035c (verifiers 52 OK) and TASK-037b (the guard waits out the glide; token colour). The test author's corrected check is TASK-T5c (DA-95).
+- **T&V re-run PASS** on JVM, API 37 and API 26, with held-out A1 and A3 green on every channel and 0 escaped product defects. **Trace audit GREEN** for WO scope: no orphans, the 72 baseline hashes are equal, and the G-04 grep finds the 2 allowed lines.
+- **WO-005 CLOSED.** build-map v1.4 marks #DevTools built and V-04 live, with two device channels (the delta was logged and the baseline re-frozen by the guard). The workorder ledger, contract deltas, DoD (11/11) and metrics are filled in. tasks.md v1.6, STATUS (resume = WO-006) and the AGENTS.md phase line are updated. **Checkpoint 5 surfaced to Jami.**
+- Totals at close:
+  - JVM 547 (+2 release);
+  - device 191 on API 37 and 191 on API 26;
+  - verifiers 52.
+- Next: WO-006 #Layout, #Language, #Promise, in Full mode, opened right away per the G1 instruction "continue with all reqs".
+- **WO-006 opened** (#Layout, #Language, #Promise, Full mode): `workorders/WO-006.md` was written, and the design author (sonnet, fresh) was dispatched with 13 in-scope acceptance IDs, the carried-in REQ-037 `dev-*` exemption, both device channels, and the hard-stop on any v1 save-format change for rotation.

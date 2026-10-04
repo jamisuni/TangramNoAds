@@ -1,6 +1,6 @@
 # Build map — TangramNoAds
 
-**Status:** Current (P3, WO-004 closed)  ·  **Version:** 1.3  ·  **Last updated:** 2026-10-03
+**Status:** Current (P3, WO-005 closed)  ·  **Version:** 1.4  ·  **Last updated:** 2026-10-04
 **Approved by:** AI under governance.md row 4 (ai+inform), after fresh-eyes review `reviews/P2-architecture-review-01.md` (spot-check verdict: forward)  ·  **Approved on:** 2026-10-02  *(signed with `architecture.md` v1.0 at G2; surfaced to Jami at checkpoint 1)*
 **Feature tree:** `Requirements/features.md` (SwReqCollector collection v1.1, locked 2026-10-01, SRC-015; accepted for this build at G1 2026-10-02)
 
@@ -20,7 +20,7 @@
 |---|---|---|---|---|
 | (kernel) | `kernel` | Partly built (WO-001: exact geometry, TYPE-001/003 shapes, outline corners, TYPE-004 lock search; WO-003: SolvedCheck, TYPE-006 PuzzleStates, TYPE-007 LayoutRules, TrayRules, centroid helpers, fail-closed fitAt; TYPE-005 later) | — | TYPE-001 piece set, TYPE-003 turns, exact geometry (ADR-003), TYPE-004 lock search, TYPE-005 active second, TYPE-006 transitions, TYPE-007 layout class — implemented once (D1, O-01, O-07) |
 | #Promise | — | Partly built (WO-001: release manifest without permissions or backup, V-01 blocking) | — | REQ-001, 008, 009, 010: verified at app / release level (G-01, V-01); REQ-009's note is rendered by `settings`. WO-006 (REQ-009 in WO-007) |
-| #Solving | `play` | **Built (WO-003, 2026-10-03)**: tray, drag, tap and twist turns, flip, landing preview, lock, solved picture on screen; first playable debug APK; saving with WO-004 | #Content (IPuzzleLibrary), #Browsing (IProgressStore: saved pieces) | the play leaves inherit; REQ-002 verifies at slice level. WO-003 |
+| #Solving | `play` | **Built (WO-003, 2026-10-03)**: tray, drag, tap and twist turns, flip, landing preview, lock, solved picture on screen; first playable debug APK; saving with WO-004. WO-005 added a second corner slot, the `boardOverlay` slot and `solveByAid`. All drawing is in px, because API 26 blurs any path drawn under a canvas scale (DA-92) | #Content (IPuzzleLibrary), #Browsing (IProgressStore: saved pieces) | the play leaves inherit; REQ-002 verifies at slice level. WO-003 |
 | #Locking | `play` | **Built** (WO-001 engine/state, 2026-10-02; WO-003 on screen incl. REQ-020 A2, 2026-10-03); sounds/haptic tick in WO-007 | — | REQ-019/020/021/051; the search itself is kernel (TYPE-004, O-01). **WO-001** |
 | #Turning | `play` | **Built (WO-003, 2026-10-03)** | — | REQ-016/017/018 + TYPE-003; #TurnButtons is withdrawn-only. WO-003 |
 | #Browsing | `browse` | **Built (WO-004, 2026-10-03)**: ‹ › with wrap, long-press › to the next unsolved, the all-puzzles grid with thumbnails, state text, Restart (free board corner, DA-71) / solved bar; `store` = `JsonProgressStore` (v1 save format **frozen**, LOCK-V1) | #Content (IPuzzleLibrary), #Solving (IProgressStore) | REQ-003, 024–026, 050; brings `store` (IProgressStore) with it. WO-004 |
@@ -30,7 +30,7 @@
 | #Layout | `app` | Partly built (WO-003 minimal shell: edge-to-edge, portrait policy F3, TYPE-007 class, tray rows); REQ-035/036/037 acceptance in WO-006 | — | REQ-006, 035–037 + TYPE-007 (decisions F3); the shell that hosts the slices. WO-006 |
 | #Content | `content` | Built at library level (WO-002, 2026-10-02); on screen in WO-003 (REQ-039 A1, REQ-045 A2; release APK `tangrams/` check); fresh-install parts on screen in WO-004 (REQ-040/041/045 A1); release checklist in WO-009 | — | REQ-007, 038–042, 045: `Tangrams/*.json` + `puzzle.schema.json` (locked) behind `IPuzzleLibrary` (locked). WO-002 |
 | #Release | — | Planned | — | REQ-048 (store obligations) and the release checklist for the release-time criteria (decisions F17); REQ-049 is rendered by `settings`. WO-009 |
-| #DevTools | `devtools` | Planned | #Content (IPuzzleLibrary), #Solving (solve-now hook wired by `app`) | REQ-046; debug builds only (ADR-006, G-04). WO-005 |
+| #DevTools | `devtools` | **Built (WO-005, 2026-10-04)**. `devtools` is a debug-only Android library (`debugImplementation` only). The DEV pill sits in `play`'s second corner slot and asks for passcode 0417. It offers a solution overlay (`boardOverlay`) and "Solve this puzzle now" through `PlaySession.solveByAid` (validated; `onSolved(byAid = true)`). `app` reaches it through the `DebugAids` source-set pair (real in `debug`, a no-op twin in `release`). **V-04 is live**: the release-APK dex and resource scan, with canaries, folds in `check_apk_puzzles`. Run its `--positive-control` at every WO close and after any toolchain, AGP or dex-affecting change | #Content (IPuzzleLibrary), #Solving (solve-now hook wired by `app`) | REQ-046; debug builds only (ADR-006, G-04). A3's "no best time" is checked at event and stored level; the regression on real best times → WO-008. WO-005 |
 | #Difficulty | — | — | — | withdrawn subtree (REQ-004/027/028, TYPE-002) — not a build unit |
 | #PieceSets | — | — | — | `idea` — not a build unit |
 | #Accessibility | — | — | — | `idea` — not a build unit |
@@ -62,6 +62,7 @@ test placement). Every one of the 47 locked REQs is in exactly one row.
 |---|---|---|---|---|
 | 0.1 | 2026-10-01 | initial subtree map from the locked tree; code homes TBD | project adopted under SWDev v0.15, intake path C | — |
 | 1.0 | 2026-10-02 | code homes = Gradle modules (ADR-002); #Language row (code home `app`); #Locking/#Turning inherit `play`; REQ-013 dropped from the #Layout note (its feature is #Tray, under #Solving); WO sequence (#Content moved before the rest of #Solving, #DevTools before #Layout, #Promise placed with #Layout) | P2; governance rows 4 and 8 | AI (checkpoint 1) |
+| 1.4 | 2026-10-04 | build status after WO-005: #DevTools built (debug only, V-04 live); #Solving: second corner slot, overlay slot, `solveByAid`, px-only drawing (DA-92); device channels are now API 37 **and** API 26, the minSdk floor (waiver DA-43 exited, DA-93) | WO-005 close (pipeline-written status, notify tier) | AI (checkpoint 5) |
 | 1.3 | 2026-10-03 | build status after WO-004: #Browsing built with `store` (v1 save format frozen); #Content fresh-install parts on screen | WO-004 close (pipeline-written status, notify tier) | AI (checkpoint 4) |
 | 1.2 | 2026-10-03 | build status after WO-003: #Solving, #Turning built; #Locking built on screen; #Layout minimal shell; #Content on screen; kernel WO-003 additions | WO-003 close (pipeline-written status, notify tier) | AI (checkpoint 3) |
 | 1.1 | 2026-10-02 | §2 per-WO acceptance-ID scope with carried IDs; minimal shell + TYPE-007 + tray rows moved into WO-003; REQ-045 A1/A2 in WO-002 at library/engine level, on-screen parts carried to WO-003/004; #Settings deps (IPuzzleLibrary), #PlayTime deps named | P2 review 01 F4, N11 + spot-check | AI (G2, 2026-10-02) |

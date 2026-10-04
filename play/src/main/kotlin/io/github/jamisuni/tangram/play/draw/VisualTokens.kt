@@ -3,8 +3,8 @@ package io.github.jamisuni.tangram.play.draw
 import androidx.compose.ui.graphics.Color
 
 // WO-003 TASK-018a: the visual tokens. Colours and sizes the REQs leave open follow Spec/02-ui-layout.md section 4/5
-// (DA-24) and the pulse / preview looks follow DA-20. All lengths are dp; the drawing converts to px in ONE place
-// (see inDp in DpScope.kt).
+// (DA-24) and the pulse / preview looks follow DA-20. All lengths are dp; the drawing converts to px
+// (value times density at the point of use; rule in the PlayDrawing.kt header, decision DA-92).
 internal object VisualTokens {
     /** Spec/02 section 5: board white. */
     val BOARD = Color(0xFFFFFFFF)
