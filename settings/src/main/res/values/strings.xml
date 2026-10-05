@@ -13,4 +13,11 @@
     <string name="settings_how_to">How to play: drag a piece onto the shape. Pieces keep their size; in the tray the triangles are marked S, M and L. Tap a piece to turn it 45°, in the tray or on the board, or hold it and twist with a second finger. The flip badge mirrors the parallelogram. A piece locks against the shape\'s corners and other pieces, or goes back to the tray. Hold › to jump to the next unsolved puzzle; the number in the top bar opens all puzzles.</string>
     <string name="settings_free_note">Enjoy, it\'s absolutely free. No ads, no purchases, no network. Your play time stays on this device.</string>
     <string name="settings_privacy">Privacy: this game collects no data. It has no network access, no accounts and no analytics. Your puzzle progress and play times are stored only on this device and are deleted when the game is uninstalled.</string>
+    <string name="settings_timer">Timer on screen</string>
+    <string name="settings_play_heading">Play time (kept on this device only)</string>
+    <string name="settings_play_today">Active today</string>
+    <string name="settings_play_total">Active in total</string>
+    <string name="settings_best_row">Best · %1$s</string>
+    <string name="time_minutes_seconds">%1$d:%2$02d</string>
+    <string name="time_hours_minutes">%1$d h %2$d min</string>
 </resources>

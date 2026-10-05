@@ -19,7 +19,10 @@ import io.github.jamisuni.tangram.settings.SettingsGear
 import io.github.jamisuni.tangram.settings.SettingsOverlay
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.platform.LocalDensity
@@ -35,18 +38,21 @@ import io.github.jamisuni.tangram.kernel.layout.LayoutRules
 import io.github.jamisuni.tangram.kernel.model.PuzzleState
 import io.github.jamisuni.tangram.play.PlayArea
 import io.github.jamisuni.tangram.play.PuzzleThumbnail
+import io.github.jamisuni.tangram.kernel.time.ActiveSecond
+import io.github.jamisuni.tangram.time.PlayTimeKeeper
+import io.github.jamisuni.tangram.time.PuzzleTimer
 
 /**
  * The screen (WO-004 design section 7). Window metrics include the system bars (DA-30), so a phone gets the same
  * tray on every API level. Back closes the grid while it is open (REQ-050); otherwise it leaves the app.
  */
 @Composable
-fun TangramApp(controller: BrowseController, host: SessionHost, aids: DebugAids, settings: SettingsController) {
-    PlatformFeedbackLever.Provide { TangramContent(controller, host, aids, settings) }
+fun TangramApp(controller: BrowseController, host: SessionHost, aids: DebugAids, settings: SettingsController, time: PlayTimeKeeper) {
+    PlatformFeedbackLever.Provide { TangramContent(controller, host, aids, settings, time) }
 }
 
 @Composable
-private fun TangramContent(controller: BrowseController, host: SessionHost, aids: DebugAids, settings: SettingsController) {
+private fun TangramContent(controller: BrowseController, host: SessionHost, aids: DebugAids, settings: SettingsController, time: PlayTimeKeeper) {
     val density = LocalDensity.current
     val sizePx = LocalWindowInfo.current.containerSize
     val widthDp = sizePx.width / density.density
@@ -57,7 +63,26 @@ private fun TangramContent(controller: BrowseController, host: SessionHost, aids
     val focus = LocalFocusManager.current
     LaunchedEffect(settings.isOpen) { if (settings.isOpen) focus.clearFocus() } // a base control may hold focus
 
-    Box(Modifier.fillMaxSize().background(BROWSE_PAPER)) {
+    // REQ-032 pause (DA-138): the puzzle clock runs only while an In-progress puzzle is shown with no overlay on top
+    LaunchedEffect(time, host, controller, settings) {
+        snapshotFlow { ActiveSecond.puzzleCounts(host.state, settings.isOpen, controller.gridOpen) }
+            .collect { running -> time.setPuzzleRunning(running) }
+    }
+
+    Box(
+        Modifier.fillMaxSize().background(BROWSE_PAPER)
+            // the touch observer (TYPE-005): Initial pass, so it sees every contact first; it never consumes an event
+            .pointerInput(time) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        if (event.changes.any { it.pressed || it.previousPressed }) {
+                            time.touch(pressed = event.changes.any { it.pressed })
+                        }
+                    }
+                }
+            },
+    ) {
         val baseModifier = if (settings.isOpen) {
             Modifier.clearAndSetSemantics { }
                 .focusProperties { onEnter = { cancelFocusChange() } }
@@ -95,6 +120,7 @@ private fun TangramContent(controller: BrowseController, host: SessionHost, aids
                                 }
                             },
                             boardOverlay = { space -> aids.BoardOverlay(session.puzzle, space) }, // not composed while solved (play)
+                            timer = { PuzzleTimer(shown = settings.timerShown, seconds = time.puzzleSeconds) }, // REQ-031; inert
                         )
                     }
                 }

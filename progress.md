@@ -747,3 +747,142 @@ entries below and in the tasks.md TASK-018b row).
 - **WO-008 design rev 0 in.** It has a `time` module with timestamp counting (an injectable clock, a 60 s idle window, no polling when idle). All data fits the frozen v1 fields, so row 11 is not triggered. The highest risk is the order of the four writers of puzzle and best times; the product fork is whether today and total include browsing and settings time. A fresh design review was dispatched.
 - **Turn (Jami):** "time to hit bed.. plz dont start anything new now... we start shutting down"
   - Pause: no new jobs. The running design review is allowed to finish, and its result will be recorded without acting on it. STATUS "▶ Resume here" now says WO-008 is in design review, with what to do if the review file is or is not there. The API 37 emulator is stopped (it is not needed until the build).
+- **Turn (Jami, 2026-10-05):** "plz continue"
+  - Resumed. `reviews/WO-008-design-review.md` did not exist, so the overnight shutdown had stopped the design reviewer mid-read. I resumed the same reviewer from its saved transcript instead of a new one: same fresh context, same brief, no repo changes in between. No emulator is running; none is needed until the build.
+- **Turn (Jami):** ""should today's and total play time include time spent browsing and in settings, or only time on a puzzle?"" can be total time (if thats easier) up to you really, but maybe some unactivity checking makes sence so that if havent done anything for minute then stop counting time until next press etc."
+  - Owner input on WO-008 owner item 1. It is an idea, not a requirement: the AI decides (row 12), within the locked REQ-029/005 and TYPE-005 text.
+  - It matches design rev 0: today and total count all in-app time, including browsing and settings, with a 60 s inactivity cut-off that resumes on the next press. Puzzle time is unaffected.
+  - The answer was sent to the running design reviewer, who will check it against the locked text. If it fits, the DA row will cite this answer at rev 1.
+- **WO-008 design review: recirculate (1 B / 3 S / 10 N)** (`reviews/WO-008-design-review.md`).
+  - F1 (B): the reset order lets a due 10 s flush inside `puzzleShown` write the erased time back, and the keeper caches `bestSeconds` (O-08).
+  - S1: the moved-in `HeldResetAppTest` goes red under live counting.
+  - S2: three missed cross-file edits (`UntranslatedStringsTest` neutral keys, `FeedbackScan.PRODUCT_MODULES` + `time`, the `TestConfigRule` reset of `timeSource`).
+  - S3: the reserved top-right corner is unswept, and the pill/Restart widths are unmeasured.
+  - What holds: row 11 not triggered (the frozen fixture already has a Solved 47/41 record), the seams compile, and V-08 needs nothing new.
+  - **The owner's item 1 closes:** today/total counting all in-app time is the locked REQ-029 + TYPE-005 reading, so no CHG is needed. The idle model matches the owner's wish. A held finger, key presses and the counted minute go to checkpoint 8 as one yes/no item.
+  - WO-008 goal sentence corrected (N1). Rev 1 dispatched to the same design author (order: F1 → S1/S2 → S3 → Notes).
+- **WO-008 design rev 1 in:** all 14 findings answered, no disputes.
+  - F1: the keeper's inputs only account in memory, and a closed list of writers does the saving. The reset clears the time keeper first. The best is computed from the stored base. `OwnershipOrderTest` has 8 cases.
+  - S1: the Test Author corrects `HeldResetAppTest` with a frozen clock, plus a new held `HeldResetTimeAppTest` and DA-144.
+  - S2: a cross-file inventory with delivering tasks.
+  - S3: an alternative mechanism. The pill is placed after Restart/DEV and steps below them if needed, so DA-71/75 are unchanged. A JVM sweep plus a device-measured check.
+  - 12 DA rows (DA-133…144) + CA-10 + the CA-3 addendum; row 11 not triggered.
+  - Spot-check dispatched to the same fresh reviewer.
+- **WO-008 rev 1 spot-check: forward** with six line edits (E1–E6), no new B/S. The reviewer re-traced F1 (the reset can no longer resurrect time) and confirmed the S3 obstacle mechanism (DA-71/75 unchanged, DEV always placeable, no board shrink).
+  - E1: replace `OwnershipOrderTest` case (6).
+  - E2: `day` is set only when a whole second is credited, or the corrected `HeldResetAppTest` goes red.
+  - E3: the pill must not jump within an attempt. Decided: a template width, with the hidden Restart as an obstacle.
+  - E4: sweep the release no-DEV configuration.
+  - E5: `HeldResetTimeAppTest` tagged as a decision test.
+  - E6: `advanceActive` on the main thread.
+  - Rev 2 dispatched to the design author.
+- **Turn (Jami):** "plz add as potential future thing, not todays requirement... maybe 'easy' mode could be added with some 'safety robe' spinning around blocks so that when puzzle is finished that robe makes nice round around thru all blocks. Idea would be that it kind of tells if block is wrong place is robe breaks somewhere between two blocks"
+- **Turn (Jami):** "thru block.. so block has robe passing thru it already when dropping it"
+  - A future idea, explicitly not a requirement. The build side cannot write `Requirements/`, so it is recorded as **CA-11** in `req_review_01.md`: register a new SRC and a feature with status `idea`, both messages verbatim, the AI's reading and the open points (the withdrawn difficulty levels, separate best times, how to switch it on, the rope route per puzzle as a puzzle-format question). Nothing in WO-008 changes; the plan work continues.
+- **WO-008 design rev 2** (E1–E6) applied; the orchestrator checked the Rev 2 list against the text. The design is forward.
+  - **Logged:** DA-133…144 in `decisions.md`; CA-10 (the time model, with the owner's answer verbatim) and the WO-008 CA-3 addendum in `req_review_01.md`.
+  - **Plan v1.13** (`tasks.md`, WO-008 section), orchestrator as planner (logged exception):
+    - TASK-060…068 and 069 (checks);
+    - the Test Author's T8a/T8b/T8c in landing parts;
+    - the quiescent landing steps MOVE-STR8, GATE-063 (the gate tests staged before the keeper), LAND-A and LAND-068;
+    - PRE-V08-8, MEASURE-8 (real widths on device), MOVE-JVM8, CR-7, MOVE-DEV8, T&V8, AUDIT8, CLOSE8;
+    - a failure-routing table and the carried rows.
+  - Fresh plan review dispatched.
+- **WO-008 plan review: recirculate (narrow), 1 B / 12 S / 9 N.**
+  - **B1 (blocker):** `SettingsScreenAppTest` (REQ-032.A2) holds exact tag sets for both settings screens, and the new timer switch would turn it red at the first device run. This is the third occurrence of the cross-file class; the design inventory also missed it.
+  - **Plan v1.14 answers all 22 findings:**
+    - the gate gets a compile against a signature-only stub, a rev-0-shaped positive control, gate-set hashes and a faulty-gate route;
+    - DA-92 now has a `time`-local scan, with its inputs in 060; 060 runs on sonnet with a full spec and an input proof;
+    - `ReleaseSeparationTest` lands at LAND-A;
+    - the Test Author's tests land per module at each owner's done-check;
+    - DEV-EARLY8 runs the play/time/settings/browse suites on device before review;
+    - HELD-COMPILE8;
+    - Test Authors compile outside the tree;
+    - an isolation table, routing rows and the CLOSE8 items.
+  - The design §8 inventory is written back.
+  - Logged: DA-145 (quiescent landing) and DA-146 (DA-126 extended; outside-the-tree compiles).
+  - Spot-check dispatched.
+- **WO-008 plan spot-check: forward** (no new B/S). E1–E5 applied → plan v1.15. **G3 passed** (governance row 7 = ai, logged in tasks.md and the workorder).
+  - Build starts: TASK-060 (build setup, sonnet) runs alone.
+  - The Test Author starts in parallel on T8c parts (i) (strings checks) and (ii) (the gate, with a stub compile and a positive control outside the tree).
+- **TASK-060 done** (build setup).
+  - Diff read; V-01 and V-06 PASS; the G-04 grep shows only the 2 DA-89 lines.
+  - The input proof passed: an in-place probe edit re-ran both test tasks while the compiles stayed up to date, and a no-change control was up to date.
+  - The build files are frozen; their SHAs are recorded.
+  - TASK-062 (format strings, haiku) dispatched.
+- **TASK-062 done** (format strings in time/settings/browse, fi = en; V-05 PASS; diff read). MOVE-STR8 waits for the Test Author's T8c (i).
+- **T8c (i)+(ii) in from the Test Author.**
+  - The gate (`OwnershipOrderTest`, 9 cases, and `FlushRulesTest`) compiles outside the tree against a signature-only stub.
+  - A rev-0-shaped keeper fails 7 cases (1, 2, 3, 6a, 6b, 7, 8). A reference keeper passes 17/17, and 7 single-fault mutants are each caught.
+- **MOVE-STR8 done:** the strings checks landed (diff read); app JVM 52/52.
+- Dispatched next: TASK-061 (kernel rule); the Test Author resumed for T8c (iii)–(v) and T8a.
+- **TASK-061 built** (kernel time rule; diff read; kernel 154/154). Its module landing of the Test Author's `ActiveSecondTest` / `DurationFormatTest` waits for the author's hand-back.
+- **GATE-063 done:** the gate set (5 files) is in `time/src/test`, with its SHAs recorded.
+- **TASK-061 done:** the Test Author's kernel tests landed and pass on the real code (kernel 168/168). The held-test SHAs and the settings/browse test-tree hashes are recorded. Wave A dispatched: 063 (keeper) ∥ 065 (play) ∥ 066 (settings) ∥ 067 (browse).
+- **TASK-067 done** (browse: best time in h min from one hour; diff read; browse 74/74; tree hashes equal + 1 new scaffolding file).
+- T8c (v-t) staged: 7 time test classes, 33 tests, with REQ-005/029/030 tokens per the isolation table. They land with 063. Told 063's implementer of design §4.2's implied constructor read of `store.playTime()` (a design clarification the Test Author surfaced).
+- **TASK-066 built** (settings: the timer switch first, the play-time section after sound, 5 F14 labels from the prototype, no new AI Finnish; settings 51/51; tree hashes equal; diff read; for CR-7: `revision` is a public var). The module landing waits for T8c (v-s).
+- **TASK-063 done** (the keeper).
+  - Gate `OwnershipOrderTest` 9/9 and `FlushRulesTest` 8/8; the gate SHAs are unchanged.
+  - Diff read: the writers are exactly the closed list, and no input can write.
+  - The Test Author's 7 time classes landed green; `time` 54/54.
+- **TASK-065 built** (play: solve listener, timer slot, `timerRect`; play 222/222). The v-p landing is pending.
+- DA-147 logged: the timer's template width is measured in `play` at 14 sp + 20 dp, so TASK-064's pill must match.
+- **TASK-065 done:** the v-p landing passed on the real code (SolvedListenerTableTest 7/7, TimerPlacementSweepTest 5/5; 2340 cases, 0 fallbacks, 418 stepped below a control, 256 pills touching the outline recorded); play 234/234.
+- **TASK-066 done:** the v-s landing passed (SettingsTimerTest 6/6, SettingsPauseTest 4/4); settings 61/61. **Wave A complete** (063, 065, 066, 067). LAND-A waits for T8c (iii) and T8a (i).
+- **LAND-A done:** the scans now cover `time`; the settings exact sets (incl. B1's `SettingsScreenAppTest`) gain the timer switch; app 52, devtools 31, time 57 green; androidTest compiles; kits equal; the input proof passed. Device watch: `settings-sound` now sits lower, so check the no-scroll taps on short API 26 screens. TASK-064 (the timer pill) dispatched.
+- **TASK-064 done** (the timer pill: inert, 14 sp tnum, 10 dp side padding to match DA-147; diff read; time 57/57; SHAs equal). TASK-068 (app wiring) dispatched; the held SHAs were checked before it.
+- T8c (iv) staged under .swdev/staged/WO-008/iv/ (the ReleaseSeparationTest DA-72 third pass-through + TimeStoreRoundTripTest, 4 tests; with the rev-0 keeper the reset test fails). It lands at LAND-068. The Test Author is now on T8a (ii).
+- **TASK-068 done** (app wiring; diff read: the reset clears the keeper first, the stop point is before sync, the touch observer never consumes; app 61/61, devtools 31/31; all SHAs equal). LAND-068 (iv) landed: TimeStoreRoundTripTest 4/4 on the real wiring (incl. a reset with a flush due); app 65/65. Waiting for T8a (ii).
+- **LAND-068 done:** T8a (ii) landed (the kit, the corrected HeldResetAppTest with no assertion changed, C4/C6/C7, 6 new device test classes). All androidTest compiles OK; app 65/65; kits equal (12); all SHAs equal. Next: PRE-V08-8; T8b (held-out) dispatched to the Test Author.
+- **PRE-V08-8 done:** V-08 PASS (release, the feedback-caller check included) and PASS (debug, --expect-debug). DA-148: DEV-EARLY8 runs before HELD-COMPILE8 while T8b is written (both still one build at a time). The API 37 emulator is booting.
+- **T8b done** (held-out: 5 classes written outside the tree; the orchestrator did not read them). **DEV-EARLY8 run 1 (API 37):** play 116/116, browse 31/31; time 3/8, settings 11/14, TimerLayoutMeasured 0/6. One product fault class: the tagged pill and the play-time rows carry no text (unmerged children). DA-149; fixes 064b + 066b dispatched; the emulator stays up for the re-run.
+- **DEV-EARLY8 run 2:** after 064b/066b, settings 14/14 and time 8/8. TimerLayoutMeasured 5/6: the tablet failure is a fixture fault (the test used the native density, not the override's); routed to the Test Author as a corrected check. Corrected width estimates are all inside the sweep bounds.
+- **DEV-EARLY8 done (API 37):** play 116, browse 31, settings 14, time 8, TimerLayoutMeasured 6.
+  - The measured widths are within the sweep bounds; the real numbers are recorded in the workorder.
+- **HELD-COMPILE8 done:** the five held classes compiled (class files present), the overlay was removed and the held dir hashes are equal. The first unguarded `rm` was blocked by the safety check before anything ran, then redone with guarded paths.
+- **MOVE-JVM8 done:** JVM **806/806**; V-05/06/07 PASS; the token isolation holds (4 mixed classes for AUDIT8 to check per method).
+- CR-7 dispatched.
+- **CR-7: forward** (0 B / 0 S / 9 N; the reviewer traced every writer path, and no path resurrects erased time). DA-150 triage: 068b (N5 a stuck touch cleared at onPause, N6 G-10 guards) and a Test Author template-agreement scan (N2); N8 seam text fixed; N1 and N4 to the owner at checkpoint 8; N3, N7, N9 accepted.
+- **068b done** (N5/N6; app 66/66; diff read). Recorded: the implementer's Python edit script was refused by a permission check, and it then made the same in-scope edits with the Edit tool. N2 pending.
+- **CR-7-FIX done:** 068b + the N2 TimerTemplateScanTest (2/2); app 68/68. MOVE-DEV8 started on API 37 (gate + 6 suites, background).
+- **MOVE-DEV8 API 37: all green** (gate 10, play 116, browse 31, settings 14, time 8, app 137, devtools 13; 18 min; resets clean). API 26 booted as emulator-5554 (confirmed Phone_API_26, sdk 26); its run started.
+- **MOVE-DEV8 API 26: all green** (the same 329; 21 min; resets clean). MOVE-DEV8 done on both channels.
+- **TASK-069 checks:**
+  - V-01, V-04 and V-08 PASS (release).
+  - API 26 release launch: ok, 735 ms, 0 FATAL, 0 permission entries; the timer is off by default.
+  - V-04 positive control and V-08 debug PASS; V-05/06/07 PASS.
+  - trace-check flagged one WO-008 item: REQ-029.A2 has no covering test under its code home `time/`. Routed to the Test Author (DA-151); the rest is WO-009 scope.
+- **TASK-069 done.** `PlayTimeReadoutTest` (REQ-029.A2 under `time/`, 7 tests) landed, and trace-check shows no WO-008 item (WO-009 items only).
+  - Final JVM: **816/816**; verifiers 93 OK; device_reset 43 OK.
+  - T&V8 dispatched.
+- **T&V8 PASS:** the held-out first run passed 9/9 WO-008 cases (42/42 held) on both channels, first try; 0 escaped defects; the frozen-clock control fails 10/11; 0 B / 1 S / 5 N (DA-152). HELD-IN: the 5 held classes are in-tree, byte-identical; androidTest compiles. AUDIT8 dispatched.
+- **AUDIT8 GREEN** (0 B / 2 S; the S items are close paperwork).
+- **CLOSE8 done.** WO-008 #PlayTime is closed, DoD 11/11.
+  - build-map v1.7 (guard delta logged).
+  - design-inputs 0.5 (item 7: the prototype's time model versus the build).
+  - AGENTS.md: the device line gains `time` and the gate; 4 lessons; the phase line → WO-009.
+  - The workorder (ledger, DoD, metrics), tasks v1.16, STATUS (resume = WO-009; checkpoint 8 items), and a `proposals.md` entry (trace rule 3 checked late).
+  - Totals: JVM 816; device 329 per channel; held-out 9/9 first run, no correction. **43 of 47 locked REQs covered**; the 4 left are WO-009's.
+  - Checkpoint 8 surfaced to Jami.
+- **WO-009 opened** (#Release, the last WO; Full mode). `workorders/WO-009.md` names the owner floors up front: `reviewedByHuman` is set only by Jami's review; the store channel, account, listing and publishing are Jami's; the release signing key is a security floor. The library gap: 13 puzzles today, REQ-042 needs 20+ over 4+ themes, all human-reviewed. Design author dispatched.
+- **WO-009 design rev 0 in.**
+  - No product code change.
+  - 10 new AI-drafted puzzles (13 → 23, 6 themes), each unreviewed until Jami marks it with a `mark` tool, recorded in a ledger.
+  - V-09, a release-time library gate that stays RED until the review.
+  - The store-bound universal APK, behind a spike.
+  - `release/` drafts: the listing EN+FI, the privacy text and a checklist.
+  - 11 owner forks, led by the store channel (Play interim).
+  - Highest risk: tokens on drafts and rule tests could read as "ready to publish".
+  - Fresh design review dispatched. The design calls the owner "he" in places; the reviewer will flag it for rev 1.
+- **Turn (Jami, answers to four WO-009 questions):** "Where should Tangram be published first?"="Google Play (Recommended)", "How many new puzzles should I draft for the first release (it needs at least 20, today there are 13)?"="12 new, 25 total", "Every puzzle must be marked 'reviewed by a person' before release, and only you may do that. How do you want to mark them?"="A mark command (Recommended)", "The app has no launcher icon yet and the store needs graphics. Who makes them?"="AI proposes, you pick"
+  - These are owner decisions on human rows; they are logged (DA-153 pre-entry).
+  - **Play** means the Play-shaped REQs apply as written, so no channel CHG is needed.
+  - **12 new puzzles** gives 25 total.
+  - **The `mark` command** is run by Jami only.
+  - **Icon:** the AI proposes options and Jami picks. This is an idea, not a requirement; it adds a launcher icon resource.
+  - The answers were passed to the running design reviewer.
+- **Turn (Jami):** "lets pause again when change comes.. need to leave soon plus almost out of tokens"
+  - Pause: no new jobs. The running WO-009 design review may finish; its result will only be recorded.
+  - STATUS "▶ Resume here" now reads: WO-009 in design review, with the DA-153 answers and what rev 1 must take in; what to do if the review file is or is not there.
+  - No emulator is running. Nothing is committed (WO-007 and WO-008 are closed and uncommitted).

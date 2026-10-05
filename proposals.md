@@ -183,3 +183,9 @@ from starvation.
 - **Context:** WO-005's held-out `HeldSolveNowStoreTest` (an `app` JVM test) called `PlaySession.onFrame`, which is `internal` to `play`, so it could never compile in `app`. Nobody compiles a held-out slice before its first run, because the orchestrator may not read it. T&V had to make an adapter-only correction (DA-95). The visible slice has an "early compile" lesson (AGENTS.md); the held-out slice has none.
 - **Proposal:** the acceptance-test author compiles the held-out slice against the tree before handing back. It can copy the slice into a scratch copy of the module test set, compile, and delete the copy. The author's hand-back then states "held-out compiled: yes". Add this to the test-author agent definition.
 - **Severity:** low
+
+## 2026-10-05 — Trace rule 3 (the code home) is checked only at the close
+
+- **Context:** WO-008's design placed REQ-029 A2's module-level covering test in `settings`, because the screen lives there. The feature's code home is `time`. The design review, the plan review and CR-7 all passed it. Only trace-check at TASK-069 reported "directory theater", which cost a late follow-up test (DA-151).
+- **Proposal:** the design template's acceptance table gets a column "covering test under the code home (trace rule 3)", one per ID. The plan reviewer's checklist asks for it, and the orchestrator can run `trace_check.py` once right after the module landings, not only at the close.
+- **Severity:** low

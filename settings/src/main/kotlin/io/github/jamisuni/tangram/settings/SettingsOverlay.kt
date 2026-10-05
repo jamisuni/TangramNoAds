@@ -22,11 +22,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -36,11 +38,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.jamisuni.tangram.kernel.time.DurationFormat
 
 /**
  * The settings screen (REQ-032), an in-app overlay: no Dialog, Popup or AlertDialog (DA-118, DA-125). Content order
- * (REQ-032): sound, reset, how to play, the free note (REQ-009, green box), the privacy text (REQ-049, plain text below
- * it, no click action). [WO-008 inserts timer and play time rows without reordering, DA-124.] No difficulty control.
+ * (REQ-032): timer, sound, play time and best times, reset, how to play, the free note (REQ-009, green box), the privacy text (REQ-049, plain text below
+ * it, no click action). No difficulty control.
  * The caller places it over the whole screen and gives it the safe-drawing padding it needs; this swallows touches.
  */
 @Composable
@@ -87,7 +90,9 @@ fun SettingsOverlay(controller: SettingsController, modifier: Modifier = Modifie
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
+                TimerRow(controller)
                 SoundRow(controller)
+                PlayTimeSection(controller)
                 ResetSection(controller)
                 BasicText(
                     text = stringResource(R.string.settings_how_to),
@@ -118,20 +123,27 @@ fun SettingsOverlay(controller: SettingsController, modifier: Modifier = Modifie
 }
 
 @Composable
-private fun SoundRow(controller: SettingsController) {
-    val on = controller.soundOn
+private fun SoundRow(controller: SettingsController) =
+    SwitchRow("settings-sound", stringResource(R.string.settings_sound), controller.soundOn, controller::setSound)
+
+@Composable
+private fun TimerRow(controller: SettingsController) =
+    SwitchRow("settings-timer", stringResource(R.string.settings_timer), controller.timerShown, controller::setTimerShown)
+
+@Composable
+private fun SwitchRow(tag: String, label: String, on: Boolean, onChange: (Boolean) -> Unit) {
     val state = stringResource(if (on) R.string.settings_sound_on_description else R.string.settings_sound_off_description)
     Row(
         modifier = Modifier
-            .testTag("settings-sound")
+            .testTag(tag)
             .fillMaxWidth()
             .heightIn(min = SettingsStyle.MIN_TOUCH_DP.dp)
-            .toggleable(value = on, role = Role.Switch, onValueChange = controller::setSound)
+            .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
             .semantics { stateDescription = state },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BasicText(
-            text = stringResource(R.string.settings_sound),
+            text = label,
             modifier = Modifier.weight(1f),
             style = TextStyle(color = SettingsStyle.INK, fontSize = 17.sp, fontWeight = FontWeight.SemiBold),
         )
@@ -150,6 +162,64 @@ private fun SoundRow(controller: SettingsController) {
                 ),
             )
         }
+    }
+}
+
+@Composable
+private fun formatDuration(seconds: Long): String {
+    val parts = DurationFormat.parts(seconds)
+    return if (parts.withHours) {
+        stringResource(R.string.time_hours_minutes, parts.hours.toInt(), parts.minutes.toInt())
+    } else {
+        stringResource(R.string.time_minutes_seconds, parts.minutes.toInt(), parts.seconds.toInt())
+    }
+}
+
+@Composable
+private fun PlayTimeSection(controller: SettingsController) {
+    val language = LocalConfiguration.current.locales[0].language
+    val best = remember(controller.revision) { controller.bestTimes() }
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        BasicText(
+            text = stringResource(R.string.settings_play_heading),
+            modifier = Modifier.fillMaxWidth(),
+            style = TextStyle(color = SettingsStyle.MUTED, fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
+        )
+        ValueRow("settings-play-today", stringResource(R.string.settings_play_today), formatDuration(controller.readout.todaySeconds))
+        ValueRow("settings-play-total", stringResource(R.string.settings_play_total), formatDuration(controller.readout.totalSeconds))
+        if (best.isNotEmpty()) {
+            Column(modifier = Modifier.testTag("settings-best-times").fillMaxWidth()) {
+                for ((puzzle, seconds) in best) {
+                    ValueRow(
+                        "settings-best-${puzzle.id.value}",
+                        stringResource(R.string.settings_best_row, puzzle.title.inLanguage(language)),
+                        formatDuration(seconds),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ValueRow(tag: String, label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .testTag(tag)
+            .semantics(mergeDescendants = true) {}
+            .fillMaxWidth()
+            .heightIn(min = 32.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        BasicText(
+            text = label,
+            modifier = Modifier.weight(1f),
+            style = TextStyle(color = SettingsStyle.INK, fontSize = 16.sp),
+        )
+        BasicText(
+            text = value,
+            style = TextStyle(color = SettingsStyle.INK, fontSize = 16.sp, fontWeight = FontWeight.SemiBold),
+        )
     }
 }
 

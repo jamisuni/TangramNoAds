@@ -8,9 +8,12 @@ import io.github.jamisuni.tangram.browse.BrowseController
 import io.github.jamisuni.tangram.content.PuzzleLibrary
 import io.github.jamisuni.tangram.settings.AudioTrackSoundOut
 import io.github.jamisuni.tangram.settings.Feedback
+import io.github.jamisuni.tangram.settings.PlayTimeReadout
 import io.github.jamisuni.tangram.settings.SettingsController
 import io.github.jamisuni.tangram.settings.ViewHapticOut
 import io.github.jamisuni.tangram.store.JsonProgressStore
+import io.github.jamisuni.tangram.time.PlayTimeKeeper
+import io.github.jamisuni.tangram.time.SystemTimeSource
 import java.io.File
 
 /**
@@ -30,11 +33,26 @@ class AppViewModel(filesDir: File) : ViewModel() {
     /** The testing aid's state holder (REQ-046, DA-76): a ViewModel field, so it survives rotation and browsing. */
     val aids = DebugAids()
 
+    /** The once-a-second accrual call, only while the keeper counts (design 5.4); cancelled in [onCleared]. */
+    val ticker: CountingTicker = CountingTicker.main { time.accrue() }
+
+    /** Active play time (WO-008, #PlayTime): over a monotonic source, a test may swap in debug builds only. */
+    val time = PlayTimeKeeper(aids.timeSource(SystemTimeSource), store) { counting -> ticker.set(counting) }
+
     /** The settings overlay's state (REQ-032..034): a field here so it survives rotation. */
     val settings = SettingsController(
         store = store,
         canOpen = { host.session?.isDragging != true },
-        onReset = { controller.afterReset() },
+        readout = object : PlayTimeReadout {
+            override val todaySeconds: Long get() = time.todaySeconds
+            override val totalSeconds: Long get() = time.totalSeconds
+        },
+        puzzles = { library.puzzles },
+        // the keeper first: it discards and re-reads the erased store before the controller shows a puzzle (design 3, F1)
+        onReset = {
+            runCatching { time.afterReset() } // N6: the controller step runs even if this throws
+            controller.afterReset()
+        },
     )
 
     private val audio = AudioTrackSoundOut()
@@ -50,6 +68,7 @@ class AppViewModel(filesDir: File) : ViewModel() {
     )
 
     init {
+        host.time = time
         host.onChanged = controller::persist
         // G-10 (CR-6 N9): nothing may throw into the play loop, so the mapping is guarded too
         host.onEvent = { event -> runCatching { feedback.on(event.toFeedback()) } }
@@ -58,6 +77,8 @@ class AppViewModel(filesDir: File) : ViewModel() {
     }
 
     override fun onCleared() {
+        ticker.set(false)
+        time.flush()
         audio.release()
         super.onCleared()
     }

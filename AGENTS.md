@@ -130,7 +130,7 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
   - Compose UI-test imports *(recurred WO-003 + WO-004)*: `assertExists` / `assertDoesNotExist` are **member** functions of `SemanticsNodeInteraction` (never import them); `assertIsDisplayed`, `assertIsOn` / `assertIsOff` and the other `assert…` helpers are **extension** functions and **need** `import androidx.compose.ui.test.<name>` *(corrected 2026-10-04, WO-007 T7a: the compiler required the import for `assertIsDisplayed`)*; `click()`, `swipe…()`, `longClick()` inside `performTouchInput` **need** `import androidx.compose.ui.test.<name>`. A test author compiles staged device tests as soon as the API exists (`:<module>:assembleDebugAndroidTest`), before the move-in.
 - **Implementer staffing and hand-backs** *(lesson, WO-003)*: UI, rendering, concurrency and device-only tasks go to the slice-implementer with a **sonnet** override; the haiku default is for mechanical tasks. When a task's done-check cannot exercise the behaviour (visual or device-only), the orchestrator reads the diff before accepting the hand-back. "Complete" with a stub or an empty body is a rejected hand-back.
 - **Release safety at every WO close** *(WO-005, CR-3 F3; G-04)*: build the release APK and run `python .swdev/verifiers/v04_release_apk.py` (exit 0 = no DevTools, canary found), then build a fresh debug APK and run `v04_release_apk.py --positive-control` (exit 0 = the scanner sees all four DevTools markers). One build at a time; record both result lines in the workorder. Re-run `--positive-control` also after any toolchain, AGP or dex-affecting change. **From WO-006 also V-08** (DA-104): `python .swdev/verifiers/v08_promise_apk.py` (it builds its own release APK; exit 0 = no SDK class definitions, no permission element, no debug-only class), then `v08_promise_apk.py --apk app/build/outputs/apk/debug/app-debug.apk --expect-debug` on the fresh debug APK. Record both lines. **From WO-007, V-08's feedback-caller check** (DA-123/125/127) fails on any new caller of a sound or haptic API: a new dependency, or a Compose BOM bump. Before extending its pinned allow-list (caller method + callee), re-judge DA-125's inventory and log a decision row.
-- **Two device channels at every WO close** *(WO-005, DA-92/93)*: run the full device suites (`play`, `browse`, `settings`, `app`, `devtools`; `settings` includes the audio smoke) on `Medium_Phone_API_37.0` **and** on `Phone_API_26` (Android 8.0, the minSdk floor), one emulator at a time, and launch a throwaway-signed copy of the release APK on API 26 (signed copy in the scratchpad only, with the local debug key). API 26 renders differently: a path drawn under a canvas scale blurs there, so `play` draws every path in px (the `PlayDrawing.kt` header rule). Never reintroduce a scaled-canvas path draw.
+- **Two device channels at every WO close** *(WO-005, DA-92/93)*: run the full device suites (`play`, `browse`, `settings`, `time`, `app`, `devtools`; `settings` includes the audio smoke; from WO-008 also the `HarnessScaffoldingTest` display gate first) on `Medium_Phone_API_37.0` **and** on `Phone_API_26` (Android 8.0, the minSdk floor), one emulator at a time, and launch a throwaway-signed copy of the release APK on API 26 (signed copy in the scratchpad only, with the local debug key). API 26 renders differently: a path drawn under a canvas scale blurs there, so `play` draws every path in px (the `PlayDrawing.kt` header rule). Never reintroduce a scaled-canvas path draw.
   **Device hygiene (WO-006, DA-108):**
   - Before and after every device step, run `python tools/device_reset.py --serial S`, which resets and then checks.
   - A non-clean `--check` after a step voids that step: reset, re-run, and record the leftover in the workorder.
@@ -163,6 +163,13 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
   that lands all of them at once, right where the product change that needs them lands. Never put a
   window between "the new strings exist" and "their exemption exists", or between "copy A changed" and
   "copy B changed".
+  *(3rd occurrence: WO-008 plan B1, an exact tag set in a device test.)* **How WO-008 met it (DA-145, DA-146):**
+  - **Quiescent landing steps:** every step that builds `:app:` or `:devtools:` runs only when no implementer task and no other landing step is active. A cross-file check lands in the first such step after the file it reads, before anything builds on it. Single-module acceptance tests land at the owner task's done-check (a "module landing").
+  - **Test authors compile outside the tree:** in a copy of the repository, never by overlaying files in the working tree.
+  - **Before authoring, the test author greps every in-tree test for exact tag, text or set assertions** that the new screens touch, and lists them.
+- **A debug `TestConfig` clock and other time-driven device tests** *(WO-008)*: a test that needs time sets `TestConfig.timeSource` before launch (`AppLaunch.launch(…, timeSource = …)`), and both `TestConfigRule` copies reset it afterwards. A test that changes screen and then jumps the clock uses `advanceActive` (the clock moves on the main thread, then `accrue()`), never `Thread.sleep`. A device test reads density from the launched app under the display override, never from `targetContext` (WO-008 DA-40 case).
+- **A tagged display element carries its own text** *(WO-008, DA-149)*: when a test tag sits on a container (a pill, a label + value row), merge its descendants' semantics into it (`semantics(mergeDescendants = true)`). Otherwise tests and TalkBack read an empty node. Keep it inert: no click action, no role.
+- **Guarded removals in bash** *(WO-008)*: `rm` with a variable path must be written as `rm -- "${DIR:?}/${NAME:?}"`. A bare `rm "$VAR/$X"` is blocked by a safety check before anything runs. Overlays of held-out files are copied by path without reading, and removed with the guarded form before any other build starts.
 - **Governance:** once `governance.md` is `in force`, a control point it
   assigns to `ai` is exercised, not asked, and every such decision is
   appended to `decisions.md` (what, why, how to reverse); `ai+inform` rows
@@ -171,13 +178,14 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
 
 ### Current phase
 
-`P3 — WO-008 #PlayTime` (2026-10-04). Done: G1, G3 toolchain, G2
+`P3 — WO-009 #Release` (2026-10-05). Done: G1, G3 toolchain, G2
 (`architecture.md` v1.0), WO-001 #Locking, WO-002 #Content, WO-003 #Solving
 (first playable APK), WO-004 #Browsing + `store` (browsing, saved progress,
 **v1 save format frozen**), WO-005 #DevTools (debug-only DEV aid, V-04; API 26
 channel live, DA-92/93), WO-006 #Layout/#Language/#Promise (phone + tablet,
-fi/en, the free promise; V-08; device hygiene) and WO-007 #Settings (settings screen,
+fi/en, the free promise; V-08; device hygiene), WO-007 #Settings (settings screen,
 sound + haptics behind one gate, reset; platform click/vibration off; V-08 caller check)
-closed (checkpoints 1–7 surfaced). **Next: WO-008**
+and WO-008 #PlayTime (`time` module: active time, best times, the timer; v1 format untouched)
+closed (checkpoints 1–8 surfaced). **Next: WO-009**
 (resume from `STATUS.md` "▶ Resume here"), then the sequence without waiting, unless
 Jami says stop. Update this line as phases advance.

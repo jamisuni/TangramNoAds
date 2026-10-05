@@ -25,17 +25,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.jamisuni.tangram.kernel.time.DurationFormat
 
 /**
  * REQ-026: what the tray region shows while the puzzle is solved: Retry, the best time, Next (the primary action).
- * `best-time` holds the value only: a dash, or `m:ss` (hours are WO-008's, DA-52). Each button is at least 48 dp high.
+ * `best-time` holds the value only: a dash, `m:ss` below an hour, or `h min` from an hour (DurationFormat, REQ-029). Each button is at least 48 dp high.
  */
 @Composable
 fun SolvedBar(bestSeconds: Long?, onRetry: () -> Unit, onNext: () -> Unit, modifier: Modifier = Modifier) {
     val value = if (bestSeconds == null) {
         stringResource(R.string.best_time_none)
     } else {
-        stringResource(R.string.time_minutes_seconds, (bestSeconds / 60).toInt(), (bestSeconds % 60).toInt())
+        val parts = DurationFormat.parts(bestSeconds)
+        if (parts.withHours) {
+            stringResource(R.string.time_hours_minutes, parts.hours.toInt(), parts.minutes.toInt())
+        } else {
+            stringResource(R.string.time_minutes_seconds, parts.minutes.toInt(), parts.seconds.toInt())
+        }
     }
     Row(
         modifier = modifier.fillMaxWidth().testTag("solved-bar").padding(horizontal = 12.dp, vertical = 4.dp),

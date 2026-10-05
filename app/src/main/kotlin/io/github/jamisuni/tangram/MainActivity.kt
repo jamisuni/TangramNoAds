@@ -33,13 +33,20 @@ open class MainActivity : ComponentActivity() {
         model = ViewModelProvider(this, AppViewModel.Factory(filesDir))[AppViewModel::class.java]
         model.haptics.attach(window.decorView)
         model.host.session?.interruptDrag() // F5: window change
-        setContent { TangramApp(model.controller, model.host, model.aids, model.settings) }
+        setContent { TangramApp(model.controller, model.host, model.aids, model.settings, model.time) }
     }
 
     override fun onPause() {
         model.host.session?.interruptDrag() // F5: app hidden; first, so the save holds the settled board
         model.controller.persist() // DA-49
+        model.time.touch(false) // N5: a lost "up" must not keep counting; accounts only, never writes
+        model.time.flush() // WO-008: the 10 s guard's pause point
         super.onPause()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        model.time.setVisible(true) // WO-008: the Activity is started, so time may count
     }
 
     override fun onDestroy() {
@@ -48,6 +55,7 @@ open class MainActivity : ComponentActivity() {
     }
 
     override fun onStop() {
+        model.time.setVisible(false) // WO-008: accounts, then flushes (a stop point), so before the sync
         model.store.sync() // DA-47: force the last save to disk
         super.onStop()
     }

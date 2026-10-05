@@ -11,6 +11,7 @@ import io.github.jamisuni.tangram.kernel.model.PuzzleState
 import io.github.jamisuni.tangram.settings.FeedbackEvent
 import io.github.jamisuni.tangram.play.PlayEvent
 import io.github.jamisuni.tangram.play.PlaySession
+import io.github.jamisuni.tangram.time.PlayTimeKeeper
 
 /**
  * The `app` implementation of [PuzzleHost] over `play` (WO-004 design section 7, DA-51): every [show] builds a NEW
@@ -40,6 +41,9 @@ class SessionHost internal constructor(
 
     override val isDragging: Boolean get() = session?.isDragging ?: false
 
+    /** WO-008 (DA-137): the play-time keeper, set by the view model; unset, nothing below changes. */
+    var time: PlayTimeKeeper? = null
+
     override fun show(puzzle: Puzzle, progress: PuzzleProgress) {
         val restored = runCatching { build(puzzle).also { restoreInto(it, progress) } }
             .onFailure { warn("restore failed for ${puzzle.id.value}; showing it as New", it) }
@@ -47,15 +51,27 @@ class SessionHost internal constructor(
         session = restored ?: runCatching { build(puzzle) }
             .onFailure { warn("session build failed for ${puzzle.id.value}; nothing is shown", it) }
             .getOrNull()
+        // the keeper adopts the stored seconds; a failed restore shows a New puzzle, so it adopts New (design 5.1)
+        runCatching { time?.puzzleShown(puzzle.id, if (restored != null) progress else PuzzleProgress.NEW) }
+            .onFailure { warn("time adoption failed for ${puzzle.id.value}", it) }
     }
 
-    override fun capture(base: PuzzleProgress): PuzzleProgress? = session?.toProgress(base)
+    override fun capture(base: PuzzleProgress): PuzzleProgress? {
+        val s = session ?: return null
+        val captured = s.toProgress(base)
+        return runCatching { time?.mergeInto(s.puzzle.id, captured) ?: captured }
+            .onFailure { warn("time merge failed", it) }
+            .getOrDefault(captured)
+    }
 
     /** Every play event of every session this host builds (DA-115); the view model points it at the feedback gate. */
     var onEvent: (PlayEvent) -> Unit = {}
 
     /** A new session whose `onChanged` and `onEvent` go to the host's current callbacks. */
-    private fun build(puzzle: Puzzle): PlaySession = newSession(puzzle) { onChanged() }.also { s -> s.onEvent = { onEvent(it) } }
+    private fun build(puzzle: Puzzle): PlaySession = newSession(puzzle) { onChanged() }.also { s ->
+        s.onEvent = { onEvent(it) }
+        s.solvedListener = { byAid -> runCatching { time?.solved(byAid) } } // G-10: nothing throws into the play loop
+    }
 
     private fun warn(message: String, t: Throwable) {
         runCatching { Log.w("SessionHost", message, t) } // a plain JVM test has no android.util.Log

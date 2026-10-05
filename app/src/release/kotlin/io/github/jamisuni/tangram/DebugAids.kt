@@ -9,6 +9,7 @@ import io.github.jamisuni.tangram.kernel.geometry.PlacedPiece
 import io.github.jamisuni.tangram.play.BoardSpace
 import io.github.jamisuni.tangram.settings.HapticOut
 import io.github.jamisuni.tangram.settings.SoundOut
+import io.github.jamisuni.tangram.time.TimeSource
 
 /** Release build: nothing is shown and nothing is held (DA-72). Same public signatures as the debug twin. */
 class DebugAids {
@@ -16,6 +17,9 @@ class DebugAids {
     fun sound(real: SoundOut): SoundOut = real
 
     fun haptic(real: HapticOut): HapticOut = real
+
+    /** Release: the real clock, unchanged (DA-72, DA-137). */
+    fun timeSource(real: TimeSource): TimeSource = real
 
     @Composable
     fun CornerButton(

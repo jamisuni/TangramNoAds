@@ -36,6 +36,7 @@ dependencies {
     implementation(project(":store"))
     implementation(project(":browse"))
     implementation(project(":settings"))
+    implementation(project(":time"))
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

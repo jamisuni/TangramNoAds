@@ -96,6 +96,12 @@ class PlaySession(
      */
     var onEvent: (PlayEvent) -> Unit = {}
 
+    /**
+     * WO-008 (DA-138): a second solve observer, set after construction. Called right after the constructor's `onSolved`
+     * and before [settled], at both solve sites (`false` for a drop, `true` for [solveByAid]); never by [restore].
+     */
+    var solvedListener: (byAid: Boolean) -> Unit = {}
+
     /** Version counter (snapshot state) bumped on every mutation for Compose observability. CR-1 N1. */
     private val versionState = androidx.compose.runtime.mutableIntStateOf(0)
 
@@ -283,6 +289,7 @@ class PlaySession(
         invalidate()
         onEvent(PlayEvent.SOLVE)
         onSolved(true)
+        solvedListener(true)
         settled()
         return true
     }
@@ -390,6 +397,7 @@ class PlaySession(
                     invalidate()
                     onEvent(PlayEvent.SOLVE)
                     onSolved(false)
+                    solvedListener(false)
                 }
             }
             is DropOutcome.Home -> {

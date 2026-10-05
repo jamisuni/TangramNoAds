@@ -1,6 +1,6 @@
 # Design inputs — TangramNoAds
 
-**Status:** Current  ·  **Last updated:** 2026-10-04
+**Status:** Current  ·  **Last updated:** 2026-10-05
 **Contract:** `Requirements/` collection v1.1 — REQ-001..051 (47 locked, 4 withdrawn), TYPE-001..007, locked 2026-10-01 (SRC-014, SRC-015)
 
 > Inputs the pipeline must honor beside the requirements. Each is named in
@@ -59,6 +59,15 @@ product notes — never cited, never read by workers), `Study/archive/`.
    `PlayLayout`, and it then pins the fix over 654 windows. With 12 dp the cell is 49.3 dp. The phone gap
    stays 8 dp. REQ-013 names no gap, so this is a build value (CA-7(c)).
 6. DI-2 `Spec/02` §4 gives the **⚙ as 44 dp** → the build gives it a **48 dp touch area** (REQ-037's floor, DA-53) and draws its **glyph at 24 dp**, centred, the standard icon proportion (DA-119, DA-131). The first build drew the glyph across the whole 48 dp box, which looked oversized; the release screenshot on API 26 caught it.
+7. DI-1 prototype 0.6's **play-time model and timer** → the build differs from WO-008 (DA-134…141, 147). Everything else agrees, including the timer being hidden on a solved puzzle. The differences:
+   - **Counting:** time accrues over intervals from a monotonic clock, not as a 1 s tick.
+   - **Start:** nothing counts after a launch until the first touch. The prototype starts its last-touch time at load.
+   - **Keys:** key presses are not touches. The prototype counts `keydown`.
+   - **Held finger:** a finger held still keeps counting.
+   - **DEV dialog:** it does not pause puzzle time. The prototype's `overlaysClosed` includes it.
+   - **Clock glyph:** Spec/02's and the prototype's clock glyph on the timer is dropped.
+   - **Settings row:** the "Puzzles solved N / M" row is dropped.
+   - **Numbers:** the pill is inset 8 dp, not the prototype's 14 px, and it saves every 10 s, not every 5 s.
 
 ### Interpretation layer (G1, 2026-10-02)
 
@@ -100,3 +109,4 @@ wins. Known disagreements:
 | 0.2 | 2026-10-02 | §2 interpretation layer: the G1 decisions bind over the prototype; three known disagreements (F5, F3, F7/F8) | G1 acceptance with req_review_01 triage |
 | 0.3 | 2026-10-04 | §2 Superseded item 5: the tablet tray gap is 12 dp, not Spec/02's 14 dp | WO-006 close; DA-100(i), REQ-037 A1 |
 | 0.4 | 2026-10-04 | §2 Superseded item 6: ⚙ 48 dp touch area, 24 dp glyph | WO-007 close; DA-119, DA-131 |
+| 0.5 | 2026-10-05 | §2 Superseded item 7: the prototype's play-time model and timer versus the build | WO-008 close; DA-134…141, DA-147 |

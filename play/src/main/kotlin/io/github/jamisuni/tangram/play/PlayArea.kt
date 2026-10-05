@@ -37,6 +37,9 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.foundation.text.BasicText
 import io.github.jamisuni.tangram.kernel.geometry.Vec2
 import io.github.jamisuni.tangram.kernel.layout.LayoutClass
 import io.github.jamisuni.tangram.kernel.model.PieceId
@@ -83,6 +86,8 @@ fun PlayArea(
     secondaryCornerControl: (@Composable BoxScope.() -> Unit)? = null,
     /** decision DA-118: false cancels the gesture machine silently (no event) and ignores new downs. */
     inputEnabled: Boolean = true,
+    /** WO-008 (REQ-031 A2): the puzzle-time pill; composed only while NOT solved, placed by [PlayLayout.timerRect]; takes no touches. */
+    timer: (@Composable BoxScope.() -> Unit)? = null,
 ) {
     BoxWithConstraints(modifier.semantics { testTag = "play-area" }) {
         val w = maxWidth.value.toDouble()
@@ -273,15 +278,35 @@ fun PlayArea(
         // decision DA-75: composed after the primary slot; measured, then placed from the finished layout. Its size is
         // never written to state, so nothing here can relayout the board.
         val secondary = secondaryCornerControl
-        if (secondary != null) {
+        // WO-008 (rev 1 S3, rev 2 E3): the timer is composed only while not solved. The secondary control and the timer
+        // share ONE SubcomposeLayout: the secondary is placed first (placeSecondary), then the timer by timerRect from the
+        // real obstacle rects. Neither size is written to state, so nothing here can relayout the board.
+        val timerSlot = if (isSolved) null else timer
+        if (secondary != null || timerSlot != null) {
             SubcomposeLayout(Modifier.fillMaxSize()) { c ->
-                val p = subcompose("secondary-corner-control") { Box { secondary() } }
+                val p = if (secondary == null) null else subcompose("secondary-corner-control") { Box { secondary() } }
                     .firstOrNull()
                     ?.measure(Constraints(maxWidth = c.maxWidth, maxHeight = CORNER_MAX_H_DP.dp.roundToPx()))
+                val t = if (timerSlot == null) null else subcompose("timer") { Box { timerSlot() } }
+                    .firstOrNull()
+                    ?.measure(Constraints(maxWidth = maxOf(0, c.maxWidth - 2 * TIMER_INSET_DP.dp.roundToPx()), maxHeight = CORNER_MAX_H_DP.dp.roundToPx()))
+                // E3: the widest text the pill can show, measured once per language and font scale (density), never the live text.
+                val tpl = if (t == null || t.width <= 0) null else subcompose("timer-template") {
+                    BasicText(TIMER_TEMPLATE_TEXT, style = TextStyle(fontSize = TIMER_TEMPLATE_SP.sp, fontFeatureSettings = "tnum"))
+                }.firstOrNull()?.measure(Constraints())
                 layout(c.maxWidth, c.maxHeight) {
+                    var secondaryRect: RectDp? = null
                     if (p != null && p.width > 0 && p.height > 0) {
                         val r = PlayLayout.placeSecondary(layout, placed.second, p.width.toDp().value.toDouble(), p.height.toDp().value.toDouble())
                         if (r != null) p.place(r.left.dp.roundToPx(), r.top.dp.roundToPx())
+                        secondaryRect = r
+                    }
+                    if (t != null && t.width > 0 && t.height > 0) {
+                        val live = t.width.toDp().value.toDouble()
+                        val template = maxOf(live, (tpl?.width?.toDp()?.value?.toDouble() ?: 0.0) + TIMER_TEMPLATE_PAD_DP)
+                        val obstacles = listOfNotNull(controlRect, secondaryRect)
+                        val r = PlayLayout.timerRect(layout, obstacles, template, t.height.toDp().value.toDouble())
+                        t.place((r.right - live).dp.roundToPx(), r.top.dp.roundToPx())
                     }
                 }
             }
@@ -300,6 +325,13 @@ fun PlayArea(
 
 private const val DEFAULT_CORNER_W_DP = 120.0
 private const val CORNER_MAX_H_DP = 96
+
+// E3 template: the widest pill text. The same literal in fi and en (the two format strings are identical); the font scale
+// comes from the density the template is measured in. The padding allowance stands for the pill's own horizontal padding
+// (the live width, when larger, always wins, so the pill can never overlap).
+private const val TIMER_TEMPLATE_TEXT = "88 h 59 min"
+private const val TIMER_TEMPLATE_SP = 14.0
+private const val TIMER_TEMPLATE_PAD_DP = 20.0
 
 private fun dp(p: androidx.compose.ui.geometry.Offset, density: Float) = Vec2((p.x / density).toDouble(), (p.y / density).toDouble())
 

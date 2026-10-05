@@ -10,6 +10,7 @@ import io.github.jamisuni.tangram.kernel.geometry.PlacedPiece
 import io.github.jamisuni.tangram.play.BoardSpace
 import io.github.jamisuni.tangram.settings.HapticOut
 import io.github.jamisuni.tangram.settings.SoundOut
+import io.github.jamisuni.tangram.time.TimeSource
 
 /**
  * Debug build: the real testing aid (REQ-046, DA-72). One [DevToolsState] lives as long as the owning ViewModel (DA-76),
@@ -23,6 +24,9 @@ class DebugAids {
 
     /** The haptic out, wrapped by the counting probe. */
     fun haptic(real: HapticOut): HapticOut = FeedbackProbe.wrapHaptic(real)
+
+    /** The clock; a test may install a manual one through [TestConfig] (DA-137). */
+    fun timeSource(real: TimeSource): TimeSource = TestConfig.timeSource ?: real
 
     @Composable
     fun CornerButton(

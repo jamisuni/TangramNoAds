@@ -13,4 +13,11 @@
     <string name="settings_how_to">Näin pelataan: vedä pala kuvion päälle. Palat pysyvät oikean kokoisina; tarjottimella kolmiot on merkitty S, M ja L. Napauta palaa kääntääksesi sitä 45°, tarjottimella tai laudalla, tai pidä siitä kiinni ja kierrä toisella sormella. Peilausnappi peilaa suunnikkaan. Pala napsahtaa paikalleen kuvion kulmiin ja muihin paloihin, tai palaa tarjottimelle. Pidä › pohjassa hypätäksesi seuraavaan ratkaisemattomaan tehtävään; yläpalkin numero avaa kaikki tehtävät.</string>
     <string name="settings_free_note">Nauti, se on ihan ilmaista. Ei mainoksia, ei ostoksia, ei verkkoa. Peliaikasi pysyy tällä laitteella.</string>
     <string name="settings_privacy">Tietosuoja: tämä peli ei kerää mitään tietoja. Sillä ei ole verkkoyhteyttä, tilejä eikä analytiikkaa. Ratkaisusi ja peliaikasi tallennetaan vain tälle laitteelle, ja ne poistuvat kun peli poistetaan.</string>
+    <string name="settings_timer">Ajastin näytöllä</string>
+    <string name="settings_play_heading">Peliaika (vain tällä laitteella)</string>
+    <string name="settings_play_today">Aktiivinen tänään</string>
+    <string name="settings_play_total">Aktiivinen yhteensä</string>
+    <string name="settings_best_row">Paras · %1$s</string>
+    <string name="time_minutes_seconds">%1$d:%2$02d</string>
+    <string name="time_hours_minutes">%1$d h %2$d min</string>
 </resources>
