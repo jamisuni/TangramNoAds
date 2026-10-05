@@ -1,0 +1,42 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "people-person",
+  "title": {
+    "en": "Person",
+    "fi": "Ihminen"
+  },
+  "category": "people",
+  "difficulty": 3,
+  "kind": "full",
+  "solution": [
+    {"piece": "MT", "polygon": [[2, 4], [2, 2], [4, 4]]},
+    {"piece": "ST1", "polygon": [[3, 1], [3, 3], [2, 2]]},
+    {"piece": "LT1", "polygon": [[5, 1], [5, 5], [3, 3]]},
+    {"piece": "LT2", "polygon": [[2, 3], [2, 7], [0, 5]]},
+    {"piece": "PG", "polygon": [[4, 4], [4, 6], [5, 7], [5, 5]]},
+    {"piece": "ST2", "polygon": [[0, 5], [0, 3], [1, 4]]},
+    {"piece": "SQ", "polygon": [[1, 1], [2, 0], [3, 1], [2, 2]]}
+  ],
+  "art": {
+    "base": "#4C8DF6",
+    "shapes": [
+      {"type": "polygon", "points": [[2, 4], [2, 2], [4, 4]], "fill": "#E8505B"},
+      {"type": "polygon", "points": [[3, 1], [3, 3], [2, 2]], "fill": "#E8505B"},
+      {"type": "polygon", "points": [[5, 1], [5, 5], [3, 3]], "fill": "#E8505B"},
+      {"type": "polygon", "points": [[2, 3], [2, 7], [0, 5]], "fill": "#2F3E6B"},
+      {"type": "polygon", "points": [[4, 4], [4, 6], [5, 7], [5, 5]], "fill": "#2F3E6B"},
+      {"type": "polygon", "points": [[2, 6], [2, 7], [1, 6]], "fill": "#5A3A22"},
+      {"type": "polygon", "points": [[4, 6], [5, 7], [5, 6]], "fill": "#5A3A22"},
+      {"type": "polygon", "points": [[0, 5], [0, 3], [1, 4]], "fill": "#F4C7A1"},
+      {"type": "polygon", "points": [[1, 1], [2, 0], [3, 1], [2, 2]], "fill": "#F4C7A1"},
+      {"type": "polygon", "points": [[1, 1], [2, 0], [3, 1], [2.5, 1.05], [2, 0.75], [1.5, 1.05]], "fill": "#5A3A22"},
+      {"type": "circle", "c": [1.75, 1.35], "r": 0.07, "fill": "#2B2D42"},
+      {"type": "circle", "c": [2.25, 1.35], "r": 0.07, "fill": "#2B2D42"},
+      {"type": "path", "d": "M1.75,1.6 Q2,1.8 2.25,1.6", "stroke": "#2B2D42", "width": 0.05}
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude",
+    "reviewedByHuman": false
+  }
+}

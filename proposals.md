@@ -189,3 +189,15 @@ from starvation.
 - **Context:** WO-008's design placed REQ-029 A2's module-level covering test in `settings`, because the screen lives there. The feature's code home is `time`. The design review, the plan review and CR-7 all passed it. Only trace-check at TASK-069 reported "directory theater", which cost a late follow-up test (DA-151).
 - **Proposal:** the design template's acceptance table gets a column "covering test under the code home (trace rule 3)", one per ID. The plan reviewer's checklist asks for it, and the orchestrator can run `trace_check.py` once right after the module landings, not only at the close.
 - **Severity:** low
+
+## 2026-10-05 — trace-check has no channel for checklist-borne manual evidence
+
+- **Context:** WO-009's five F17 IDs (store listing, owner review) can only be evidenced by the owner's acts. trace-check counts tokens only in test files, so the build kept them RED under a row-16 waiver with staged carrier tests (DA-158) rather than put tokens on drafts (coverage theater, design review B1).
+- **Proposal:** let trace-check accept a declared manual-evidence channel (e.g. a checklist row id + an evidence file that a test validates) as coverage, distinct from a test token, so a release-ready project reads as "waiting for owner evidence" rather than RED.
+- **Severity:** low
+
+## 2026-10-05 — validator rule for enclosed pockets came only from a device run
+
+- **Context:** a redrawn puzzle with an enclosed pocket passed every Python and JVM check and failed only on device pixel tests (DA-169). Three shipped warm-ups have pinched pockets that render fine, so a strict rule needed a named exemption list; why the warm-ups render correctly was not investigated.
+- **Proposal:** a follow-up could explain the render difference (pocket angle vs the outline ring model) and either drop the exemption or document the safe class.
+- **Severity:** low

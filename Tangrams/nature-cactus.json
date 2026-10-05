@@ -1,0 +1,43 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "nature-cactus",
+  "title": {
+    "en": "Cactus",
+    "fi": "Kaktus"
+  },
+  "category": "nature",
+  "difficulty": 3,
+  "kind": "full",
+  "solution": [
+    {"piece": "LT1", "polygon": [[1, 4], [1, 0], [3, 2]]},
+    {"piece": "LT2", "polygon": [[3, 2], [3, 6], [1, 4]]},
+    {"piece": "MT", "polygon": [[3, 0], [3, 2], [1, 0]]},
+    {"piece": "PG", "polygon": [[3, 6], [1, 6], [0, 5], [2, 5]]},
+    {"piece": "SQ", "polygon": [[3, 3], [4, 2], [5, 3], [4, 4]]},
+    {"piece": "ST1", "polygon": [[3, 5], [3, 3], [4, 4]]},
+    {"piece": "ST2", "polygon": [[5, 1], [5, 3], [4, 2]]}
+  ],
+  "art": {
+    "base": "#3F9A5A",
+    "shapes": [
+      {"type": "polygon", "points": [[1, 0], [1.4, 0], [1.4, 6], [1, 6]], "fill": "#6FCF8D"},
+      {"type": "polygon", "points": [[3.5, 2.3], [4, 2], [4.5, 2.5], [4, 3]], "fill": "#6FCF8D"},
+      {"type": "line", "from": [1.8, 0], "to": [1.8, 5], "stroke": "#2C7A44", "width": 0.1},
+      {"type": "line", "from": [2.2, 0], "to": [2.2, 5], "stroke": "#2C7A44", "width": 0.1},
+      {"type": "line", "from": [2.6, 0], "to": [2.6, 5], "stroke": "#2C7A44", "width": 0.1},
+      {"type": "line", "from": [3.4, 3.4], "to": [4.8, 2.1], "stroke": "#2C7A44", "width": 0.1},
+      {"type": "rect", "x": 0, "y": 5, "w": 5, "h": 1, "fill": "#C8693C"},
+      {"type": "rect", "x": 0, "y": 5, "w": 5, "h": 0.3, "fill": "#E08A5C"},
+      {"type": "line", "from": [1.55, 1.2], "to": [1.2, 1.2], "stroke": "#F2E8C9", "width": 0.07},
+      {"type": "line", "from": [2.45, 2.2], "to": [2.85, 2.2], "stroke": "#F2E8C9", "width": 0.07},
+      {"type": "line", "from": [1.55, 3.2], "to": [1.2, 3.2], "stroke": "#F2E8C9", "width": 0.07},
+      {"type": "line", "from": [2.45, 4.0], "to": [2.85, 4.0], "stroke": "#F2E8C9", "width": 0.07},
+      {"type": "circle", "c": [4.8, 2.05], "r": 0.22, "fill": "#F06292"},
+      {"type": "circle", "c": [2, 0.3], "r": 0.22, "fill": "#F06292"}
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude",
+    "reviewedByHuman": false
+  }
+}

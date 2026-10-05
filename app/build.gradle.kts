@@ -69,5 +69,10 @@ tasks.withType<Test>().configureEach {
         // The directory names the scan skips, at any depth.
         exclude("**/build/**", "**/.gradle/**", "**/.git/**", "**/.idea/**", "**/.swdev/**", "**/Study/**", "**/Requirements/**", "**/node_modules/**")
     }).withPathSensitivity(PathSensitivity.RELATIVE)
+    // The release docs (WO-009, S1): a separate named input, not part of scannedFileGlobs.
+    // It may match nothing; an empty tree is a valid input.
+    inputs.files(fileTree(rootDir) {
+        include("release/*.md", "release/evidence/**")
+    }).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("releaseDocs")
     systemProperty("repo.root", rootDir.absolutePath)
 }

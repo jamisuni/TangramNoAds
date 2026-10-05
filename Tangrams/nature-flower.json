@@ -1,0 +1,42 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "nature-flower",
+  "title": {
+    "en": "Flower",
+    "fi": "Kukka"
+  },
+  "category": "nature",
+  "difficulty": 3,
+  "kind": "full",
+  "solution": [
+    {"piece": "LT1", "polygon": [[4, 3], [0, 3], [2, 1]]},
+    {"piece": "LT2", "polygon": [[0, 3], [4, 3], [2, 5]]},
+    {"piece": "MT", "polygon": [[2, 8], [2, 6], [4, 8]]},
+    {"piece": "PG", "polygon": [[1, 4], [1, 6], [2, 7], [2, 5]]},
+    {"piece": "SQ", "polygon": [[3, 7], [4, 6], [5, 7], [4, 8]]},
+    {"piece": "ST1", "polygon": [[3, 0], [3, 2], [2, 1]]},
+    {"piece": "ST2", "polygon": [[4, 6], [6, 6], [5, 7]]}
+  ],
+  "art": {
+    "base": "#3E9B4F",
+    "shapes": [
+      {"type": "polygon", "points": [[2, 6], [2, 8], [4, 8], [5, 7], [6, 6], [4, 6]], "fill": "#7CCB6B"},
+      {"type": "line", "from": [2.2, 7.8], "to": [5.5, 6.2], "stroke": "#2B6F37", "width": 0.12},
+      {"type": "line", "from": [4, 6.1], "to": [4.4, 7.4], "stroke": "#2B6F37", "width": 0.1},
+      {"type": "line", "from": [1.5, 4.4], "to": [1.5, 5.6], "stroke": "#2B6F37", "width": 0.2},
+      {"type": "line", "from": [1.5, 5.6], "to": [2.1, 6.9], "stroke": "#2B6F37", "width": 0.2},
+      {"type": "polygon", "points": [[0, 3], [2, 1], [4, 3], [2, 5]], "fill": "#F06292"},
+      {"type": "polygon", "points": [[3, 0], [3, 2], [2, 1]], "fill": "#F06292"},
+      {"type": "circle", "c": [2, 1.75], "r": 0.6, "fill": "#F8BBD0"},
+      {"type": "circle", "c": [3.25, 3], "r": 0.6, "fill": "#F8BBD0"},
+      {"type": "circle", "c": [2, 4.25], "r": 0.6, "fill": "#F8BBD0"},
+      {"type": "circle", "c": [0.75, 3], "r": 0.6, "fill": "#F8BBD0"},
+      {"type": "circle", "c": [2.8, 0.95], "r": 0.28, "fill": "#F8BBD0"},
+      {"type": "circle", "c": [2, 3], "r": 0.75, "fill": "#FFC93C"}
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude",
+    "reviewedByHuman": false
+  }
+}

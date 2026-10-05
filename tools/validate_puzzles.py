@@ -27,6 +27,13 @@ Checks (rule ids match the spec, section "Validation rules"):
   V13 every art path `d` (art.shapes[i] with "type": "path") parses under the same grammar as the Kotlin
       play/.../PathData.kt: absolute M L Q C Z only, first command M, a minus may start a number, no exponent,
       no implicit repetition (CR-1 F4)
+  V14 the art colour count is 3..8 inclusive (REQ-039, DA-162): distinct normalised (upper-case) #RRGGBB over
+      art.base and every shape's fill and stroke; a shape at an opacity below 1 adds one visible colour per distinct
+      (hex, opacity) pair, because a tint over the base is a colour the player sees
+  V15 the union of the placed pieces has no hole: no uncovered area is enclosed by the pieces (a hole would
+      make the one-ring outline of the silhouette wrong). Exact: the boundary edges are chained into closed walks;
+      more than the one outer walk means a hole. A hole that touches the outside at a single pinch point is still a hole.
+      Exempt by id (V15_EXEMPT, printed as information): shapes-warmup-2, shapes-warmup-3, shapes-warmup-4 (DA-169).
 Exit code 0 when all files pass, 1 otherwise.
 """
 import json
@@ -47,6 +54,75 @@ WARMUP_EXPOSURE = 0.5   # REQ-041: at least half of every piece's outline on the
 def perimeter(fp):
     return sum(math.hypot(fp[i][0] - fp[i - 1][0], fp[i][1] - fp[i - 1][1]) for i in range(len(fp)))
 CATEGORIES = {"shapes", "animals", "people", "things", "vehicles", "nature", "letters", "numbers"}
+
+
+# V15 grandfathered pockets, by id (never by kind: a new warm-up gets no exemption). DA-169 update.
+_GRANDFATHER = "renders correctly, device pixel tests green on API 37 and API 26 (WO-008/009 device runs); grandfathered"
+V15_EXEMPT = {
+    "shapes-warmup-2": f"pocket pinched at (4, 6); {_GRANDFATHER}",
+    "shapes-warmup-3": f"pocket pinched at (4, 3); {_GRANDFATHER}",
+    "shapes-warmup-4": f"pocket pinched at (2, 2); {_GRANDFATHER}",
+}
+
+
+def count_holes(fp):
+    """V15: number of enclosed uncovered regions (holes) of the union of the float polygons fp.
+
+    Exact, combinatorial: piece edges are split at every vertex lying on them; an edge used by one piece only is a
+    boundary edge. Boundary edges are chained into closed walks with the uncovered area on the left (at each vertex
+    take the next boundary edge clockwise from the way back). A walk with positive area bounds a hole; the one
+    walk with negative area is the outer boundary. A hole that meets the outside only at a pinch point is
+    still a hole (its walk is separate).
+    """
+    def key(pt):
+        return (round(pt[0] * 1e6), round(pt[1] * 1e6))
+    verts = {key(pt): pt for poly in fp for pt in poly}
+    directed = set()
+    for poly in fp:
+        if sum(poly[i - 1][0] * poly[i][1] - poly[i][0] * poly[i - 1][1] for i in range(len(poly))) < 0:
+            poly = poly[::-1]   # counter-clockwise: the piece is on the left of each edge
+        for i in range(len(poly)):
+            a, b = poly[i - 1], poly[i]
+            ab = (b[0] - a[0], b[1] - a[1])
+            ll = ab[0] ** 2 + ab[1] ** 2
+            on = [a, b]
+            for v in verts.values():
+                if key(v) in (key(a), key(b)):
+                    continue
+                av = (v[0] - a[0], v[1] - a[1])
+                if abs(ab[0] * av[1] - ab[1] * av[0]) > 1e-7:
+                    continue
+                if 1e-9 < (av[0] * ab[0] + av[1] * ab[1]) / ll < 1 - 1e-9:
+                    on.append(v)
+            on.sort(key=lambda v: (v[0] - a[0]) * ab[0] + (v[1] - a[1]) * ab[1])
+            for j in range(len(on) - 1):
+                directed.add((key(on[j]), key(on[j + 1])))
+    boundary = {(v, u) for (u, v) in directed if (v, u) not in directed}   # reversed: uncovered area on the left
+    out = {}
+    for u, v in boundary:
+        out.setdefault(u, []).append(v)
+    seen, holes = set(), 0
+    for start in boundary:
+        if start in seen:
+            continue
+        walk, cur = [], start
+        while cur not in seen:
+            seen.add(cur)
+            walk.append(cur[0])
+            u, v = cur
+            back = math.atan2(verts[u][1] - verts[v][1], verts[u][0] - verts[v][0])
+            best = None
+            for w in out[v]:
+                turn = (back - math.atan2(verts[w][1] - verts[v][1], verts[w][0] - verts[v][0])) % (2 * math.pi)
+                if turn < 1e-12:
+                    turn = 2 * math.pi
+                if best is None or turn < best[0]:
+                    best = (turn, w)
+            cur = (v, best[1])
+        pts = [verts[k] for k in walk]
+        if sum(pts[i - 1][0] * pts[i][1] - pts[i][0] * pts[i - 1][1] for i in range(len(pts))) > 1e-9:
+            holes += 1
+    return holes
 
 
 def load_solution(puzzle, errors):
@@ -120,6 +196,13 @@ def validate(puzzle):
             if d > 1e-6:
                 errors.append(f"V4 {ids[i]} overlaps {ids[j]} (depth {d:.3f})")
 
+    # V15 no hole
+    holes = count_holes(list(fp.values()))
+    if holes and puzzle.get("id") in V15_EXEMPT:
+        info.append(f"V15 exempt ({puzzle.get('id')}): {V15_EXEMPT[puzzle.get('id')]}")
+    elif holes:
+        errors.append(f"V15 the pieces enclose {holes} uncovered hole(s); the silhouette must be simply connected")
+
     # V5 connectivity via shared edges
     adj = {k: set() for k in ids}
     point_only = []
@@ -188,6 +271,33 @@ ART_TYPES = {
     "ellipse": {"c", "rx", "ry"}, "line": {"from", "to"}, "path": {"d"},
 }
 HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
+ART_COLOURS_MIN, ART_COLOURS_MAX = 3, 8   # REQ-039 rule, DA-162
+
+
+def art_colour_count(art):
+    """DA-162: number of distinct visible colours of an art block (a set of colour keys is returned by art_colours)."""
+    return len(art_colours(art))
+
+
+def art_colours(art):
+    """Distinct visible colours: normalised #RRGGBB of art.base and of every fill and stroke; a shape with opacity
+    below 1 contributes (hex, opacity) pairs instead of the bare hex. Malformed colours are skipped (V10 reports them)."""
+    out = set()
+    if not isinstance(art, dict):
+        return out
+    base = str(art.get("base", ""))
+    if HEX.match(base):
+        out.add((base.upper(), 1.0))
+    for sh in art.get("shapes", []):
+        if not isinstance(sh, dict):
+            continue
+        op = sh.get("opacity", 1)
+        op = float(op) if isinstance(op, (int, float)) and not isinstance(op, bool) else 1.0
+        for key in ("fill", "stroke"):
+            c = str(sh.get(key, ""))
+            if HEX.match(c):
+                out.add((c.upper(), op if op < 1 else 1.0))
+    return out
 
 
 def parse_path_data(d):
@@ -270,6 +380,9 @@ def validate_art(art):
     errs = []
     if not HEX.match(str(art.get("base", ""))):
         errs.append("V10 art.base must be a #RRGGBB colour")
+    n = art_colour_count(art)
+    if not ART_COLOURS_MIN <= n <= ART_COLOURS_MAX:
+        errs.append(f"V14 the art uses {n} visible colours; REQ-039 allows {ART_COLOURS_MIN} to {ART_COLOURS_MAX}")
     for i, sh in enumerate(art.get("shapes", [])):
         t = sh.get("type")
         if t not in ART_TYPES:

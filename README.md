@@ -22,7 +22,7 @@ Open **`Spec/prototype/tangram-prototype.html`** in a browser, ideally on a phon
 | `Study/archive/` | Draft 0.1 spec, drawings and tools; removed puzzles |
 | `Spec/00–05` | Vision, gameplay, UI layout, puzzle format, requirements, open questions |
 | `Spec/ui/` | Annotated screenshots of the prototype plus the locking diagram |
-| `Tangrams/` | The puzzle library: 13 puzzles (2 mini 3-piece, 4 warm-ups, 5 figures, the rectangle and the classic square), JSON Schema, review sheets |
+| `Tangrams/` | The puzzle library: 25 puzzles (2 mini 3-piece, 4 warm-ups, 17 figures, the rectangle and the classic square; 12 of the figures are AI drafts from WO-009, all awaiting the owner's review), JSON Schema, review sheets |
 | `Requirements/` | The requirement collection in SwReqCollector format (ai-led capture) |
 | `Spec/prototype/` | The playable prototype (generated) |
 | `tools/` | Geometry reference, validator, preview renderer, prototype builder, UI sheet generator |

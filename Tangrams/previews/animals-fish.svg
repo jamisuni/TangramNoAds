@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="665" height="290" viewBox="0 0 665 290" font-family="Nunito, Arial, sans-serif">
+<rect width="665" height="290" fill="#FBF8F2"/>
+<text x="20" y="32" font-size="20" font-weight="700" fill="#2B2D42">Fish  <tspan fill="#8A8FA8" font-size="14" font-weight="400">animals-fish · difficulty 2 · 7 pieces</tspan></text>
+<rect x="20" y="50" width="200" height="200" rx="14" fill="#FFFFFF" stroke="#E6E1D6"/>
+<g>
+<polygon points="84.00,102.00 84.00,198.00 36.00,150.00" fill="#4A4E69" stroke="#4A4E69" stroke-width="2.00" stroke-linejoin="round"/>
+<polygon points="204.00,102.00 204.00,198.00 156.00,150.00" fill="#4A4E69" stroke="#4A4E69" stroke-width="2.00" stroke-linejoin="round"/>
+<polygon points="84.00,174.00 108.00,150.00 132.00,174.00 108.00,198.00" fill="#4A4E69" stroke="#4A4E69" stroke-width="2.00" stroke-linejoin="round"/>
+<polygon points="108.00,150.00 156.00,150.00 132.00,174.00" fill="#4A4E69" stroke="#4A4E69" stroke-width="2.00" stroke-linejoin="round"/>
+<polygon points="180.00,174.00 132.00,174.00 156.00,150.00" fill="#4A4E69" stroke="#4A4E69" stroke-width="2.00" stroke-linejoin="round"/>
+<polygon points="84.00,174.00 84.00,126.00 108.00,102.00 108.00,150.00" fill="#4A4E69" stroke="#4A4E69" stroke-width="2.00" stroke-linejoin="round"/>
+<polygon points="108.00,150.00 108.00,102.00 156.00,150.00" fill="#4A4E69" stroke="#4A4E69" stroke-width="2.00" stroke-linejoin="round"/>
+</g>
+<text x="120.0" y="275" text-anchor="middle" font-size="13" fill="#5C5F77">Silhouette (what the player sees)</text>
+<rect x="235" y="50" width="200" height="200" rx="14" fill="#FFFFFF" stroke="#E6E1D6"/>
+<g>
+<polygon points="299.00,102.00 299.00,198.00 251.00,150.00" fill="#E8505B" stroke="#FFFFFF" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="419.00,102.00 419.00,198.00 371.00,150.00" fill="#3D8BFD" stroke="#FFFFFF" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="299.00,174.00 323.00,150.00 347.00,174.00 323.00,198.00" fill="#FFD23F" stroke="#FFFFFF" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="323.00,150.00 371.00,150.00 347.00,174.00" fill="#2DBE7E" stroke="#FFFFFF" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="395.00,174.00 347.00,174.00 371.00,150.00" fill="#9B5DE5" stroke="#FFFFFF" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="299.00,174.00 299.00,126.00 323.00,102.00 323.00,150.00" fill="#FF7AB8" stroke="#FFFFFF" stroke-width="1.00" stroke-linejoin="round"/>
+<polygon points="323.00,150.00 323.00,102.00 371.00,150.00" fill="#F9A826" stroke="#FFFFFF" stroke-width="1.00" stroke-linejoin="round"/>
+</g>
+<text x="335.0" y="275" text-anchor="middle" font-size="13" fill="#5C5F77">Pieces (the moment of solving)</text>
+<rect x="450" y="50" width="200" height="200" rx="14" fill="#FFFFFF" stroke="#E6E1D6"/>
+<clipPath id="clip-animals-fish"><polygon points="514.00,102.00 514.00,198.00 466.00,150.00" stroke="#000" stroke-width="0.48" stroke-linejoin="round"/><polygon points="634.00,102.00 634.00,198.00 586.00,150.00" stroke="#000" stroke-width="0.48" stroke-linejoin="round"/><polygon points="514.00,174.00 538.00,150.00 562.00,174.00 538.00,198.00" stroke="#000" stroke-width="0.48" stroke-linejoin="round"/><polygon points="538.00,150.00 586.00,150.00 562.00,174.00" stroke="#000" stroke-width="0.48" stroke-linejoin="round"/><polygon points="610.00,174.00 562.00,174.00 586.00,150.00" stroke="#000" stroke-width="0.48" stroke-linejoin="round"/><polygon points="514.00,174.00 514.00,126.00 538.00,102.00 538.00,150.00" stroke="#000" stroke-width="0.48" stroke-linejoin="round"/><polygon points="538.00,150.00 538.00,102.00 586.00,150.00" stroke="#000" stroke-width="0.48" stroke-linejoin="round"/></clipPath>
+<g clip-path="url(#clip-animals-fish)">
+<rect x="464.0" y="100.0" width="172.0" height="100.0" fill="#F28C38"/>
+<polygon points="586.00,150.00 634.00,102.00 634.00,198.00" fill="#2A9D8F"/>
+<polygon points="514.00,164.40 583.60,164.40 583.60,174.00 562.00,174.00 538.00,198.00 514.00,174.00" fill="#FFD9A8"/>
+<polygon points="514.00,174.00 514.00,126.00 538.00,102.00 538.00,150.00" fill="#D9621E"/>
+<polygon points="569.20,133.20 578.80,142.80 578.80,174.00 569.20,174.00" fill="#D9621E"/>
+<line x1="595.60" y1="150.00" x2="634.00" y2="150.00" fill="none" stroke="#FFD9A8" stroke-width="1.68" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="598.00" y1="142.80" x2="622.00" y2="123.60" fill="none" stroke="#FFD9A8" stroke-width="1.68" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="598.00" y1="157.20" x2="622.00" y2="176.40" fill="none" stroke="#FFD9A8" stroke-width="1.68" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 506.80,130.80 Q 498.40,150.00 506.80,169.20" fill="none" stroke="#D9621E" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="488.80" cy="145.20" r="4.80" fill="#FFFFFF"/>
+<circle cx="490.00" cy="145.20" r="2.40" fill="#2B2D42"/>
+<path d="M 472.00,150.00 Q 478.00,154.80 482.80,152.40" fill="none" stroke="#2B2D42" stroke-width="1.20" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<text x="550.0" y="275" text-anchor="middle" font-size="13" fill="#5C5F77">Picture (after solving)</text>
+</svg>

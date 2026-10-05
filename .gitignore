@@ -9,3 +9,14 @@ local.properties
 .idea/
 *.iml
 captures/
+
+# release signing material: never in the repo (WO-009, DA-159)
+# The upload certificate is public; a private key (including one in PEM form) is not.
+*.jks
+*.keystore
+keystore.properties
+*.p12
+*.pk8
+*.pepk
+encrypted_private_key*
+*.pem

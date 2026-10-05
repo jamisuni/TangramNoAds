@@ -1332,5 +1332,214 @@ class TestV08PromiseApk(unittest.TestCase):
             self.assertNotIn(b"\x00", raw, name)
 
 
+class TestV09ReleaseLibrary(unittest.TestCase):
+    """Fixture tests of V-09 (TASK-093). Scaffolding: the acceptance tests are written elsewhere."""
+
+    THEMES = ["shapes", "animals", "things", "nature", "vehicles"]
+
+    @classmethod
+    def setUpClass(cls):
+        import json as _json
+        import v09_release_library as v09
+        cls.json = _json
+        cls.v09 = v09
+        cls.review_hash = staticmethod(v09.review_hash)
+
+    def puzzle(self, pid, theme, flag=False, inline=False):
+        if inline:   # the minis' form: the flag inside an inline provenance object
+            prov = '"provenance": {"source": "x", "reviewedByHuman": %s}' % ("true" if flag else "false")
+        else:
+            prov = '"provenance": {\n    "source": "x",\n    "reviewedByHuman": %s\n  }' % ("true" if flag else "false")
+        return ('{\n  "id": "%s",\n  "category": "%s",\n  %s\n}\n' % (pid, theme, prov)).encode("utf-8")
+
+    def library(self, n=20, reviewed=True, with_square=True, themes=None, inline_every=5):
+        """(files, ledger) of n puzzles; all flagged and ledgered when reviewed."""
+        themes = themes or self.THEMES
+        files, ledger = {}, {}
+        for i in range(n):
+            pid = "shapes-square" if (i == 0 and with_square) else "p%02d" % i
+            theme = "shapes" if pid == "shapes-square" else themes[i % len(themes)]
+            raw = self.puzzle(pid, theme, flag=reviewed, inline=(i % inline_every == 0))
+            files[pid + ".json"] = raw
+            if reviewed:
+                ledger[pid] = {"sha256": self.review_hash(raw.decode("utf-8")), "by": "t", "date": "2026-10-05"}
+        return files, ledger
+
+    def test_v09_full_pass(self):
+        files, ledger = self.library(22)
+        self.assertEqual(self.v09.check(files, ledger, 20, False), [])
+        self.assertEqual(self.v09.summary(files, ledger), (22, 22, 5))
+
+    def test_v09_uses_the_review_hash_of_puzzle_review(self):
+        import puzzle_review
+        self.assertIs(self.v09.review_hash, puzzle_review.review_hash)
+
+    def test_v09_unreviewed_flag_false(self):
+        files, ledger = self.library(22)
+        raw = self.puzzle("p03", "things", flag=False)
+        files["p03.json"] = raw
+        f = self.v09.check(files, ledger, 20, False)
+        self.assertIn("unreviewed p03", f)
+
+    def test_v09_unreviewed_inline_form(self):
+        files, ledger = self.library(22)
+        files["p05.json"] = self.puzzle("p05", "shapes", flag=False, inline=True)
+        self.assertIn("unreviewed p05", self.v09.check(files, ledger, 20, False))
+
+    def test_v09_both_flag_forms_pass_when_reviewed(self):
+        files, ledger = self.library(20, inline_every=2)
+        self.assertTrue(any(b"reviewedByHuman\": true}" in r for r in files.values()))
+        self.assertTrue(any(b"\n    \"reviewedByHuman\": true\n" in r for r in files.values()))
+        self.assertEqual(self.v09.check(files, ledger, 20, False), [])
+
+    def test_v09_no_ledger_entry_is_unledgered(self):
+        files, ledger = self.library(22)
+        del ledger["p04"]
+        self.assertIn("unledgered p04", self.v09.check(files, ledger, 20, False))
+
+    def test_v09_stale_entry(self):
+        files, ledger = self.library(22)
+        files["p04.json"] = files["p04.json"].replace(b'"source": "x"', b'"source": "y"')
+        f = self.v09.check(files, ledger, 20, False)
+        self.assertIn("changed after approval p04", f)
+
+    def test_v09_flag_flip_alone_is_not_stale_but_crlf_is_equal(self):
+        files, ledger = self.library(22)
+        files["p04.json"] = files["p04.json"].replace(b"\n", b"\r\n")   # the hash normalises CRLF
+        self.assertEqual(self.v09.check(files, ledger, 20, False), [])
+
+    def test_v09_too_few_puzzles(self):
+        files, ledger = self.library(19)
+        f = self.v09.check(files, ledger, 20, False)
+        self.assertIn("count 19 of 19 reviewed (< 20)", f)
+        self.assertIn("count 19 puzzles (< 20)", self.v09.check(files, ledger, 20, True))
+
+    def test_v09_too_few_themes(self):
+        files, ledger = self.library(22, themes=["shapes", "animals", "things"])
+        self.assertIn("themes 3 (< 4)", self.v09.check(files, ledger, 20, False))
+
+    def test_v09_missing_square(self):
+        files, ledger = self.library(22, with_square=False)
+        self.assertIn("missing shapes-square", self.v09.check(files, ledger, 20, False))
+
+    def test_v09_unreadable_file_is_a_finding(self):
+        files, ledger = self.library(22)
+        files["bad.json"] = b"{not json"
+        self.assertIn("unreadable bad.json", self.v09.check(files, ledger, 20, False))
+
+    def test_v09_schema_and_non_json_are_ignored(self):
+        files, ledger = self.library(22)
+        files["puzzle.schema.json"] = b"{}"
+        files["index.txt"] = b"x\n"
+        self.assertEqual(self.v09.check(files, ledger, 20, False), [])
+
+    def test_v09_pre_review_passes_with_zero_reviewed(self):
+        files, ledger = self.library(25, reviewed=False)
+        self.assertEqual(self.v09.check(files, {}, 20, True), [])
+        strict = self.v09.check(files, {}, 20, False)
+        self.assertIn("count 0 of 25 reviewed (< 20)", strict)
+        self.assertEqual(sum(1 for x in strict if x.startswith("unreviewed")), 25)
+
+    def test_v09_pre_review_still_fails_stale_unledgered_themes_square(self):
+        files, ledger = self.library(22)
+        files["p04.json"] = files["p04.json"].replace(b'"source": "x"', b'"source": "y"')
+        del ledger["p05"]
+        f = self.v09.check(files, ledger, 20, True)
+        self.assertIn("changed after approval p04", f)
+        self.assertIn("unledgered p05", f)
+        files2, ledger2 = self.library(22, with_square=False, themes=["shapes", "animals"])
+        f2 = self.v09.check(files2, ledger2, 20, True)
+        self.assertIn("missing shapes-square", f2)
+        self.assertIn("themes 2 (< 4)", f2)
+
+    def write_dir(self, root, files):
+        d = Path(root) / "Tangrams"
+        d.mkdir()
+        for n, raw in files.items():
+            (d / n).write_bytes(raw)
+        return d
+
+    def run_main(self, argv):
+        import io
+        import contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = self.v09.main(argv)
+        return code, buf.getvalue().splitlines()
+
+    def test_v09_main_dir_pass_and_fail_lines(self):
+        files, ledger = self.library(21)
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.write_dir(tmp, files)
+            lp = Path(tmp) / "ledger.json"
+            lp.write_text(self.json.dumps(ledger), encoding="utf-8")
+            code, lines = self.run_main(["--dir", str(d), "--ledger", str(lp)])
+            self.assertEqual(code, 0, lines)
+            self.assertEqual(lines[-1], "V-09 PASS")
+            self.assertIn("V-09 library: 21 of 21 reviewed, 5 themes", lines)
+            code, lines = self.run_main(["--dir", str(d), "--ledger", str(Path(tmp) / "none.json")])
+            self.assertEqual(code, 1, lines)   # a missing ledger is empty: every flagged puzzle is unledgered
+            self.assertEqual(lines[-1], "V-09 FAIL")
+            self.assertIn("V-09 FAIL unledgered p03", lines)
+            code, lines = self.run_main(["--dir", str(d), "--ledger", str(Path(tmp) / "none.json"), "--pre-review"])
+            self.assertEqual(code, 1, lines)
+
+    def test_v09_main_pre_review_zero_reviewed_exit_0_and_ledger_warning(self):
+        files, _ = self.library(25, reviewed=False)
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.write_dir(tmp, files)
+            lp = Path(tmp) / "ledger.json"
+            lp.write_text(self.json.dumps({"ghost": {"sha256": "0", "by": "t", "date": "d"}}), encoding="utf-8")
+            code, lines = self.run_main(["--dir", str(d), "--ledger", str(lp), "--pre-review"])
+            self.assertEqual(code, 0, lines)
+            self.assertIn("V-09 warn ledger entry without file ghost", lines)
+            self.assertTrue(any("0 of 25 reviewed" in l for l in lines), lines)
+            code, lines = self.run_main(["--dir", str(d), "--ledger", str(lp)])
+            self.assertEqual(code, 1)
+
+    def test_v09_main_apk_input(self):
+        files, ledger = self.library(20)
+        with tempfile.TemporaryDirectory() as tmp:
+            apk = Path(tmp) / "tiny.apk"
+            import zipfile as _zf
+            with _zf.ZipFile(apk, "w") as z:
+                z.writestr("AndroidManifest.xml", b"x")
+                for n, raw in files.items():
+                    z.writestr("tangrams/" + n, raw)
+                z.writestr("tangrams/index.txt", "\n".join(sorted(files)) + "\n")
+            lp = Path(tmp) / "ledger.json"
+            lp.write_text(self.json.dumps(ledger), encoding="utf-8")
+            code, lines = self.run_main(["--apk", str(apk), "--ledger", str(lp)])
+            self.assertEqual(code, 0, lines)
+            lp.write_text("{}", encoding="utf-8")
+            code, lines = self.run_main(["--apk", str(apk), "--ledger", str(lp)])
+            self.assertEqual(code, 1, lines)
+            self.assertIn("V-09 FAIL unledgered p03", lines)
+
+    def test_v09_main_usage_errors_exit_2(self):
+        self.assertEqual(self.run_main(["--bogus"])[0], 2)
+        self.assertEqual(self.run_main(["--dir", "a", "--apk", "b"])[0], 2)
+        self.assertEqual(self.run_main(["--apk", "does-not-exist.apk"])[0], 2)
+        self.assertEqual(self.run_main(["--dir", "does-not-exist"])[0], 2)
+
+    def test_v09_main_is_read_only(self):
+        files, ledger = self.library(21)
+        with tempfile.TemporaryDirectory() as tmp:
+            d = self.write_dir(tmp, files)
+            lp = Path(tmp) / "ledger.json"
+            lp.write_text(self.json.dumps(ledger), encoding="utf-8")
+            before = sorted((str(p), p.read_bytes()) for p in Path(tmp).rglob("*") if p.is_file())
+            self.run_main(["--dir", str(d), "--ledger", str(lp)])
+            after = sorted((str(p), p.read_bytes()) for p in Path(tmp).rglob("*") if p.is_file())
+            self.assertEqual(before, after)
+
+    def test_v09_files_are_utf8_lf_no_nul(self):
+        for name in ("v09_release_library.py",):
+            raw = (Path(__file__).parent / name).read_bytes()
+            raw.decode("utf-8")
+            self.assertNotIn(b"\r", raw, name)
+            self.assertNotIn(b"\x00", raw, name)
+
+
 if __name__ == "__main__":
     unittest.main()

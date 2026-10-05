@@ -9,7 +9,7 @@ Start every session by reading `STATUS.md` (where things stand and what comes ne
 5. **Requirements are locked (2026-10-01, SRC-014).** Never edit a locked REQ silently: record new owner input as a source, then a defect (DEF-NNN) or a change delta `Requirements/changes/CHG-NNN.md` (SwReqCollector Phase D) for Jami to sign.
 5b. **Requirements first.** Behaviour comes from `Requirements/` (SwReqCollector format v2, ai-led capture; work there under `Requirements/CLAUDE.md`: validate, regenerate views, never set `priority` or `signoff`). `Spec/01–03` explain the design in prose; `Spec/04-requirements.md` is superseded. Technology is parked until Jami opens that topic.
 6. **Geometry is exact** in validation (`tools/tangram_geom.py`, a + b√2). Runtime locking follows `Study/06-snapping-by-anchors.md` and TYPE-004: the anchors are the outline corners and placed-piece corners only. V11 (the edge-first build order) is information for authors, not a gate: every valid tangram has one (see `Tangrams/README.md`), so never remove a puzzle "because of V11" again. Warm-ups must pass V12.
-7. **Puzzles live in `Tangrams/`**, separate from the requirements. Every file has `kind` (mini / warmup / full) and both titles (`en`, `fi`). After touching them, always run the validator and the renderer, and look at the preview sheet. Never set `provenance.reviewedByHuman` to `true`.
+7. **Puzzles live in `Tangrams/`**, separate from the requirements. Every file has `kind` (mini / warmup / full) and both titles (`en`, `fi`). After touching them, always run the validator and the renderer, and look at the preview sheet. Never set `provenance.reviewedByHuman` to `true`. Only the owner approves a puzzle, by playing the review APK and running `python tools/puzzle_review.py mark` (the AI never runs `mark` on the real tree or writes `release/puzzle-review.json`). An approved puzzle is edited only on the owner's word, and that edit resets its flag *(WO-009, DA-156)*. A new puzzle must have no enclosed pocket (validator V15; exactly three old warm-ups are grandfathered, DA-169) and 3–8 visible picture colours (V14).
 8. **Generated files:** `Spec/ui/*`, `Tangrams/previews/*`, `Spec/prototype/tangram-prototype.html` and `Requirements/views/*` are outputs. Edit the generators in `tools/` (the prototype source is `tools/prototype_template.html`).
 9. **Prototype ≠ spec.** When they disagree, the requirements win; fix the template and rebuild.
 10. **Test before calling it done:** `python tools/validate_puzzles.py Tangrams`, `python tools/build_prototype.py`, `python tools/tests/test_prototype.py` (all must pass), and the SwReqCollector `validate.py` on `Requirements/` (0 errors).
@@ -178,14 +178,16 @@ files in scope, `Requirements/views/digest.md` + `views/trace.md`,
 
 ### Current phase
 
-`P3 — WO-009 #Release` (2026-10-05). Done: G1, G3 toolchain, G2
+`P3 — all nine WOs closed; release-ready, waiting for Jami` (2026-10-05). Done: G1, G3 toolchain, G2
 (`architecture.md` v1.0), WO-001 #Locking, WO-002 #Content, WO-003 #Solving
 (first playable APK), WO-004 #Browsing + `store` (browsing, saved progress,
 **v1 save format frozen**), WO-005 #DevTools (debug-only DEV aid, V-04; API 26
 channel live, DA-92/93), WO-006 #Layout/#Language/#Promise (phone + tablet,
 fi/en, the free promise; V-08; device hygiene), WO-007 #Settings (settings screen,
 sound + haptics behind one gate, reset; platform click/vibration off; V-08 caller check)
-and WO-008 #PlayTime (`time` module: active time, best times, the timer; v1 format untouched)
-closed (checkpoints 1–8 surfaced). **Next: WO-009**
-(resume from `STATUS.md` "▶ Resume here"), then the sequence without waiting, unless
-Jami says stop. Update this line as phases advance.
+WO-008 #PlayTime (`time` module: active time, best times, the timer; v1 format untouched)
+and WO-009 #Release (Play; 25 puzzles; V-09 release gate; the owner's review tool; the
+listing / privacy / checklist drafts; the launcher icon) closed (checkpoints 1–9 surfaced).
+**Next: the owner's critical path and RELEASE-DAY** (`STATUS.md` "▶ Resume here",
+`release/release-checklist.md`); RELEASE-DAY is a mechanical checklist run, and any
+non-mechanical change goes to a short follow-up WO. Update this line as phases advance.

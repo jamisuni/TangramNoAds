@@ -1,0 +1,37 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "things-candle",
+  "title": {
+    "en": "Candle",
+    "fi": "Kynttilä"
+  },
+  "category": "things",
+  "difficulty": 2,
+  "kind": "full",
+  "solution": [
+    {"piece": "LT1", "polygon": [[4, 5], [0, 5], [2, 3]]},
+    {"piece": "LT2", "polygon": [[3, 0], [3, 4], [1, 2]]},
+    {"piece": "MT", "polygon": [[1, 0], [3, 0], [1, 2]]},
+    {"piece": "PG", "polygon": [[3, 6], [1, 6], [0, 5], [2, 5]]},
+    {"piece": "SQ", "polygon": [[0, 3], [1, 2], [2, 3], [1, 4]]},
+    {"piece": "ST1", "polygon": [[3, 4], [3, 2], [4, 3]]},
+    {"piece": "ST2", "polygon": [[2, 5], [4, 5], [3, 6]]}
+  ],
+  "art": {
+    "base": "#26305F",
+    "shapes": [
+      {"type": "path", "d": "M2,0.15 Q2.95,1.0 2.55,1.6 Q2,2.05 1.45,1.6 Q1.05,1.0 2,0.15 Z", "fill": "#F5A623", "stroke": "#F5A623", "width": 0.02},
+      {"type": "path", "d": "M2,0.75 Q2.45,1.15 2.3,1.5 Q2,1.75 1.7,1.5 Q1.55,1.15 2,0.75 Z", "fill": "#FFE066", "stroke": "#FFE066", "width": 0.02},
+      {"type": "polygon", "points": [[0, 5], [4, 5], [2, 3]], "fill": "#B0794E"},
+      {"type": "polygon", "points": [[0, 5], [4, 5], [3, 6], [1, 6]], "fill": "#6B4226"},
+      {"type": "polygon", "points": [[3, 2], [4, 3], [3, 4]], "fill": "#B0794E"},
+      {"type": "polygon", "points": [[1, 2.4], [3, 2.4], [3, 4.2], [1, 4.2]], "fill": "#F6E7C1"},
+      {"type": "polygon", "points": [[0, 3], [1, 2], [2, 3], [1, 4]], "fill": "#F6E7C1"},
+      {"type": "line", "from": [2, 1.8], "to": [2, 2.5], "stroke": "#2B2D42", "width": 0.1}
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude",
+    "reviewedByHuman": false
+  }
+}

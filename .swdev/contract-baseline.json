@@ -1,6 +1,6 @@
 {
   "delta_refrozen": {
-    "build-map.md": "2026-10-04T21:29:05"
+    "build-map.md": "2026-10-05T17:52:13"
   },
   "files": {
     "Requirements/features.md": "fab60e5a4cd539a3f317415e457591bfe579cacc3d7ab6284981ad0ea32259b9",
@@ -64,7 +64,7 @@
     "adr/ADR-005-saved-state-document.md": "76ccfbcc3315c6ce962909048c12f67b3c55dcffe83229936b3c5b8e17f36310",
     "adr/ADR-006-devtools-debug-only.md": "145a52873b1120c4206d90ee984689d54a5f5832abad519b0f2ba41ffb99640a",
     "architecture.md": "5ac89340a7dac55d7cc27d7e72d47a9ba1616575ecea892e8a3bba4b5d8b0731",
-    "build-map.md": "d7a6dfc109ac3defcefd55f55e2941b6143bd97370389648202f21474f6af591",
+    "build-map.md": "fe304e8d9ea8830fb01b6ceb95dff9e74db70c5a87d66339db88916300c8548a",
     "contracts/src/main/kotlin/io/github/jamisuni/tangram/contracts/progress/IProgressStore.kt": "0353e36e00150418e0597c09e0129fb6f5248931c648198016f399c2391f742c",
     "contracts/src/main/kotlin/io/github/jamisuni/tangram/contracts/progress/SavedGame.kt": "cbc6e11e6861bf2dafb590a6f92eaf1fbc48141a8bd1a936e29c661a37be73f5",
     "contracts/src/main/kotlin/io/github/jamisuni/tangram/contracts/puzzle/IPuzzleLibrary.kt": "4c4f4f3a94eff00e5846dc05dcd356627681b5e977d546e8d9fd7267078d5ab2",

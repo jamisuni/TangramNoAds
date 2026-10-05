@@ -28,7 +28,7 @@
       {"type": "polygon", "points": [[0, 0], [0, 2.828], [-2.828, 2.828]], "fill": "#F6E7C8"},
       {"type": "polygon", "points": [[0, 0], [0, 2.828], [2.828, 2.828]], "fill": "#E6CFA3"},
       {"type": "polygon", "points": [[0, 1.2], [0, 1.75], [-1.75, 2.828], [-1.2, 2.828]], "fill": "#3D8BFD", "opacity": 0.85},
-      {"type": "polygon", "points": [[0, 1.2], [0, 1.75], [1.75, 2.828], [1.2, 2.828]], "fill": "#3D8BFD", "opacity": 0.6},
+      {"type": "polygon", "points": [[0, 1.2], [0, 1.75], [1.75, 2.828], [1.2, 2.828]], "fill": "#3D8BFD", "opacity": 0.85},
       {"type": "line", "from": [0, 0], "to": [0, 2.828], "stroke": "#5B3A26", "width": 0.1}
     ]
   },

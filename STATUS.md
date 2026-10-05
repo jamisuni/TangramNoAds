@@ -1,6 +1,6 @@
 # STATUS: where TangramNoAds stands
 
-**Updated:** 2026-10-05 (WO-008 closed) · **Phase:** requirements **locked** and accepted (G1); architecture locked (G2); **Kotlin + Compose build under SWDev: WO-001 … WO-008 closed**: every puzzle, browsing, saved progress, the DEV aid, phone + tablet in Finnish and English, free and offline, the settings screen (sound switch, reset, the free and privacy texts), and active play time with best times and an optional timer; verified on Android 8 (API 26) and API 37; **43 of 47 locked REQs proven by tests**; WO-009 (#Release) next, the last work order.
+**Updated:** 2026-10-05 (WO-009 closed) · **Phase:** requirements **locked** and accepted (G1); architecture locked (G2); **Kotlin + Compose build under SWDev: all nine WOs closed — release-ready, waiting for Jami.** Every puzzle (25 now), browsing, saved progress, the DEV aid, phone + tablet in Finnish and English, free and offline, the settings screen, active play time with best times and a timer, a launcher icon, and the Play release kit (store texts, privacy policy, release checklist, the review tool and gate); verified on Android 8 (API 26) and API 37; **42 of 47 locked REQs proven by tests**; the last 5 need the owner's puzzle review and the live Play listing (waived until RELEASE-DAY, DA-158).
 
 ## Snapshot
 | What | State |
@@ -21,6 +21,15 @@
 | WO-001 #Locking | **closed**: exact geometry kernel + TYPE-004 lock search + drop resolution (engine/state level); 116 kernel tests, 46 acceptance tests (15 held-out, all passed on first run); release manifest has no permissions and no backup |
 | Reference fix | `tools/tangram_geom.outline_corners` now counts 180° pinch points as corners (DA-7): `shapes-warmup-4` gained the anchor (2,2); prototype rebuilt, its tests ALL PASS |
 | WO-002 #Content | **closed**: `content` module — the 13 puzzles packaged from `Tangrams/` at build time, exact parser, ordered library behind the locked `IPuzzleLibrary`; validator verdicts in the golden; 31 content tests + 15 held-out (all passed) |
+| WO-009 #Release | **closed 2026-10-05: release-ready, waiting for Jami.** Channel: Google Play; title **"Tangram Playtime"** (pending the CA-12 re-lock).
+- **Library:** 25 puzzles (12 new AI drafts, 6 themes, the square), every one still `reviewedByHuman: false` until the owner plays and approves it; new validator rules V14 (colours) and V15 (no pockets).
+- **Owner's review kit:** `release/review/app-debug-review.apk` + `release/puzzle-review-sheet.md`; approve with `python tools/puzzle_review.py mark <id>` in PowerShell or cmd.
+- **Release gate V-09:** RED until the review (0 of 25 reviewed); its `--pre-review` mode is green.
+- **Drafts:** `release/store-listing.md` (EN + FI), `release/privacy-policy.md`, `release/release-checklist.md` (35 rows: the machine checks recorded, every owner step waiting).
+- **Icon:** option A (the coloured square), adaptive, fits every launcher mask.
+- **Release safety:** the Play bundle's universal APK passes V-01 / V-04 / V-08; the API 26 release launch has no permissions.
+
+Tests: JVM 835; device 410 on each channel; held-out first run 2/2 (REQ-048 A3), 0 corrections; trace GREEN for WO scope with the five owner-evidence IDs waived. Owner items in checkpoint 9 |
 | WO-008 #PlayTime | **closed 2026-10-05**. The game now measures **active** play time. A second counts only within one minute of the last touch, and stops until the next press (the owner's wish).
 - Today's and all-time play time count every active second in the app; a puzzle's own time counts only while it is in play, and pauses in settings, the grid and when browsing away.
 - Each puzzle keeps its solve time and its fastest time as the best; slower re-solves keep the best; a DEV-aid solve sets no best.
@@ -40,30 +49,28 @@ The five sounds are synthesised in code, so there are no audio files. The haptic
 | WO-003 #Solving | **closed 2026-10-03**: the play slice (tray, drag, tap/twist turns, flip badge, landing preview, lock, corner pulse, solved picture with fade and confetti) + a minimal app shell. Tests: JVM kernel 127, content 46, play 146 (incl. 15 held-out), app 3; device (API 37) play 103, app 4 — the first puzzle is solved by real touch. Held-out first run 11/12 with 0 escaped product defects (the failure was a test defect, DA-45). Decisions DA-15…DA-45 + staffing rows; waiver DA-43 (API 26) |
 | **First playable APK** | `app/build/outputs/apk/debug/app-debug.apk` (debug). Install it with `adb install -r` or from Android Studio. WO-005 adds the DEV pill (passcode **0417**) to check every puzzle. Browse every puzzle with ‹ › (long-press › jumps to the next unsolved one) and the all-puzzles grid; progress is saved on the device and survives closing the app (the WO-003 debug `puzzle` extra is retired, DA-56) |
 
-## ▶ Resume here (WO-009 in P4 design review, paused 2026-10-05)
-0. **Where it stopped:** WO-008 is closed (checkpoint 8 surfaced). WO-009 is open: `designs/WO-009-design.md` rev 0 is written, and a fresh design review was running at the pause. Jami answered four forks (DA-153): **Google Play**, **12 new puzzles (25 total)**, **the `mark` command** (Jami only), and **an AI-proposed icon that Jami picks**.
-   - If `reviews/WO-009-design-review.md` exists with a verdict, read it and send rev 1 to the design author. Rev 1 must take in DA-153 (12 puzzles, not 10; the icon means a launcher icon resource + `android:icon`, so "no src/main change" no longer holds; Play means no channel CHG), the review findings, and "the owner" / "they" instead of "he" / "his". Then the spot-check → log the DA rows (renumbered from DA-154) and CAs → plan → plan review → G3.
-   - If it is missing or has no verdict, resume or re-dispatch a fresh design reviewer (same brief, plus the DA-153 answers).
-   - Nothing in the tree changed for WO-009 except docs (`workorders/WO-009.md`, the design, decisions, progress, STATUS). No emulator is running.
-1. Read `progress.md` (last entry), `workorders/WO-009.md`, `build-map.md` §2 (the WO-009 row with its carries C8, C11) and `workorders/WO-008.md` (closed; lessons).
-2. **WO-009 #Release (the last work order):** REQ-048 A1–A3 (store obligations) and the release checklist with manual evidence (decisions F17): REQ-001 A2, REQ-039 A2, REQ-042 A1–A3.
-   - In ← WO-002, WO-006: C8 (REQ-010 A2 on the store-bound artifact via V-01 + V-08) and C11 (REQ-001 A2 store labels).
-   - These are the only REDs left in trace-check.
-   - Some evidence is manual (the owner's store account, the listing): expect `human` rows and floors (governance) and stop for Jami where they apply.
-   - Full mode: design → design review → plan → plan review → G3 → build. Use the WO-008 plan form (quiescent landings, test authors compile outside the tree).
-3. **Device channels and hygiene:** `Medium_Phone_API_37.0` and `Phone_API_26`, one at a time, with `python tools/device_reset.py --serial S` before and after every step. At every close run V-04 (+ `--positive-control`) and V-08 (+ `--expect-debug`, the feedback-caller check), the full device suites on both channels (incl. `time` and the display gate), and the API 26 release launch.
-4. **Owner actions (open):**
-   - **WO-008 decisions (checkpoint 8):**
-     - (1) one yes/no on the counting edge cases: a finger resting still keeps counting; a hardware key press does not count; the minute after the last touch is counted;
-     - (2) the timer's look and corner on a real phone and tablet (a pill, `0:00` on a New puzzle, hidden when solved, no clock glyph; it touches the puzzle outline on some short boards, 256 of 2340 swept layouts);
-     - (3) the settings wording (all labels are prototype strings accepted at G1; no new AI Finnish);
-     - (4) the hours display (`1 h 5 min`);
-     - (5) optional: a spoken label for the timer for screen readers (needs a new string with Finnish wording).
-   - **WO-007 decisions (checkpoint 7):** the tones and tick; the after-reset puzzle (DA-120); the Finnish how-to and reset wording; the ⚙ size; platform click sounds always off; keyboard Tab into settings.
-   - **WO-006 decisions (checkpoint 6):** split-screen windows (CA-7(b)); `localeFilters` (CA-8(a)); the tablet gap 12 dp; tablets via display override; `reviews/WO-006-owner-finnish-list.md`.
-   - The first real-tablet check is done ("looks good so far"); the child's playtest is next. From before: DA-85; CA-5…CA-11 wait for a SwReqCollector session.
-   - **Future idea (2026-10-05, not a requirement):** an easy mode with a "safety rope" threaded through every piece (CA-11 in `req_review_01.md`).
-   - **Take a git snapshot**: WO-007 and WO-008 are closed and uncommitted.
+## ▶ Resume here (all nine WOs closed; release-ready, waiting for Jami, 2026-10-05)
+0. **There is no build work order left.** What remains is the owner's critical path, then RELEASE-DAY: a mechanical checklist run (`tasks.md` WO-009 "RELEASE-DAY"; `release/release-checklist.md`). Any non-mechanical change (a puzzle fix, a rejected mini or warm-up, a late text change) goes to a short follow-up WO.
+1. **Owner's critical path (start the long ones now, in parallel):**
+   - **Google Play account + identity verification + fee** (days to weeks).
+   - **Developer contact, the privacy-policy host and URL, and the repository's visibility.** A public repo exposes `progress.md`, `Requirements/evidence/` and the git history with author emails.
+   - **Review all 25 puzzles:** install `release/review/app-debug-review.apk`, solve each by hand, write approve / fix / reject in `release/puzzle-review-sheet.md`, then `python tools/puzzle_review.py mark <id> …` in PowerShell or cmd (Git Bash is refused). Doubtful figures to look at first: `people-person` (a stylised figure), `things-candle` (vase-like outline), the runner and the bird.
+   - **Finnish confirmation:** `reviews/WO-009-owner-finnish-list.md` (12 new titles; the listing; the policy labels).
+   - **The CA-12 re-lock** of REQ-048's title ("Tangram Playtime") in a SwReqCollector session; CA-10…CA-15 wait there too.
+   - **Upload / signing key** (never in the repo), **version name and code**, the **Console entries and declarations**, the **closed test** (12 testers × 14 days for new personal accounts; only reviewed puzzles in any store-track build, DA-166), **production access** (~7 days), **publish**.
+   - Optional: a deny rule in your Claude Code settings for the AI's edits of `Tangrams/*.json` and `release/puzzle-review.json` (offered, never applied by the AI; DA-168).
+2. **RELEASE-DAY (when the review and account are done):**
+   - Pre-publish: the last `mark` → remove rejects on the owner's word (then golden, `assembleDebug test`, V-04, V-09, a device smoke) → the version on the owner's word → rebuild the bundle + universal APK → V-09 strict / V-01 / V-04 / V-08 + the API 26 launch → move in `ReleaseLibraryReviewedTest` (compile outside the tree, sha256 31c3bef5… compared) → JVM + trace-check → the owner signs the scanned bundle, `zip_same_content` proves it equal → the owner uploads.
+   - Post-publish: the owner supplies the live evidence (`labels: none` etc.) → `ReleaseEvidenceTest` moves in (sha256 c8b33dc0… compared; waits for CA-12) → JVM + trace-check.
+   - The listing screenshots come from a debug-key copy after the review.
+3. **Device channels and hygiene:** `Medium_Phone_API_37.0` and `Phone_API_26`, one at a time, with `python tools/device_reset.py --serial S` before and after every step.
+4. **Owner decisions still open from earlier checkpoints:**
+   - **Checkpoint 9 (WO-009):** the puzzle review; the doubtful figures; the Finnish list; the title's Finnish form; the icon at small size; the critical path above.
+   - **Checkpoint 8 (WO-008):** one yes/no on a still held finger, a key press, and the counted minute; the timer's look and corner (it touches the outline on some short boards); the settings wording; the hours display; optional spoken timer label.
+   - **Checkpoint 7:** the tones and tick; the after-reset puzzle (DA-120); the Finnish how-to and reset wording; the ⚙ size; platform sounds always off; keyboard Tab into settings.
+   - **Checkpoint 6:** split-screen windows (CA-7(b)); `localeFilters` (CA-8(a)); the tablet gap 12 dp; tablets via display override; `reviews/WO-006-owner-finnish-list.md`.
+   - The child's playtest. From before: DA-85; CA-5…CA-15 wait for a SwReqCollector session (CA-11 and CA-15 are future ideas: the safety rope; harder levels with non-standard pieces).
+   - **Take a git snapshot**: WO-007, WO-008 and WO-009 are closed and uncommitted.
 
 ## Round history
 | Round | When | What Jami said (evidence) | What changed |

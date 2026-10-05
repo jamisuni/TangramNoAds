@@ -22,7 +22,7 @@
 | DI-2 | `Spec/02-ui-layout.md` + `Spec/ui/01–06*.png` | explanatory spec (layout algorithm, zones, sizes, visual language; annotated screenshots generated from DI-1) | agent, draft 0.4, SRC-004 | current | #Layout, #Solving (tray), #Settings WOs |
 | DI-3 | `Spec/01-gameplay.md` | explanatory spec (gameplay in prose) | agent, SRC-004 | current | #Solving, #Browsing WOs |
 | DI-4 | `Study/06-snapping-by-anchors.md` (+ `Study/08-round2-decisions.md`) | explanatory spec (the lock algorithm; frozen folder) | agent, round 1–2, SRC-004 | current, **frozen** — contains one corrected belief, see §2 | #Locking WO |
-| DI-5 | `Spec/03-puzzle-format.md`, `Tangrams/puzzle.schema.json`, `Tangrams/*.json` (13 puzzles + previews), `tools/validate_puzzles.py` (V1–V6, V8–V10, V12; V11 prints the build order), `tools/tangram_geom.py`, `tools/render_puzzle.py` | content pipeline | agent + owner-reviewed decisions (round 3, 6); puzzles not yet human-reviewed (`provenance.reviewedByHuman` false) | current | #Content WO; **governed-interface candidate** `IPuzzleLibrary` (locked tier) at P2 |
+| DI-5 | `Spec/03-puzzle-format.md`, `Tangrams/puzzle.schema.json`, `Tangrams/*.json` (13 puzzles + previews), `tools/validate_puzzles.py` (V1–V6, V8–V10, V12–V15: V13 path grammar, V14 3–8 visible colours (DA-162), V15 no enclosed pocket with three warm-ups grandfathered (DA-169); V11 prints the build order), `tools/puzzle_review.py` (the owner's review sheet and `mark`, DA-156), `tools/tangram_geom.py`, `tools/render_puzzle.py` | content pipeline | agent + owner-reviewed decisions (round 3, 6); puzzles not yet human-reviewed (`provenance.reviewedByHuman` false) | current | #Content WO; **governed-interface candidate** `IPuzzleLibrary` (locked tier) at P2 |
 | DI-6 | `AGENTS.md` rules 1, 6, 7, 11, 12, 13 | reference material (owner's standing rules) | owner (Jami) | current | project guardrail material for `architecture.md` §2 |
 | DI-7 | `Spec/00-vision.md`, `Spec/05-open-questions.md` (decision log) | reference material | agent + owner decisions | current | orientation only |
 
@@ -110,3 +110,4 @@ wins. Known disagreements:
 | 0.3 | 2026-10-04 | §2 Superseded item 5: the tablet tray gap is 12 dp, not Spec/02's 14 dp | WO-006 close; DA-100(i), REQ-037 A1 |
 | 0.4 | 2026-10-04 | §2 Superseded item 6: ⚙ 48 dp touch area, 24 dp glyph | WO-007 close; DA-119, DA-131 |
 | 0.5 | 2026-10-05 | §2 Superseded item 7: the prototype's play-time model and timer versus the build | WO-008 close; DA-134…141, DA-147 |
+| 0.6 | 2026-10-05 | DI-5: validator rules V13–V15 and the review tool; the library is 25 puzzles | WO-009 close; DA-155, DA-156, DA-162, DA-169 |

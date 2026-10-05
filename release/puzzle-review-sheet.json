@@ -1,0 +1,380 @@
+{
+  "apk_sha256": "f22c90528605a0033e744224732b6925ab1ec9a8fc100cd793867f155321d875",
+  "puzzles": [
+    {
+      "id": "shapes-mini-1",
+      "title": {
+        "en": "Mini: Pyramid",
+        "fi": "Mini: Pyramidi"
+      },
+      "theme": "shapes",
+      "colours": 4,
+      "preview": "previews/shapes-mini-1.png",
+      "kind": "mini",
+      "rating": 1,
+      "review_hash": "9a80b84fb6c41f0ab7cf8630c18836988e2ca4c75c70ec7a7dba8bc65776eb7c",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "shapes-mini-2",
+      "title": {
+        "en": "Mini: Window",
+        "fi": "Mini: Ikkuna"
+      },
+      "theme": "shapes",
+      "colours": 3,
+      "preview": "previews/shapes-mini-2.png",
+      "kind": "mini",
+      "rating": 1,
+      "review_hash": "224e57234266e51225a7c85bbc029f8c4ed0d3ddff3dc7eb6abfbf62ce240370",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "shapes-warmup-1",
+      "title": {
+        "en": "Warm-up 1",
+        "fi": "Lämmittely 1"
+      },
+      "theme": "shapes",
+      "colours": 3,
+      "preview": "previews/shapes-warmup-1.png",
+      "kind": "warmup",
+      "rating": 1,
+      "review_hash": "443b3b3d7a534270a1f66047246465ff2fcf619af5a5d08e5402dac5fa36ec8f",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "shapes-warmup-2",
+      "title": {
+        "en": "Warm-up 2",
+        "fi": "Lämmittely 2"
+      },
+      "theme": "shapes",
+      "colours": 3,
+      "preview": "previews/shapes-warmup-2.png",
+      "kind": "warmup",
+      "rating": 1,
+      "review_hash": "5fdaa1293efd0ce3deb0e0095a5f420d280db732ba200527b8c9a12d39e86590",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "shapes-warmup-3",
+      "title": {
+        "en": "Warm-up 3",
+        "fi": "Lämmittely 3"
+      },
+      "theme": "shapes",
+      "colours": 3,
+      "preview": "previews/shapes-warmup-3.png",
+      "kind": "warmup",
+      "rating": 1,
+      "review_hash": "db18f02599e368c4c8bbd70d50488e2ed0ad8b3fb4ba3cf9344e8aee144b1e81",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "shapes-warmup-4",
+      "title": {
+        "en": "Warm-up 4",
+        "fi": "Lämmittely 4"
+      },
+      "theme": "shapes",
+      "colours": 3,
+      "preview": "previews/shapes-warmup-4.png",
+      "kind": "warmup",
+      "rating": 1,
+      "review_hash": "4995f9a5056442367ca22470fb0390994e10cc70063f73be333be3fc38b07fad",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "animals-fish",
+      "title": {
+        "en": "Fish",
+        "fi": "Kala"
+      },
+      "theme": "animals",
+      "colours": 6,
+      "preview": "previews/animals-fish.png",
+      "kind": "full",
+      "rating": 2,
+      "review_hash": "cccd54619937f2afb4bdb1aba449518aa0ef75d9ee73de6e3d184999c321f515",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "nature-tree",
+      "title": {
+        "en": "Tree",
+        "fi": "Puu"
+      },
+      "theme": "nature",
+      "colours": 7,
+      "preview": "previews/nature-tree.png",
+      "kind": "full",
+      "rating": 2,
+      "review_hash": "1d12592749aa0caf2a349b25cf85bb401053cb2dec8365c5cfcc0df87d8c30d3",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "things-arrow",
+      "title": {
+        "en": "Arrow",
+        "fi": "Nuoli"
+      },
+      "theme": "things",
+      "colours": 7,
+      "preview": "previews/things-arrow.png",
+      "kind": "full",
+      "rating": 2,
+      "review_hash": "5a9c2779f753bf651fa14af31f0d86373660cc78d25271049e87e497d41ff9a8",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "things-candle",
+      "title": {
+        "en": "Candle",
+        "fi": "Kynttilä"
+      },
+      "theme": "things",
+      "colours": 7,
+      "preview": "previews/things-candle.png",
+      "kind": "full",
+      "rating": 2,
+      "review_hash": "5707df4d48fa79c8f22f3aa1be55fff437ca5a0cb7c58791b504dc91324713a3",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "things-house",
+      "title": {
+        "en": "House",
+        "fi": "Talo"
+      },
+      "theme": "things",
+      "colours": 8,
+      "preview": "previews/things-house.png",
+      "kind": "full",
+      "rating": 2,
+      "review_hash": "d3935f3036611d5591da370e28c2f7237d3a209cc838415ada33a8fe7f90c023",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "vehicles-car",
+      "title": {
+        "en": "Car",
+        "fi": "Auto"
+      },
+      "theme": "vehicles",
+      "colours": 6,
+      "preview": "previews/vehicles-car.png",
+      "kind": "full",
+      "rating": 2,
+      "review_hash": "87211a3406ca4dfc5d828010c962c54f0f528816cb4c41547abf074ae25bc260",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "vehicles-rocket",
+      "title": {
+        "en": "Rocket",
+        "fi": "Raketti"
+      },
+      "theme": "vehicles",
+      "colours": 6,
+      "preview": "previews/vehicles-rocket.png",
+      "kind": "full",
+      "rating": 2,
+      "review_hash": "de3cc82fdec785ecbe83bd9806de9706e1a7061aefc8389c0b7586b70bd8aead",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "animals-bird",
+      "title": {
+        "en": "Bird",
+        "fi": "Lintu"
+      },
+      "theme": "animals",
+      "colours": 5,
+      "preview": "previews/animals-bird.png",
+      "kind": "full",
+      "rating": 3,
+      "review_hash": "3ef08d1a8d0e608f5fcf470cd568ae2e92c4e3179b375ec1b2cdf6d8992c41ff",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "animals-cat",
+      "title": {
+        "en": "Cat",
+        "fi": "Kissa"
+      },
+      "theme": "animals",
+      "colours": 8,
+      "preview": "previews/animals-cat.png",
+      "kind": "full",
+      "rating": 3,
+      "review_hash": "bcca969e3292e06a1b2fc9de855c1eb1eb6fd75fe1a53ae2b7da7f4d1322881f",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "animals-rabbit",
+      "title": {
+        "en": "Rabbit",
+        "fi": "Kani"
+      },
+      "theme": "animals",
+      "colours": 5,
+      "preview": "previews/animals-rabbit.png",
+      "kind": "full",
+      "rating": 3,
+      "review_hash": "73ef054f3085eae9cfecc1ffc25d38cdc55bc3c06b345c04db7dba0665354661",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "nature-cactus",
+      "title": {
+        "en": "Cactus",
+        "fi": "Kaktus"
+      },
+      "theme": "nature",
+      "colours": 7,
+      "preview": "previews/nature-cactus.png",
+      "kind": "full",
+      "rating": 3,
+      "review_hash": "f992b364bbf696a0e1e673f1be4e37a818d20265f83c8dc04c38655f8f243d43",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "nature-flower",
+      "title": {
+        "en": "Flower",
+        "fi": "Kukka"
+      },
+      "theme": "nature",
+      "colours": 6,
+      "preview": "previews/nature-flower.png",
+      "kind": "full",
+      "rating": 3,
+      "review_hash": "73986864140619169279a30e12ccccf33b44186f016188826329fd149db5f1d1",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "people-person",
+      "title": {
+        "en": "Person",
+        "fi": "Ihminen"
+      },
+      "theme": "people",
+      "colours": 6,
+      "preview": "previews/people-person.png",
+      "kind": "full",
+      "rating": 3,
+      "review_hash": "e2c8d16badb75239010360844a8d2bd16d1a1fb6819550679de9399aecd21204",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "shapes-rectangle",
+      "title": {
+        "en": "Chocolate bar (rectangle)",
+        "fi": "Suklaalevy (suorakulmio)"
+      },
+      "theme": "shapes",
+      "colours": 3,
+      "preview": "previews/shapes-rectangle.png",
+      "kind": "full",
+      "rating": 3,
+      "review_hash": "2c3edd6f886d9d70ebf843449567d8fb32377d2079edcd9849bd5fac214eec49",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "things-key",
+      "title": {
+        "en": "Key",
+        "fi": "Avain"
+      },
+      "theme": "things",
+      "colours": 4,
+      "preview": "previews/things-key.png",
+      "kind": "full",
+      "rating": 3,
+      "review_hash": "efcd17f87679ea97eb362e88d29a869603ea5a22bdbb027a80bb998c3b2cc815",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "vehicles-sailboat",
+      "title": {
+        "en": "Sailboat",
+        "fi": "Purjevene"
+      },
+      "theme": "vehicles",
+      "colours": 8,
+      "preview": "previews/vehicles-sailboat.png",
+      "kind": "full",
+      "rating": 3,
+      "review_hash": "bae8c00587fb6d5a656a946bb0f3c87bbc2f0f7937f70a0d40c9c9dce53cd4b4",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "nature-mountain",
+      "title": {
+        "en": "Mountain",
+        "fi": "Vuori"
+      },
+      "theme": "nature",
+      "colours": 6,
+      "preview": "previews/nature-mountain.png",
+      "kind": "full",
+      "rating": 4,
+      "review_hash": "6345adb3e5ff92dc4fc28e1c017b52770b82c8cdb0ee1a125d6a95f115f38f5d",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "people-runner",
+      "title": {
+        "en": "Runner",
+        "fi": "Juoksija"
+      },
+      "theme": "people",
+      "colours": 6,
+      "preview": "previews/people-runner.png",
+      "kind": "full",
+      "rating": 4,
+      "review_hash": "e1c8b6ee8eb1312d59ac26708547d2c209d307069506d510e8016fe67211d969",
+      "status": "waiting",
+      "decision": ""
+    },
+    {
+      "id": "shapes-square",
+      "title": {
+        "en": "Gift box",
+        "fi": "Lahjapaketti"
+      },
+      "theme": "shapes",
+      "colours": 5,
+      "preview": "previews/shapes-square.png",
+      "kind": "full",
+      "rating": 4,
+      "review_hash": "ce5066bbdb661679a460b45da8bf8e0c46063ca7bb3c6722c99158551655c32f",
+      "status": "waiting",
+      "decision": ""
+    }
+  ]
+}

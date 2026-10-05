@@ -886,3 +886,101 @@ entries below and in the tasks.md TASK-018b row).
   - Pause: no new jobs. The running WO-009 design review may finish; its result will only be recorded.
   - STATUS "▶ Resume here" now reads: WO-009 in design review, with the DA-153 answers and what rev 1 must take in; what to do if the review file is or is not there.
   - No emulator is running. Nothing is committed (WO-007 and WO-008 are closed and uncommitted).
+- **Turn (Jami, 2026-10-05):** "plz continue"
+  - Resumed. `reviews/WO-009-design-review.md` was complete (written before the pause): **recirculate, 2 B / 9 S**.
+  - B1: the five F17 tokens on rule tests and drafts are coverage theater; keep them RED and waived.
+  - B2: Play bars "free" in titles. A web check confirmed it: the 2021 Play metadata policy forbids pricing words such as "free" in the title.
+- **Turn (Jami, answer):** "Google Play rejects 'free' in an app title, but the approved requirement fixes the title as 'Tangram, absolutely free'. What should we do?"="Change the title (Recommended)"
+  - An owner decision on a locked REQ (row 14, F1): Jami approves a change to REQ-048's title. The AI drafts the CHG proposal (CA-12); the capture side records it, and Jami picks the exact name. Logged as DA-154.
+  - Rev 1 dispatched to the design author with B1 (as the reviewer proposes), B2 (resolved), DA-153's answers, S1–S9 and the pronoun fix.
+- **WO-009 design rev 1 in:** all findings answered, no disputes.
+  - B1: the five F17 IDs stay RED under one row-16 waiver; the real carriers are staged and proven red, then moved in on release day.
+  - B2: CA-12, with three title candidates.
+  - 25 puzzles; the V14 colour rule; the `mark` re-approval and its `review_hash` binding; the reject / fix path; SPIKE-BUNDLE early.
+  - The icon is a small product change (DA-164).
+  - Spot-check dispatched. The title pick was asked of Jami (owner stop 1).
+- **Turn (Jami, answer):** "Which store title should Tangram have on Google Play? (The 'absolutely free, no ads' promise moves into the short description and stays in the app.)"="No seven, no classic.. as both of those we going to break someday to have harder level with non-standard pieces / etc. 'Tangram Playtime'"
+  - **Owner's pick: the store title is "Tangram Playtime"** (CA-12 / DA-154).
+  - It has no promotional word, is 16 characters, and is in neither the "seven" nor the "classic" form. The Finnish listing title goes on the Finnish confirmation list (default: the same name).
+  - **New future idea, not a requirement:** "someday … harder level with non-standard pieces". Recorded as **CA-15**. Note that the earlier Easy / Medium / Hard levels were withdrawn (REQ-004/027/028); this would be a new feature.
+- **WO-009 rev 1 spot-check: forward** (0 B / 4 S / 9 N), once E1–E4 are written back:
+  - E1: get the icon pick early; D-1 waits for TASK-098; round the vector path data and grep it for `0417`.
+  - E2: SHA-pin the staged carriers, give them fail-loud canaries, and make them compare recorded values.
+  - E3: split RELEASE-DAY into pre-publish and post-publish; every non-mechanical change goes to a follow-up WO.
+  - E4: owner stops with lead times; the account starts in parallel with the review; a DA on closed-test uploads carrying unreviewed puzzles (recommended: no).
+- **WO-009 design rev 2 in** (E1–E4 + Notes; the title "Tangram Playtime"). DA-155…166 logged; CA-12, 13 and 14 written (CA-15 recorded earlier).
+- **Plan v1.17 written** (`tasks.md`, WO-009 section, orchestrator as planner).
+  - The steps: build step, bundle spike, V14 + picture fixes, three puzzle batches with quiescent landings (the derived pins land with the first), the Python tools beside them, the docs, the icon options → Jami's pick → the icon change, the JVM move-in, the held compile, CR-8, both channels, release safety, T&V9 (staged carrier expected red), AUDIT9, CLOSE9.
+  - RELEASE-DAY is a two-phase checklist after the close.
+  - Fresh plan review dispatched.
+- **WO-009 plan review: recirculate (narrow), 1 B / 14 S / 11 N.**
+  - B1: the held REQ-048.A3 method never reached the tree, so AUDIT9's "exactly five RED" would fail.
+  - **Plan v1.18 answers all 26:** HELD-IN9; SHEET9 (the review APK + sheet, built last); controls proving the staged carriers can fail and pass; manual checklist rows stay `waiting-for-owner` (an owner floor); the full T9d grep list with androidTest compiles at each landing; DEV-EARLY9 / DEV-ICON9; an icon cutoff; HELD-COMPILE9 outside the tree; 094b for the Finnish list; the SPIKE fallback branches and a signing control; the owner's version step and a device smoke on RELEASE-DAY; lead times told to Jami with the icon ask; routing rows; CLOSE9 items.
+  - Spot-check dispatched.
+- **WO-009 plan spot-check: forward** (0 B / 1 S / 3 N).
+  - E1 applied: T&V9 backs up and overlays the held file, keeps it on PASS and restores on anything else; HELD-IN9 confirms.
+  - N12–N14 applied. Plan v1.19.
+- **G3 passed** (governance row 7 = ai). Build starts: TASK-090 (sonnet, alone) and the Test Author on T9d + T9c.
+- **TASK-090 done** (signing material ignored; a releaseDocs test input; input proof passed; build files frozen). **SPIKE-BUNDLE done:** AGP's universal-APK task exists; the bundle + the unsigned universal APK were built and hashed; V-04 + V-08 PASS on it; no bundletool needed.
+- Dispatched beside each other: TASK-091-0 (the V14 colour rule + the 13 existing pictures, the only Tangrams/ writer), TASK-097 (three icon options under release/icon-options/), TASK-092 (puzzle_review.py, fixture tests only), TASK-096 (zip_same_content.py). TASK-094 (the release docs) waits until after LAND-0, so it never writes release/*.md during a landing step.
+- **TASK-092 delivered** (puzzle_review.py, 17 fixture tests OK, the orchestrator re-ran them; the real Tangrams/ is refused without the CLI; the ledger is a flat JSON keyed by id {sha256, by, date}). Follow-up asked: the sheet gains theme, the V14 colour count and a preview link (design §3).
+- **Turn (Jami, answer):** "Which launcher icon should Tangram Playtime use? (Pictures: release/icon-options/option-A-512.png, -B-, -C-)"="A: coloured square"
+  - The owner's icon pick is option A: the seven pieces as a square on cream (DA-167). TASK-098 builds it after LAND-c, alone.
+  - The owner critical path (the account and identity, the contact, the policy URL, the closed test with 12 testers for 14 days, production access) was told to Jami with the ask (S12).
+- **TASK-091-0 / 092 / 096 / 097 done; LAND-0 green (JVM 816).** Two pictures were brought inside V14 (house, sailboat); solutions byte-equal. The icon pick is A. Next dispatched: TASK-091a (batch a), TASK-093 (V-09), TASK-094 (release docs).
+- **TASK-094 delivered** (`release/` store listing EN + FI with "Tangram Playtime" pending the CHG, the privacy policy containing the in-app sentence verbatim, and a 12-row checklist with every row `waiting-for-owner`).
+  - Follow-up asked: drop "seven pieces" from the descriptions, per the owner's reason for the title.
+- **T9d staged** (11 edited + 1 new `GridScroll.kt`).
+  - The four pins of 13 are now derived; the grid loops scroll.
+  - The grep also found `HeldSolvedFindAppTest` and `LocaleSeamSmokeScaffoldingTest`.
+  - Proven with 13 and with 25 puzzles in a copy outside the tree. It lands at LAND-a after batch a.
+- **TASK-093 done** (V-09: strict + --pre-review, read-only, imports review_hash; verifier tests 114 OK; real tree strict 0 of 13 reviewed, exit 1 as designed).
+- **TASK-094 done** (the piece count dropped from the listing; short.fi shortened to fit 80 characters).
+- **T9c staged.** The in-tree tests (ReleaseLibraryTest, the doc decision tests, the V-09 acceptance file with 34 tests OK against the real V-09) are ready for MOVE-JVM9.
+  - The two staged carriers were proven red on the right assertion lines today and green on positive scratch inputs, with their sha256 recorded.
+  - The evidence record format is `key: value` lines, used on RELEASE-DAY.
+- **T9b done** (the held REQ-048.A3 method withheld and compiled outside the tree; the in-tree twin untouched).
+- **TASK-091a done** (rabbit, bird, fish, runner, person; validator 18/18; golden 18). The orchestrator read every sheet; the person's outline resembles the arrow puzzle (flagged for Jami's review).
+- **LAND-a done:** T9d landed after all base SHAs matched; diffs read (none weakened). JVM 816/816 with 18 puzzles; every androidTest compiles; kits equal.
+- Next: TASK-091b (things + vehicles, 4).
+- **TASK-091b + LAND-b done:** candle, key, rocket, car (validator 22/22; JVM 816/816 with 22 puzzles). Next: TASK-091c (nature: tree, flower, cactus).
+- **TASK-091c + LAND-c done:** tree, flower, cactus → **25 puzzles, 6 themes, square present**; V-09 --pre-review PASS, strict FAIL 0 of 25 reviewed (by design); JVM 816/816. Next: TASK-098 (the icon, alone) ∥ 094b (the Finnish list + the README table).
+- **TASK-094b done** (the owner Finnish list: 12 titles + the listing + the policy labels, count 12 = 12; the README table +12 rows).
+- **TASK-098 done** (adaptive icon A + android:icon; V-01, ReleaseSeparationTest 31/31, the app promise scans 68/68 re-run by the orchestrator). Starting DEV-EARLY9 + DEV-ICON9 on API 37.
+- **DEV-EARLY9 started** on API 37 (emulator-5554, confirmed; reset clean): the browse, play and app suites on the 25-puzzle library with the icon. Running in the background.
+- **DEV-EARLY9 green** on API 37 (browse 31, play 188, app 146; 22 min). **DEV-ICON9 run 1:** the circular mask clips the icon's corners (the foreground exceeds the 66 dp safe zone), so TASK-098b scales it in; screenshot kept.
+- **TASK-098b done; DEV-ICON9 run 2:** the icon now fits the circular mask (screenshot saved). Next: MOVE-JVM9 (quiescent: T9c's in-tree tests).
+- **MOVE-JVM9 done** (JVM 835/835; verifiers 114 + 34 OK; no in-tree file carries a waived token). trace-check RED on REQ-001 A2, REQ-039 A2, REQ-042 A1, REQ-048 A1/A2/A3 (A3 closes at HELD-IN9). **HELD-COMPILE9 done** outside the tree. CR-8 dispatched.
+- **CR-8: revise (narrow)**, 0 B / 6 S / 10 N. All six are being fixed in parallel: 092b (the sheet + mark tests), 094c (the full checklist + the owner-only flag row), 091d (redraw people-person), 096b (zip duplicates), the Test Author (N2). DA-168 logged, incl. the S4 honest limit with an optional owner deny rule.
+- **094c done:** the checklist now has 36 rows (+8 machine, +15 owner with lead times, +1 owner-only flag row with the optional deny rule); every new row waiting with empty evidence. Its test runs at the CR-8-FIX landing.
+- **092b done** (the sheet table 12 cells; preview links relative to release/; the CLI mark confirmation paths tested; refusals and a failed golden refresh exit 1). puzzle_review tests 25 OK (re-run by the orchestrator).
+- **N2 fixed** in the staged ReleaseEvidenceTest (an empty labels/title/link fails loudly; the positive form is `labels: none`); controls re-run outside the tree; new full sha c8b33dc0… recorded (ReleaseLibraryReviewedTest unchanged 31c3bef5…).
+- **096b done** (duplicate entries → exit 1; zip tests 17 OK, re-run by the orchestrator). Waiting for 091d (people-person).
+- **CR-8-FIX landed:** all fixes in; the validator 25/25; JVM 835/835; Python self-tests OK; V-09 --pre-review PASS. The CR-8 re-run on the changed parts dispatched.
+- **CR-8 re-run: forward.** MOVE-DEV9 started on API 37 (the gate + 6 suites, background).
+- **MOVE-DEV9 API 37 run 1:** all green except 3 people-person pixel tests. The cause: the redrawn person encloses a small uncovered triangle, a hole (DA-169). TASK-091e adds validator rule V15 (no holes) and redraws the person a third time. API 26 waits.
+- **TASK-091e pre-check:** a strict V15 also flags 3 shipped warm-ups whose pinched pockets render fine on device. Decision (DA-169 update): V15 strict + a named exemption of exactly those 3 warm-ups; new puzzles have no pocket. The person is being redrawn pocket-free.
+- **TASK-091e done:** V15 strict with the 3-warm-up exemption (5 self-tests); people-person redrawn pocket-free (a standing figure with two legs, nearest IoU 0.53); the validator 25/25. Landing: a JVM subset, then the play device suite re-run on API 37 (background).
+- **API 37 play re-run 188/188** with the pocket-free person. Re-running browse + app on API 37, then MOVE-DEV9 on API 26.
+- **API 37 MOVE-DEV9 complete and green** (gate 10, play 188, browse 31, settings 14, time 8, app 146, devtools 13; resets clean). API 26 booted as emulator-5554 (confirmed); its full run started.
+- **MOVE-DEV9 API 26 run 1:** gate 10, play 188, browse 31, settings 14, time 8, devtools 13 all green; **app stopped at 85/146** with one message-less failure (LanguageFinnishAppTest decisionDA103 [TABLET_600x960]) during a display override. That looks like a harness or instrumentation abort (the API 26 launcher relaunches on display change). The run-1 results are saved in the scratchpad; app re-running once.
+- The API 26 app re-run returned in 6 s with no results (it did not run). It is now running for real, in the foreground job moved to background; the device was clean from the previous step's after-reset, and nothing touched it in between.
+- **MOVE-DEV9 done on both channels.** API 26: all suites green; the app suite's first run was an instrumentation abort at 85/146, and its second run passed 146/146. The icon is correct in the API 26 launcher.
+- **TASK-099 done:**
+  - JVM 835/835 and V-05/06/07 PASS.
+  - V-09 strict FAILs as designed (0 of 25 reviewed); `--pre-review` PASS.
+  - The real-file controls behave on a scratch copy (pass / stale / unledgered), and the real tree is untouched.
+  - The universal APK passes V-01, V-04 and V-08.
+  - The signing control: signed = scanned (exit 0); a tampered copy is caught (exit 1).
+  - The API 26 release launch: ok, 828 ms, 0 FATAL, no permissions.
+  - The positive controls PASS.
+  - The listing screenshots are deferred until after the review.
+- **T&V9 PASS** (carriers proven both ways; the held REQ-048.A3 green on both channels at first run; 0 escaped defects; DA-170). **HELD-IN9 done:** trace-check RED on exactly the five waived IDs. AUDIT9 dispatched.
+- **AUDIT9 GREEN with the waiver** (the RED list equals exactly the five waived IDs; owner floors intact).
+- **SHEET9:** the owner's review APK (`release/review/app-debug-review.apk`, sha256 f22c9052…) and `release/puzzle-review-sheet.md` (25 rows, waiting).
+- **CLOSE9 done — WO-009 closed: release-ready, waiting for Jami.**
+  - The checklist's 10 machine rows were recorded done with evidence; V-09 strict and signed = scanned wait for RELEASE-DAY; every owner row is waiting.
+  - The workorder has the DA-158 waiver row with the full carrier SHAs and exit conditions; DoD 11/11 with the waiver wording.
+  - build-map v1.8; design-inputs 0.6; AGENTS rule 7 + the phase line; README 25 puzzles; STATUS (resume = the owner's critical path + RELEASE-DAY); proposals (two friction notes).
+  - **42 of 47 locked REQs proven; the last 5 need the owner's review and the live listing.**
+  - Checkpoint 9 surfaced; the close snapshot prompted.

@@ -1,0 +1,37 @@
+{
+  "format": "tangram-puzzle/1",
+  "id": "vehicles-car",
+  "title": {
+    "en": "Car",
+    "fi": "Auto"
+  },
+  "category": "vehicles",
+  "difficulty": 2,
+  "kind": "full",
+  "solution": [
+    {"piece": "LT1", "polygon": [[7, 2], [3, 2], [5, 0]]},
+    {"piece": "LT2", "polygon": [[1, 2], [5, 2], [3, 4]]},
+    {"piece": "MT", "polygon": [[7, 0], [7, 2], [5, 0]]},
+    {"piece": "PG", "polygon": [[8, 3], [6, 3], [5, 2], [7, 2]]},
+    {"piece": "SQ", "polygon": [[4, 3], [5, 2], [6, 3], [5, 4]]},
+    {"piece": "ST1", "polygon": [[2, 3], [0, 3], [1, 2]]},
+    {"piece": "ST2", "polygon": [[7, 2], [9, 2], [8, 3]]}
+  ],
+  "art": {
+    "base": "#E8505B",
+    "shapes": [
+      {"type": "polygon", "points": [[4.1, 1.8], [5.3, 0.5], [6.7, 0.5], [6.7, 1.8]], "fill": "#BFE3F7"},
+      {"type": "line", "from": [5.7, 0.5], "to": [5.7, 1.8], "stroke": "#E8505B", "width": 0.12},
+      {"type": "line", "from": [0, 2.55], "to": [9, 2.55], "stroke": "#FFFFFF", "width": 0.1},
+      {"type": "circle", "c": [3, 3.1], "r": 0.85, "fill": "#2B2D42"},
+      {"type": "circle", "c": [3, 3.1], "r": 0.35, "fill": "#C9CED6"},
+      {"type": "circle", "c": [5, 3.1], "r": 0.85, "fill": "#2B2D42"},
+      {"type": "circle", "c": [5, 3.1], "r": 0.35, "fill": "#C9CED6"},
+      {"type": "circle", "c": [8.4, 2.3], "r": 0.28, "fill": "#FFD23F"}
+    ]
+  },
+  "provenance": {
+    "author": "ai:claude",
+    "reviewedByHuman": false
+  }
+}

@@ -1,0 +1,21 @@
+WO-009 machine evidence (recorded by the AI at TASK-099 / T&V9, 2026-10-05). Machine rows only; manual rows are the owner's.
+These lines are for the build at WO-009 close. RELEASE-DAY re-runs every machine check on the rebuilt, reviewed artifact.
+
+Store-bound artifact (Play):
+  bundle    app/build/outputs/bundle/release/app-release.aab sha256 36f78a73... (TASK-099 step 4)
+  universal app/build/outputs/apk_from_bundle/release/app-release-universal-unsigned.apk sha256 29a27e974f695d446d8b...
+  (the reviewed library changes these; re-run on RELEASE-DAY)
+
+M-V01   V-01 PASS (merged release manifest)
+M-V04   V-04 PASS on the universal APK; V-04 POSITIVE-CONTROL PASS (all 4 marker kinds) on a fresh debug APK
+M-V08   V-08 PASS (release) on the universal APK, incl. the feedback-caller check; V-08 PASS (debug) with --expect-debug
+M-V09-PRE  V-09 --pre-review PASS on Tangrams/ and on the universal APK: 25 puzzles, 6 themes, shapes-square present (0 of 25 reviewed, info only)
+M-V09-STRICT (not done) V-09 strict FAIL "count 0 of 25 reviewed (< 20)", exit 1, as designed until the owner's last mark
+M-SCAN  the bundle + universal APK built and scanned (sha256 above)
+M-API26 API 26 (Phone_API_26) launch of a debug-key-signed scratchpad copy of the universal APK: Status ok, TotalTime 828 ms, MainActivity resumed, 0 FATAL, dumpsys package lists no requested and no install permission entries
+M-SIGNED (not done) RELEASE-DAY; the control passed with the local debug key: zip_same_content signed vs scanned exit 0, a tampered copy exit 1
+
+REQ-042.A2  ReleaseLibraryTest (content, real library): 6 themes (animals 4, people 2, things 4, vehicles 3, nature 4, shapes 8) >= 4: green (JVM 835/835)
+REQ-042.A3  ReleaseLibraryTest: shapes-square present: green
+REQ-048.A3  held HeldInstalledPermissionsAppTest req048_A3 (the installed app requests and defines no permissions; control on the android package): PASS on API 26 and API 37 at its first run (T&V9); plus M-V01, M-V08, M-API26 above. The store-side check is the owner's row store-side-A3.
+C8          HeldInstalledPermissionsAppTest req010_A2: PASS on API 26 and API 37; V-01 + V-08 on the universal APK above

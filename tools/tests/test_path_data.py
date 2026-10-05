@@ -38,7 +38,9 @@ class PathData(unittest.TestCase):
         self.assertEqual(parse_path_data("M0 -1.5L.5,2 Z")[1], ("L", [0.5, 2.0]))
 
     def art(self, d):
-        return {"base": "#FFFFFF", "shapes": [{"type": "path", "d": d, "stroke": "#000000"}]}
+        # a third colour keeps V14 (3..8 colours, DA-162) quiet: this test is about V13
+        return {"base": "#FFFFFF", "shapes": [{"type": "path", "d": d, "stroke": "#000000"},
+                                              {"type": "circle", "c": [0, 0], "r": 1, "fill": "#808080"}]}
 
     def test_validator_reports_v13(self):
         self.assertEqual(validate_art(self.art("M0 0L1-2Z")), [])
